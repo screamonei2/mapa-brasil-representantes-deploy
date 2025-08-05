@@ -26,4 +26,4 @@ dist/
 
 # Cache
 .cache/
-.parcel-cache/ 
+.parcel-cache/ geojs-100-mun-v2.json
