@@ -374,6 +374,7 @@
             // --- FUNÇÕES DE TRANSFORMAÇÃO DE DADOS ---
 
             function transformRepresentativesData(rawData) {
+                console.log('🔄 Transformando dados dos representantes...');
                 const representativesMap = new Map();
                 const locationMap = new Map();
                 let colorIndex = 0;
@@ -389,7 +390,7 @@
                 };
 
                 // Verificar se os dados estão no formato esperado
-                console.log('Estrutura dos dados recebidos:', Object.keys(rawData));
+                console.log('📊 Estrutura dos dados recebidos:', Object.keys(rawData));
                 
                 // Verificar se existe a propriedade 'representantes'
                 const dadosRepresentantes = rawData.representantes || rawData;
@@ -484,6 +485,13 @@
                 }
 
                 representativesByLocation = locationMap;
+                
+                console.log(`✅ Transformação concluída:`);
+                console.log(`📊 Total de representantes: ${representativesMap.size}`);
+                console.log(`📊 Total de localizações: ${locationMap.size}`);
+                console.log(`📊 Total de mapeamentos município-representante: ${municipioRepresentativeMap.size}`);
+                console.log(`📋 Primeiras 5 chaves do municipioRepresentativeMap:`, Array.from(municipioRepresentativeMap.keys()).slice(0, 5));
+                
                 return Array.from(representativesMap.values());
             }
 
@@ -677,6 +685,7 @@
                 
                 // Se estamos no modo municípios, verificar municípios PRIMEIRO
                 if (municipiosLayer && viewMode === 'municipios') {
+                    console.log('🔍 Verificando municípios primeiro (modo municípios ativo)');
                     let clickedMunicipio = null;
                     municipiosLayer.eachLayer(layer => {
                         if (layer.getBounds().contains(latlng)) {
@@ -703,21 +712,96 @@
                         const municipioName = props.name || props.nome || props.municipio || props.description;
                         if (municipioName) {
                             console.log('✅ Clique interceptado em MUNICÍPIO:', municipioName);
+                            console.log('📍 Estado atual:', currentState);
+                            console.log('📍 ViewMode:', viewMode);
                             
+                            // Verificar a qual estado o município pertence
+                            const municipioState = getMunicipioState(props);
+                            console.log('📍 Estado do município:', municipioState);
+                            
+                            // Se o município pertence a um estado diferente do atual
+                            if (currentState && municipioState && municipioState !== currentState.code) {
+                                console.log('🔄 Município pertence a estado diferente. Carregando novo estado...');
+                                
+                                // Encontrar o estado correto no mapa
+                                const targetStateLayer = findStateLayerByCode(municipioState);
+                                if (targetStateLayer) {
+                                    console.log('🔄 Carregando estado:', municipioState);
+                                    const fakeEvent = {
+                                        target: targetStateLayer,
+                                        latlng: latlng,
+                                        originalEvent: e.originalEvent
+                                    };
+                                    handleStateClick(fakeEvent);
+                                    return;
+                                }
+                            }
+                            
+                            // Reset do município selecionado anterior
                             if (selectedMunicipioLayer) {
                                 municipiosLayer.resetStyle(selectedMunicipioLayer);
                             }
                             
+                            // Selecionar o novo município
                             selectedMunicipioLayer = clickedMunicipio;
                             selectedMunicipioLayer.setStyle(municipioSelectedStyle);
                             
+                            // Mostrar os representantes do município
                             filterByMunicipio(municipioName);
+                            
+                            // Scroll para os resultados
+                            document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
                             return; // Parar aqui, não processar estado
+                        }
+                    } else {
+                        console.log('❌ Nenhum município encontrado no clique - verificando se é clique em estado diferente');
+                        
+                        // Se não encontrou município, verificar se é clique em estado diferente
+                        let clickedState = null;
+                        geoJsonLayer.eachLayer(layer => {
+                            if (layer.getBounds().contains(latlng)) {
+                                const feature = layer.feature;
+                                if (feature.geometry.type === 'Polygon') {
+                                    const coords = feature.geometry.coordinates[0].map(coord => ({lat: coord[1], lng: coord[0]}));
+                                    if (pointInPolygon(latlng, coords)) {
+                                        clickedState = layer;
+                                    }
+                                } else if (feature.geometry.type === 'MultiPolygon') {
+                                    for (let polygon of feature.geometry.coordinates) {
+                                        const coords = polygon[0].map(coord => ({lat: coord[1], lng: coord[0]}));
+                                        if (pointInPolygon(latlng, coords)) {
+                                            clickedState = layer;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        
+                        if (clickedState) {
+                            const clickedStateCode = getStateCode(clickedState.feature.properties);
+                            const clickedStateName = clickedState.feature.properties.nome || clickedState.feature.properties.name || clickedState.feature.properties.NAME;
+                            
+                            // Verificar se é um estado diferente do atual
+                            if (currentState && currentState.code !== clickedStateCode) {
+                                console.log('🔄 Clique em estado diferente detectado:', clickedStateName, '(', clickedStateCode, ')');
+                                console.log('🔄 Estado atual:', currentState.name, '(', currentState.code, ')');
+                                
+                                // Fazer reset completo e carregar novo estado
+                                const fakeEvent = {
+                                    target: clickedState,
+                                    latlng: latlng,
+                                    originalEvent: e.originalEvent
+                                };
+                                handleStateClick(fakeEvent);
+                                return;
+                            }
                         }
                     }
                 }
                 
                 // Se não clicou em município ou não estamos no modo municípios, verificar estados
+                console.log('🔍 Verificando estados...');
                 let clickedState = null;
                 geoJsonLayer.eachLayer(layer => {
                     if (layer.getBounds().contains(latlng)) {
@@ -743,12 +827,29 @@
                 // Se clicou em um estado, processar como estado
                 if (clickedState) {
                     console.log('✅ Clique interceptado em ESTADO');
-                    const fakeEvent = {
-                        target: clickedState,
-                        latlng: latlng,
-                        originalEvent: e.originalEvent
-                    };
-                    handleStateClick(fakeEvent);
+                    
+                    // Verificar se é um clique em um estado diferente do atual
+                    const clickedStateCode = getStateCode(clickedState.feature.properties);
+                    const clickedStateName = clickedState.feature.properties.nome || clickedState.feature.properties.name || clickedState.feature.properties.NAME;
+                    
+                    if (currentState && currentState.code !== clickedStateCode) {
+                        console.log('🔄 Clique em estado diferente detectado. Fazendo reset completo...');
+                        // É um clique em um estado diferente - fazer reset completo
+                        const fakeEvent = {
+                            target: clickedState,
+                            latlng: latlng,
+                            originalEvent: e.originalEvent
+                        };
+                        handleStateClick(fakeEvent);
+                    } else if (!currentState) {
+                        // Primeiro clique em um estado
+                        const fakeEvent = {
+                            target: clickedState,
+                            latlng: latlng,
+                            originalEvent: e.originalEvent
+                        };
+                        handleStateClick(fakeEvent);
+                    }
                 }
             }
 
@@ -950,6 +1051,8 @@
 
             // Filtrar municípios apenas do estado selecionado
             function showMunicipios(stateCode, stateName, stateLayer) {
+                console.log(`🔍 Carregando municípios para o estado: ${stateName} (${stateCode})`);
+                
                 // Filtrar municípios do estado usando múltiplos critérios
                 const estadoMunicipios = municipiosData.features.filter(feature => {
                     const props = feature.properties;
@@ -967,24 +1070,32 @@
                     }
 
                     // Comparar com código e nome do estado
-                    return municipioState === stateCode ||
+                    const pertenceAoEstado = municipioState === stateCode ||
                         municipioState === stateName ||
                         normalize(municipioState) === normalize(stateCode) ||
                         normalize(municipioState) === normalize(stateName);
+                    
+                    if (pertenceAoEstado) {
+                        const municipioName = props.name || props.nome || props.municipio || props.description;
+                        console.log(`✅ Município ${municipioName} pertence ao estado ${stateName}`);
+                    }
+                    
+                    return pertenceAoEstado;
                 });
 
                 if (estadoMunicipios.length === 0) {
-                    console.log('Nenhum município encontrado para:', stateCode, stateName);
+                    console.log('❌ Nenhum município encontrado para:', stateCode, stateName);
                     console.log('Propriedades disponíveis no primeiro município:',
                         municipiosData.features[0]?.properties);
                     return;
                 }
 
-                console.log(`Encontrados ${estadoMunicipios.length} municípios para ${stateName}`);
+                console.log(`✅ Encontrados ${estadoMunicipios.length} municípios para ${stateName}`);
 
                 // Remover layer de municípios anterior se existir
                 if (municipiosLayer) {
                     map.removeLayer(municipiosLayer);
+                    municipiosLayer = null;
                 }
 
                 // Criar layer dos municípios com cores por representante
@@ -1011,25 +1122,15 @@
                     }
                 }, 100);
 
-                // Zoom já foi aplicado na função handleStateClick, não fazer zoom aqui
-                // para evitar conflitos e mudanças indesejadas no zoom
-
                 // Não mostrar legenda quando apenas o estado é selecionado
                 // A legenda só aparecerá quando um município específico for clicado
                 updateLegend([]);
 
                 viewMode = 'municipios';
-                mainTitle.textContent = `Municípios de ${stateName || stateCode} - Clique em um município`;
+                mainTitle.textContent = `Municípios de ${stateName || stateCode} - Clique em um município para ver os representantes`;
                 backButton.classList.remove('hidden');
                 
-                // Atualizar estilos dos municípios para refletir o novo contexto
-                if (municipiosLayer) {
-                    municipiosLayer.eachLayer(layer => {
-                        const props = layer.feature.properties;
-                        const municipioName = props.name || props.nome || props.municipio || props.description;
-                        layer.setStyle(getMunicipioStyleByRepresentative(municipioName));
-                    });
-                }
+                console.log(`🎯 Modo municípios ativado para ${stateName}. Municípios carregados: ${estadoMunicipios.length}`);
             }
 
             function zoomToMunicipio(municipioName, stateName) {
@@ -1160,7 +1261,54 @@
                     'AMAPA': 'AP', 'RORAIMA': 'RR', 'TOCANTINS': 'TO'
                 };
 
-                return stateToAbbrev[normalize(stateName).toUpperCase()] || null;
+                const normalizedStateName = normalize(stateName).toUpperCase();
+                const stateCode = stateToAbbrev[normalizedStateName];
+                
+                console.log('🔍 Convertendo nome do estado:', stateName, '->', normalizedStateName, '->', stateCode);
+                
+                return stateCode || null;
+            }
+
+            // Função para obter o estado de um município baseado nas propriedades do GeoJSON
+            function getMunicipioState(props) {
+                // Para geojs-100-mun-v2.json, extrair UF do campo uf_municipio (formato: "UF - Município")
+                let municipioState = props.uf || props.estado || props.sigla_uf ||
+                    props.UF || props.ESTADO || props.cd_geocuf;
+                
+                // Se não encontrou, tentar extrair do uf_municipio
+                if (!municipioState && props.uf_municipio) {
+                    // Tentar diferentes formatos
+                    // Formato: "UF - Município" (ex: "SP - São Paulo")
+                    let match = props.uf_municipio.match(/^([A-Z]{2})\s*-\s*/);
+                    if (match) {
+                        municipioState = match[1];
+                    } else {
+                        // Formato: "Estado - Município" (ex: "Rio Grande do Sul - Arroio do Tigre")
+                        match = props.uf_municipio.match(/^([^-]+)\s*-\s*/);
+                        if (match) {
+                            const estadoNome = match[1].trim();
+                            // Converter nome do estado para sigla
+                            municipioState = getStateCodeByName(estadoNome);
+                        }
+                    }
+                }
+
+                console.log('🔍 Propriedades do município:', props);
+                console.log('🔍 Estado extraído:', municipioState);
+                
+                return municipioState;
+            }
+
+            // Função para encontrar a layer de um estado pelo código
+            function findStateLayerByCode(stateCode) {
+                let targetLayer = null;
+                geoJsonLayer.eachLayer(layer => {
+                    const layerStateCode = getStateCode(layer.feature.properties);
+                    if (layerStateCode === stateCode) {
+                        targetLayer = layer;
+                    }
+                });
+                return targetLayer;
             }
 
             function onEachMunicipioFeature(feature, layer) {
@@ -1216,8 +1364,12 @@
             }
 
             function filterByMunicipio(municipioName) {
+                console.log(`🔍 Buscando representantes para o município: ${municipioName}`);
+                console.log(`📍 ViewMode: ${viewMode}, CurrentState:`, currentState);
+                
                 // Usar o mapeamento normalizado para buscar representantes
                 const normalizedName = normalize(municipioName);
+                console.log(`📍 Nome normalizado: ${normalizedName}`);
                 
                 // Se estamos em um estado específico e visualizando municípios, usar cidade+estado
                 let representatives = [];
@@ -1225,28 +1377,37 @@
                     const normalizedEstado = normalize(currentState.code);
                     const cidadeEstadoKey = `${normalizedName}-${normalizedEstado}`;
                     representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
-                    console.log('Buscando por cidade+estado:', cidadeEstadoKey);
+                    console.log('📍 Buscando por cidade+estado:', cidadeEstadoKey);
+                    console.log('📍 Chaves disponíveis no map:', Array.from(municipioRepresentativeMap.keys()).slice(0, 10));
                 } else {
                     // Busca geral - usar apenas cidade
                     representatives = municipioRepresentativeMap.get(normalizedName) || [];
-                    console.log('Buscando apenas por cidade:', normalizedName);
+                    console.log('📍 Buscando apenas por cidade:', normalizedName);
                 }
                 
-                console.log('Buscando representantes para:', municipioName, 'normalizado:', normalizedName);
-                console.log('Representantes encontrados:', representatives.length);
+                console.log(`📊 Representantes encontrados inicialmente: ${representatives.length}`);
+                console.log('📋 Representantes:', representatives);
                 
                 // Filtrar representantes que atendem especificamente este município
                 const filteredRepresentatives = representatives.filter(rep => {
                     if (rep.EstadosDetalhados) {
                         // Verificar se o município está em algum dos estados do representante
-                        return Object.entries(rep.EstadosDetalhados).some(([estado, dadosEstado]) => {
+                        const atendeMunicipio = Object.entries(rep.EstadosDetalhados).some(([estado, dadosEstado]) => {
                             return dadosEstado.cidades && dadosEstado.cidades.some(cidade => 
                                 normalize(cidade) === normalizedName
                             );
                         });
+                        
+                        if (atendeMunicipio) {
+                            console.log(`✅ ${rep.NomeRepresentante} atende ${municipioName}`);
+                        }
+                        
+                        return atendeMunicipio;
                     }
                     return true; // Se não tem EstadosDetalhados, incluir todos
                 });
+                
+                console.log(`🎯 Representantes finais para ${municipioName}: ${filteredRepresentatives.length}`);
                 
                 renderResults(filteredRepresentatives, municipioName);
                 mainTitle.textContent = `Representantes em ${municipioName}`;
@@ -1431,7 +1592,11 @@
 
 
             function renderResults(results, location = null) {
+                console.log(`🎨 Renderizando ${results.length} resultados para: ${location}`);
+                console.log('📋 Resultados:', results);
+                
                 if (!results.length) {
+                    console.log('❌ Nenhum resultado para renderizar');
                     resultsContainer.innerHTML = `<div class="text-center text-gray-500 py-8">Nenhum representante encontrado${location ? ' para "' + location + '"' : ''}.</div>`;
                     return;
                 }
