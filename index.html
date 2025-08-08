@@ -675,42 +675,7 @@
                     return inside;
                 }
                 
-                // SEMPRE verificar estados primeiro, independente do modo
-                let clickedState = null;
-                geoJsonLayer.eachLayer(layer => {
-                    if (layer.getBounds().contains(latlng)) {
-                        // Verificação mais precisa usando geometria
-                        const feature = layer.feature;
-                        if (feature.geometry.type === 'Polygon') {
-                            const coords = feature.geometry.coordinates[0].map(coord => ({lat: coord[1], lng: coord[0]}));
-                            if (pointInPolygon(latlng, coords)) {
-                                clickedState = layer;
-                            }
-                        } else if (feature.geometry.type === 'MultiPolygon') {
-                            for (let polygon of feature.geometry.coordinates) {
-                                const coords = polygon[0].map(coord => ({lat: coord[1], lng: coord[0]}));
-                                if (pointInPolygon(latlng, coords)) {
-                                    clickedState = layer;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                // Se clicou em um estado, SEMPRE processar como estado
-                if (clickedState) {
-                    console.log('✅ Clique interceptado em ESTADO');
-                    const fakeEvent = {
-                        target: clickedState,
-                        latlng: latlng,
-                        originalEvent: e.originalEvent
-                    };
-                    handleStateClick(fakeEvent);
-                    return; // Parar aqui, não processar município
-                }
-                
-                // Só se NÃO clicou em estado, verificar municípios
+                // Se estamos no modo municípios, verificar municípios PRIMEIRO
                 if (municipiosLayer && viewMode === 'municipios') {
                     let clickedMunicipio = null;
                     municipiosLayer.eachLayer(layer => {
@@ -747,8 +712,43 @@
                             selectedMunicipioLayer.setStyle(municipioSelectedStyle);
                             
                             filterByMunicipio(municipioName);
+                            return; // Parar aqui, não processar estado
                         }
                     }
+                }
+                
+                // Se não clicou em município ou não estamos no modo municípios, verificar estados
+                let clickedState = null;
+                geoJsonLayer.eachLayer(layer => {
+                    if (layer.getBounds().contains(latlng)) {
+                        // Verificação mais precisa usando geometria
+                        const feature = layer.feature;
+                        if (feature.geometry.type === 'Polygon') {
+                            const coords = feature.geometry.coordinates[0].map(coord => ({lat: coord[1], lng: coord[0]}));
+                            if (pointInPolygon(latlng, coords)) {
+                                clickedState = layer;
+                            }
+                        } else if (feature.geometry.type === 'MultiPolygon') {
+                            for (let polygon of feature.geometry.coordinates) {
+                                const coords = polygon[0].map(coord => ({lat: coord[1], lng: coord[0]}));
+                                if (pointInPolygon(latlng, coords)) {
+                                    clickedState = layer;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Se clicou em um estado, processar como estado
+                if (clickedState) {
+                    console.log('✅ Clique interceptado em ESTADO');
+                    const fakeEvent = {
+                        target: clickedState,
+                        latlng: latlng,
+                        originalEvent: e.originalEvent
+                    };
+                    handleStateClick(fakeEvent);
                 }
             }
 
@@ -907,10 +907,7 @@
 
                 console.log('🎯 Estado selecionado:', stateName, stateCode);
 
-                // Primeiro, aplicar zoom no estado ANTES de qualquer outra operação
-                const stateBounds = e.target.getBounds();
-                console.log('🔍 Aplicando zoom no estado:', stateName, 'Bounds:', stateBounds);
-                
+                // Reset completo ANTES de qualquer operação
                 // Reset do estado anterior se existir
                 if (selectedStateLayer) {
                     geoJsonLayer.resetStyle(selectedStateLayer);
@@ -925,12 +922,19 @@
                 // Reset do município selecionado
                 selectedMunicipioLayer = null;
 
+                // Limpar resultados e legenda
+                showInitialMessage();
+                updateLegend([]);
+
                 // Seleciona o novo estado
                 selectedStateLayer = e.target;
                 selectedStateLayer.setStyle(selectedMapStyle);
                 currentState = { code: stateCode, name: stateName, layer: e.target };
 
-                // Aplicar zoom final no estado
+                // Aplicar zoom no estado
+                const stateBounds = e.target.getBounds();
+                console.log('🔍 Aplicando zoom no estado:', stateName, 'Bounds:', stateBounds);
+                
                 map.fitBounds(stateBounds, { 
                     padding: [25, 25],
                     maxZoom: 8  // Limitar zoom máximo para não ficar muito próximo
@@ -993,8 +997,8 @@
                     interactive: true
                 }).addTo(map);
                 
-                // Configurar a layer dos municípios para não interferir com os estados
-                municipiosLayer.setZIndex(1);
+                // Configurar a layer dos municípios para ter prioridade sobre os estados quando no modo municípios
+                municipiosLayer.setZIndex(15);
                 
                 // Forçar atualização dos estilos para garantir que as cores estejam corretas
                 setTimeout(() => {
@@ -1010,12 +1014,9 @@
                 // Zoom já foi aplicado na função handleStateClick, não fazer zoom aqui
                 // para evitar conflitos e mudanças indesejadas no zoom
 
-                // Obter representantes do estado e atualizar legenda
-                const stateRepresentatives = representativesData.filter(rep => 
-                    rep.SiglaEstado === stateCode || 
-                    normalize(rep.Estado) === normalize(stateName || stateCode)
-                );
-                updateLegend(stateRepresentatives);
+                // Não mostrar legenda quando apenas o estado é selecionado
+                // A legenda só aparecerá quando um município específico for clicado
+                updateLegend([]);
 
                 viewMode = 'municipios';
                 mainTitle.textContent = `Municípios de ${stateName || stateCode} - Clique em um município`;
@@ -1249,6 +1250,10 @@
                 
                 renderResults(filteredRepresentatives, municipioName);
                 mainTitle.textContent = `Representantes em ${municipioName}`;
+                
+                // Mostrar legenda com os representantes encontrados
+                updateLegend(filteredRepresentatives);
+                
                 document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
             }
 
@@ -1402,24 +1407,12 @@
             }
 
             function filterByState(stateCode) {
-                const results = getRepresentativesByLocation(stateCode);
-                
-                // Filtrar representantes que atendem especificamente este estado
-                const filteredResults = results.filter(rep => {
-                    if (rep.EstadosDetalhados) {
-                        return Object.keys(rep.EstadosDetalhados).some(estado => 
-                            normalize(estado) === normalize(stateCode) || 
-                            normalize(estado).includes(normalize(stateCode))
-                        );
-                    }
-                    return true; // Se não tem EstadosDetalhados, incluir todos
-                });
-                
-                renderResults(filteredResults, stateCode);
-                mainTitle.textContent = `Representantes em ${stateCode} - Clique em um município para mais detalhes`;
+                // Não mostrar cards de representantes ao clicar no estado
+                // Apenas mostrar os municípios coloridos
+                showInitialMessage();
+                mainTitle.textContent = `Municípios de ${stateCode} - Clique em um município para ver os representantes`;
                 backButton.classList.remove('hidden');
-                viewMode = 'municipios'; // Já mudamos para modo municípios
-                document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+                viewMode = 'municipios';
             }
 
             function zoomToLocation(estado, cidade) {
