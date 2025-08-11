@@ -1837,18 +1837,12 @@
                 console.log(`🏷️ Adicionando label para ${municipioName} em ${center.lat}, ${center.lng}`);
                 
                 // Criar o label usando L.tooltip permanente
-                const tooltip = layer.bindTooltip(municipioName, {
+                layer.bindTooltip(municipioName, {
                     permanent: true,
                     direction: 'center',
                     className: 'municipio-label-tooltip',
                     offset: [0, 0]
                 });
-                
-                // Forçar a exibição do tooltip
-                if (tooltip) {
-                    tooltip.setOpacity(1);
-                    tooltip.setZIndex(1000);
-                }
                 
                 // Armazenar referência para poder remover depois se necessário
                 if (!window.municipioLabels) {
