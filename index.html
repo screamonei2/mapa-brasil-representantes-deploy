@@ -324,9 +324,6 @@
             text-overflow: ellipsis !important;
             padding: 0 !important;
             margin: 0 !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            display: block !important;
         }
 
         /* Ajustar tamanho do texto baseado no zoom */
@@ -346,23 +343,6 @@
 
         .leaflet-zoom-animated.leaflet-zoom-level-10 .municipio-label-tooltip {
             font-size: 14px !important;
-        }
-        
-        /* Garantir que os labels sejam sempre visíveis */
-        .leaflet-tooltip.municipio-label-tooltip {
-            opacity: 1 !important;
-            visibility: visible !important;
-            display: block !important;
-            z-index: 1000 !important;
-        }
-        
-        /* Forçar visibilidade mesmo em diferentes estados do mapa */
-        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-top,
-        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-bottom,
-        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-left,
-        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-right {
-            opacity: 1 !important;
-            visibility: visible !important;
         }
 
     </style>
@@ -818,6 +798,7 @@
                 
                 // Se estamos no modo municípios, verificar municípios PRIMEIRO
                 if (municipiosLayer && viewMode === 'municipios') {
+                    console.log('🔍 Verificando municípios primeiro (modo municípios ativo)');
                     let clickedMunicipio = null;
                     municipiosLayer.eachLayer(layer => {
                         if (layer.getBounds().contains(latlng)) {
@@ -843,14 +824,22 @@
                         const props = clickedMunicipio.feature.properties;
                         const municipioName = props.name || props.nome || props.municipio || props.description;
                         if (municipioName) {
+                            console.log('✅ Clique interceptado em MUNICÍPIO:', municipioName);
+                            console.log('📍 Estado atual:', currentState);
+                            console.log('📍 ViewMode:', viewMode);
+                            
                             // Verificar a qual estado o município pertence
                             const municipioState = getMunicipioState(props);
+                            console.log('📍 Estado do município:', municipioState);
                             
                             // Se o município pertence a um estado diferente do atual
                             if (currentState && municipioState && municipioState !== currentState.code) {
+                                console.log('🔄 Município pertence a estado diferente. Carregando novo estado...');
+                                
                                 // Encontrar o estado correto no mapa
                                 const targetStateLayer = findStateLayerByCode(municipioState);
                                 if (targetStateLayer) {
+                                    console.log('🔄 Carregando estado:', municipioState);
                                     const fakeEvent = {
                                         target: targetStateLayer,
                                         latlng: latlng,
@@ -878,6 +867,8 @@
                             return; // Parar aqui, não processar estado
                         }
                     } else {
+                        console.log('❌ Nenhum município encontrado no clique - verificando se é clique em estado diferente');
+                        
                         // Se não encontrou município, verificar se é clique em estado diferente
                         let clickedState = null;
                         geoJsonLayer.eachLayer(layer => {
@@ -906,6 +897,9 @@
                             
                             // Verificar se é um estado diferente do atual
                             if (currentState && currentState.code !== clickedStateCode) {
+                                console.log('🔄 Clique em estado diferente detectado:', clickedStateName, '(', clickedStateCode, ')');
+                                console.log('🔄 Estado atual:', currentState.name, '(', currentState.code, ')');
+                                
                                 // Fazer reset completo e carregar novo estado
                                 const fakeEvent = {
                                     target: clickedState,
@@ -920,6 +914,7 @@
                 }
                 
                 // Se não clicou em município ou não estamos no modo municípios, verificar estados
+                console.log('🔍 Verificando estados...');
                 let clickedState = null;
                 geoJsonLayer.eachLayer(layer => {
                     if (layer.getBounds().contains(latlng)) {
@@ -944,11 +939,14 @@
                 
                 // Se clicou em um estado, processar como estado
                 if (clickedState) {
+                    console.log('✅ Clique interceptado em ESTADO');
+                    
                     // Verificar se é um clique em um estado diferente do atual
                     const clickedStateCode = getStateCode(clickedState.feature.properties);
                     const clickedStateName = clickedState.feature.properties.nome || clickedState.feature.properties.name || clickedState.feature.properties.NAME;
                     
                     if (currentState && currentState.code !== clickedStateCode) {
+                        console.log('🔄 Clique em estado diferente detectado. Fazendo reset completo...');
                         // É um clique em um estado diferente - fazer reset completo
                         const fakeEvent = {
                             target: clickedState,
@@ -1425,7 +1423,8 @@
                     }
                 }
 
-
+                console.log('🔍 Propriedades do município:', props);
+                console.log('🔍 Estado extraído:', municipioState);
                 
                 return municipioState;
             }
@@ -1472,10 +1471,7 @@
                     // Removemos o click handler - será tratado pelo listener global
                 });
 
-                // Adicionar label com nome do município centralizado (sempre visível)
-                addMunicipioLabel(layer, municipioName);
-                
-                // Tooltip com informações do município e representantes (apenas no hover)
+                // Tooltip com informações do município e representantes
                 let tooltipContent = `<strong>${municipioName}</strong>`;
                 if (representatives.length > 0) {
                     tooltipContent += `<br><small>Representantes: ${representatives.length}</small>`;
@@ -1495,11 +1491,18 @@
                     direction: 'top',
                     className: 'municipio-tooltip'
                 });
+
+                // Adicionar label com nome do município centralizado
+                addMunicipioLabel(layer, municipioName);
             }
 
             function filterByMunicipio(municipioName) {
+                console.log(`🔍 Buscando representantes para o município: ${municipioName}`);
+                console.log(`📍 ViewMode: ${viewMode}, CurrentState:`, currentState);
+                
                 // Usar o mapeamento normalizado para buscar representantes
                 const normalizedName = normalize(municipioName);
+                console.log(`📍 Nome normalizado: ${normalizedName}`);
                 
                 // Se estamos em um estado específico e visualizando municípios, usar cidade+estado
                 let representatives = [];
@@ -1507,10 +1510,16 @@
                     const normalizedEstado = normalize(currentState.code);
                     const cidadeEstadoKey = `${normalizedName}-${normalizedEstado}`;
                     representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
+                    console.log('📍 Buscando por cidade+estado:', cidadeEstadoKey);
+                    console.log('📍 Chaves disponíveis no map:', Array.from(municipioRepresentativeMap.keys()).slice(0, 10));
                 } else {
                     // Busca geral - usar apenas cidade
                     representatives = municipioRepresentativeMap.get(normalizedName) || [];
+                    console.log('📍 Buscando apenas por cidade:', normalizedName);
                 }
+                
+                console.log(`📊 Representantes encontrados inicialmente: ${representatives.length}`);
+                console.log('📋 Representantes:', representatives);
                 
                 // Filtrar representantes que atendem especificamente este município
                 const filteredRepresentatives = representatives.filter(rep => {
@@ -1522,10 +1531,16 @@
                             );
                         });
                         
+                        if (atendeMunicipio) {
+                            console.log(`✅ ${rep.NomeRepresentante} atende ${municipioName}`);
+                        }
+                        
                         return atendeMunicipio;
                     }
                     return true; // Se não tem EstadosDetalhados, incluir todos
                 });
+                
+                console.log(`🎯 Representantes finais para ${municipioName}: ${filteredRepresentatives.length}`);
                 
                 renderResults(filteredRepresentatives, municipioName);
                 mainTitle.textContent = `Representantes em ${municipioName}`;
