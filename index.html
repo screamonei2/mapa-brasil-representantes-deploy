@@ -303,49 +303,49 @@
             min-height: calc(100vh - 100px) !important;
         }
 
-        /* Labels dos municípios */
-        .municipio-label-tooltip {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            color: #000000 !important;
-            font-size: 10px !important;
+        /* Labels dos municípios - Fixos e sempre visíveis */
+        .municipio-label-fixo {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid #333 !important;
+            border-radius: 4px !important;
+            padding: 2px 6px !important;
+            font-size: 11px !important;
             font-weight: 600 !important;
+            color: #333 !important;
             text-align: center !important;
-            text-shadow: 
-                -1px -1px 0 #ffffff,
-                1px -1px 0 #ffffff,
-                -1px 1px 0 #ffffff,
-                1px 1px 0 #ffffff;
             white-space: nowrap !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
             pointer-events: none !important;
-            user-select: none !important;
+            z-index: 1000 !important;
             font-family: 'Inter', sans-serif !important;
             line-height: 1.2 !important;
             max-width: 120px !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            padding: 0 !important;
-            margin: 0 !important;
+        }
+        
+        .municipio-label-container {
+            background: transparent !important;
+            border: none !important;
         }
 
         /* Ajustar tamanho do texto baseado no zoom */
-        .leaflet-zoom-animated .municipio-label-tooltip {
-            font-size: 11px !important;
-        }
-
-        .leaflet-zoom-animated.leaflet-zoom-level-6 .municipio-label-tooltip,
-        .leaflet-zoom-animated.leaflet-zoom-level-7 .municipio-label-tooltip {
+        .leaflet-zoom-animated .municipio-label-fixo {
             font-size: 12px !important;
         }
 
-        .leaflet-zoom-animated.leaflet-zoom-level-8 .municipio-label-tooltip,
-        .leaflet-zoom-animated.leaflet-zoom-level-9 .municipio-label-tooltip {
+        .leaflet-zoom-animated.leaflet-zoom-level-6 .municipio-label-fixo,
+        .leaflet-zoom-animated.leaflet-zoom-level-7 .municipio-label-fixo {
             font-size: 13px !important;
         }
 
-        .leaflet-zoom-animated.leaflet-zoom-level-10 .municipio-label-tooltip {
+        .leaflet-zoom-animated.leaflet-zoom-level-8 .municipio-label-fixo,
+        .leaflet-zoom-animated.leaflet-zoom-level-9 .municipio-label-fixo {
             font-size: 14px !important;
+        }
+
+        .leaflet-zoom-animated.leaflet-zoom-level-10 .municipio-label-fixo {
+            font-size: 15px !important;
         }
 
     </style>
@@ -1222,10 +1222,10 @@
 
                 // Limpar labels antigos dos municípios
                 if (window.municipioLabels) {
-                    window.municipioLabels.forEach(layer => {
-                        // Remover tooltip permanente se existir
-                        if (layer.getTooltip()) {
-                            layer.unbindTooltip();
+                    window.municipioLabels.forEach(labelMarker => {
+                        // Remover o marcador do label do mapa
+                        if (labelMarker && map.hasLayer(labelMarker)) {
+                            map.removeLayer(labelMarker);
                         }
                     });
                     window.municipioLabels = [];
@@ -1833,19 +1833,46 @@
                 const bounds = layer.getBounds();
                 const center = bounds.getCenter();
                 
-                // Criar o label usando L.tooltip permanente
-                layer.bindTooltip(municipioName, {
-                    permanent: true,
-                    direction: 'center',
-                    className: 'municipio-label-tooltip',
-                    offset: [0, 0]
+                // Criar um div personalizado para o label fixo
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'municipio-label-fixo';
+                labelDiv.innerHTML = municipioName;
+                labelDiv.style.cssText = `
+                    position: absolute;
+                    background: rgba(255, 255, 255, 0.95);
+                    border: 1px solid #333;
+                    border-radius: 4px;
+                    padding: 2px 6px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: #333;
+                    text-align: center;
+                    white-space: nowrap;
+                    pointer-events: none;
+                    z-index: 1000;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                    transform: translate(-50%, -50%);
+                `;
+                
+                // Criar um elemento Leaflet para o label
+                const labelElement = L.divIcon({
+                    html: labelDiv,
+                    className: 'municipio-label-container',
+                    iconSize: [1, 1],
+                    iconAnchor: [0, 0]
                 });
+                
+                // Criar um marcador para o label
+                const labelMarker = L.marker(center, {
+                    icon: labelElement,
+                    interactive: false
+                }).addTo(map);
                 
                 // Armazenar referência para poder remover depois se necessário
                 if (!window.municipioLabels) {
                     window.municipioLabels = [];
                 }
-                window.municipioLabels.push(layer);
+                window.municipioLabels.push(labelMarker);
             }
 
             // Função para destacar áreas atendidas por um representante
