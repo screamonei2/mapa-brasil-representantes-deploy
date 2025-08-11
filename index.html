@@ -305,16 +305,16 @@
 
         /* Labels dos municípios - Fixos e sempre visíveis */
         .municipio-label-fixo {
-            background: rgba(255, 255, 255, 0.95) !important;
-            border: 1px solid #333 !important;
-            border-radius: 4px !important;
-            padding: 2px 6px !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
             font-size: 11px !important;
             font-weight: 600 !important;
             color: #333 !important;
             text-align: center !important;
             white-space: nowrap !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+            box-shadow: none !important;
             pointer-events: none !important;
             z-index: 1000 !important;
             font-family: 'Inter', sans-serif !important;
@@ -322,6 +322,11 @@
             max-width: 120px !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            text-shadow: 
+                -1px -1px 0 #ffffff,
+                1px -1px 0 #ffffff,
+                -1px 1px 0 #ffffff,
+                1px 1px 0 #ffffff;
         }
         
         .municipio-label-container {
@@ -1839,10 +1844,10 @@
                 labelDiv.innerHTML = municipioName;
                 labelDiv.style.cssText = `
                     position: absolute;
-                    background: rgba(255, 255, 255, 0.95);
-                    border: 1px solid #333;
-                    border-radius: 4px;
-                    padding: 2px 6px;
+                    background: transparent;
+                    border: none;
+                    border-radius: 0;
+                    padding: 0;
                     font-size: 11px;
                     font-weight: 600;
                     color: #333;
@@ -1850,7 +1855,7 @@
                     white-space: nowrap;
                     pointer-events: none;
                     z-index: 1000;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                    box-shadow: none;
                     transform: translate(-50%, -50%);
                 `;
                 
