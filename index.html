@@ -342,6 +342,7 @@
         }
 
         /* Labels dos municípios - Fixos e sempre visíveis */
+        /* CSS das labels comentado pois as labels foram removidas
         .municipio-label-fixo {
             background: transparent !important;
             border: none !important;
@@ -390,6 +391,7 @@
         .leaflet-zoom-animated.leaflet-zoom-level-10 .municipio-label-fixo {
             font-size: 10px !important;
         }
+        */
 
     </style>
 
@@ -1540,7 +1542,7 @@
                 });
 
                 // Adicionar label com nome do município centralizado
-                addMunicipioLabel(layer, municipioName);
+                // addMunicipioLabel(layer, municipioName); // Labels removidos conforme solicitado
             }
 
             function filterByMunicipio(municipioName) {
@@ -1875,6 +1877,9 @@
 
             // Função para adicionar label com nome do município
             function addMunicipioLabel(layer, municipioName) {
+                // Função desabilitada - labels removidos conforme solicitado
+                return;
+                
                 // Obter o centro do município
                 const bounds = layer.getBounds();
                 const center = bounds.getCenter();
