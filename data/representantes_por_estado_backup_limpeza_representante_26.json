@@ -4151,7 +4151,7 @@
         "celular": "17-981346-600 / 17-3022-8004"
       },
       "observacoes": "Será enviado para pesquisa no mapa",
-      "total_cidades": 36,
+      "total_cidades": 46,
       "estados_atendidos": [
         "SP   "
       ],
@@ -4181,6 +4181,16 @@
             "PEREIRA BARRETO",
             "PIACATU",
             "SUD MENNUCCI",
+            "ANDRADINA",
+            "BILAC",
+            "BIRIGUI",
+            "BURITAMA",
+            "CASTILHO",
+            "CLEMENTINA",
+            "COROADOS",
+            "GUARARAPES",
+            "ILHA SOLTEIRA",
+            "SUD MENNUCCI",
             "ARAÇATUBA",
             "NOVA INDEPENDÊNCIA",
             "SANTÓPOLIS DO AGUAPEÍ",
@@ -4197,7 +4207,7 @@
             "MIRANDÓPOLIS",
             "BRAÚNA"
           ],
-          "total_cidades": 36,
+          "total_cidades": 46,
           "mesorregioes": [
             "Araçatuba"
           ],
@@ -10996,6 +11006,7 @@
             "MARIAPOLIS",
             "MARINOPOLIS",
             "SANTA MERCEDES",
+            "SANTO ANTONIO DO ARACANGUA",
             "SAO CAETANO DO SUL",
             "SAO PAULO",
             "CUBATAO",
