@@ -1,0 +1,1205 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "São José do Rio Preto",
+        "total_municipios": 109,
+        "municipios": [
+          "Adolfo",
+          "Altair",
+          "Álvares Florence",
+          "Américo de Campos",
+          "Aparecida d'Oeste",
+          "Ariranha",
+          "Aspásia",
+          "Auriflama",
+          "Bady Bassitt",
+          "Bálsamo",
+          "Cajobi",
+          "Cardoso",
+          "Catanduva",
+          "Catiguá",
+          "Cedral",
+          "Cosmorama",
+          "Dirce Reis",
+          "Dolcinópolis",
+          "Elisiário",
+          "Embaúba",
+          "Estrela d'Oeste",
+          "Fernandópolis",
+          "Floreal",
+          "Gastão Vidigal",
+          "General Salgado",
+          "Guapiaçu",
+          "Guaraci",
+          "Guarani d'Oeste",
+          "Guzolândia",
+          "Ibirá",
+          "Icém",
+          "Indiaporã",
+          "Ipiguá",
+          "Irapuã",
+          "Itajobi",
+          "Jaci",
+          "Jales",
+          "José Bonifácio",
+          "Macaubal",
+          "Macedônia",
+          "Magda",
+          "Marapoama",
+          "Marinópolis",
+          "Mendonça",
+          "Meridiano",
+          "Mesópolis",
+          "Mira Estrela",
+          "Mirassol",
+          "Mirassolândia",
+          "Monções",
+          "Monte Aprazível",
+          "Neves Paulista",
+          "Nhandeara",
+          "Nipoã",
+          "Nova Aliança",
+          "Nova Canaã Paulista",
+          "Nova Castilho",
+          "Nova Granada",
+          "Novais",
+          "Nova Luzitânia",
+          "Novo Horizonte",
+          "Olímpia",
+          "Onda Verde",
+          "Orindiúva",
+          "Ouroeste",
+          "Palestina",
+          "Palmares Paulista",
+          "Palmeira d'Oeste",
+          "Paraíso",
+          "Paranapuã",
+          "Parisi",
+          "Paulo de Faria",
+          "Pedranópolis",
+          "Pindorama",
+          "Planalto",
+          "Poloni",
+          "Pontalinda",
+          "Pontes Gestal",
+          "Populina",
+          "Potirendaba",
+          "Riolândia",
+          "Rubinéia",
+          "Sales",
+          "Santa Adélia",
+          "Santa Albertina",
+          "Santa Clara d'Oeste",
+          "Santa Fé do Sul",
+          "Santana da Ponte Pensa",
+          "Santa Rita d'Oeste",
+          "Santa Salete",
+          "São Francisco",
+          "São João das Duas Pontes",
+          "São João de Iracema",
+          "São José do Rio Preto",
+          "Sebastianópolis do Sul",
+          "Severínia",
+          "Tabapuã",
+          "Tanabi",
+          "Três Fronteiras",
+          "Turmalina",
+          "Ubarana",
+          "Uchoa",
+          "União Paulista",
+          "Urânia",
+          "Urupês",
+          "Valentim Gentil",
+          "Vitória Brasil",
+          "Votuporanga",
+          "Zacarias"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -49.8763,
+              -21.3126
+            ],
+            [
+              -48.8763,
+              -21.3126
+            ],
+            [
+              -48.8763,
+              -20.3126
+            ],
+            [
+              -49.8763,
+              -20.3126
+            ],
+            [
+              -49.8763,
+              -21.3126
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Ribeirão Preto",
+        "total_municipios": 66,
+        "municipios": [
+          "Altinópolis",
+          "Aramina",
+          "Barretos",
+          "Barrinha",
+          "Batatais",
+          "Bebedouro",
+          "Brodowski",
+          "Buritizal",
+          "Cajuru",
+          "Cândido Rodrigues",
+          "Cássia dos Coqueiros",
+          "Colina",
+          "Colômbia",
+          "Cravinhos",
+          "Cristais Paulista",
+          "Dumont",
+          "Fernando Prestes",
+          "Franca",
+          "Guaíra",
+          "Guará",
+          "Guariba",
+          "Guatapará",
+          "Igarapava",
+          "Ipuã",
+          "Itirapuã",
+          "Ituverava",
+          "Jaborandi",
+          "Jaboticabal",
+          "Jardinópolis",
+          "Jeriquara",
+          "Luís Antônio",
+          "Miguelópolis",
+          "Monte Alto",
+          "Monte Azul Paulista",
+          "Morro Agudo",
+          "Nuporanga",
+          "Orlândia",
+          "Patrocínio Paulista",
+          "Pedregulho",
+          "Pirangi",
+          "Pitangueiras",
+          "Pontal",
+          "Pradópolis",
+          "Restinga",
+          "Ribeirão Corrente",
+          "Ribeirão Preto",
+          "Rifaina",
+          "Sales Oliveira",
+          "Santa Cruz da Esperança",
+          "Santa Ernestina",
+          "Santa Rita do Passa Quatro",
+          "Santa Rosa de Viterbo",
+          "Santo Antônio da Alegria",
+          "São Joaquim da Barra",
+          "São José da Bela Vista",
+          "São Simão",
+          "Serra Azul",
+          "Serrana",
+          "Sertãozinho",
+          "Taiaçu",
+          "Taiúva",
+          "Taquaral",
+          "Taquaritinga",
+          "Terra Roxa",
+          "Viradouro",
+          "Vista Alegre do Alto"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -48.3208,
+              -21.6765
+            ],
+            [
+              -47.3208,
+              -21.6765
+            ],
+            [
+              -47.3208,
+              -20.6765
+            ],
+            [
+              -48.3208,
+              -20.6765
+            ],
+            [
+              -48.3208,
+              -21.6765
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Araçatuba",
+        "total_municipios": 36,
+        "municipios": [
+          "Alto Alegre",
+          "Andradina",
+          "Araçatuba",
+          "Avanhandava",
+          "Barbosa",
+          "Bento de Abreu",
+          "Bilac",
+          "Birigui",
+          "Braúna",
+          "Brejo Alegre",
+          "Buritama",
+          "Castilho",
+          "Clementina",
+          "Coroados",
+          "Gabriel Monteiro",
+          "Glicério",
+          "Guaraçaí",
+          "Guararapes",
+          "Ilha Solteira",
+          "Itapura",
+          "Lavínia",
+          "Lourdes",
+          "Luiziânia",
+          "Mirandópolis",
+          "Murutinga do Sul",
+          "Nova Independência",
+          "Penápolis",
+          "Pereira Barreto",
+          "Piacatu",
+          "Rubiácea",
+          "Santo Antônio do Aracanguá",
+          "Santópolis do Aguapeí",
+          "Sud Mennucci",
+          "Suzanápolis",
+          "Turiúba",
+          "Valparaíso"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -50.9329,
+              -21.7089
+            ],
+            [
+              -49.9329,
+              -21.7089
+            ],
+            [
+              -49.9329,
+              -20.7089
+            ],
+            [
+              -50.9329,
+              -20.7089
+            ],
+            [
+              -50.9329,
+              -21.7089
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Bauru",
+        "total_municipios": 56,
+        "municipios": [
+          "Águas de Santa Bárbara",
+          "Agudos",
+          "Anhembi",
+          "Arandu",
+          "Arealva",
+          "Areiópolis",
+          "Avaí",
+          "Avaré",
+          "Balbinos",
+          "Bariri",
+          "Barra Bonita",
+          "Bauru",
+          "Bocaina",
+          "Bofete",
+          "Boracéia",
+          "Borebi",
+          "Botucatu",
+          "Cabrália Paulista",
+          "Cafelândia",
+          "Cerqueira César",
+          "Conchas",
+          "Dois Córregos",
+          "Duartina",
+          "Getulina",
+          "Guaiçara",
+          "Guaimbê",
+          "Guarantã",
+          "Iacanga",
+          "Iaras",
+          "Igaraçu do Tietê",
+          "Itaí",
+          "Itaju",
+          "Itapuí",
+          "Itatinga",
+          "Jaú",
+          "Júlio Mesquita",
+          "Lençóis Paulista",
+          "Lins",
+          "Lucianópolis",
+          "Macatuba",
+          "Mineiros do Tietê",
+          "Paranapanema",
+          "Pardinho",
+          "Paulistânia",
+          "Pederneiras",
+          "Pirajuí",
+          "Piratininga",
+          "Pongaí",
+          "Pratânia",
+          "Presidente Alves",
+          "Promissão",
+          "Reginópolis",
+          "Sabino",
+          "São Manuel",
+          "Ubirajara",
+          "Uru"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -49.5606,
+              -22.8145
+            ],
+            [
+              -48.5606,
+              -22.8145
+            ],
+            [
+              -48.5606,
+              -21.8145
+            ],
+            [
+              -49.5606,
+              -21.8145
+            ],
+            [
+              -49.5606,
+              -22.8145
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Araraquara",
+        "total_municipios": 21,
+        "municipios": [
+          "Américo Brasiliense",
+          "Analândia",
+          "Araraquara",
+          "Boa Esperança do Sul",
+          "Borborema",
+          "Descalvado",
+          "Dobrada",
+          "Dourado",
+          "Gavião Peixoto",
+          "Ibaté",
+          "Ibitinga",
+          "Itápolis",
+          "Matão",
+          "Motuca",
+          "Nova Europa",
+          "Ribeirão Bonito",
+          "Rincão",
+          "Santa Lúcia",
+          "São Carlos",
+          "Tabatinga",
+          "Trabiju"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -48.675,
+              -22.2945
+            ],
+            [
+              -47.675,
+              -22.2945
+            ],
+            [
+              -47.675,
+              -21.2945
+            ],
+            [
+              -48.675,
+              -21.2945
+            ],
+            [
+              -48.675,
+              -22.2945
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Piracicaba",
+        "total_municipios": 26,
+        "municipios": [
+          "Águas de São Pedro",
+          "Araras",
+          "Brotas",
+          "Capivari",
+          "Charqueada",
+          "Conchal",
+          "Cordeirópolis",
+          "Corumbataí",
+          "Ipeúna",
+          "Iracemápolis",
+          "Itirapina",
+          "Jumirim",
+          "Leme",
+          "Limeira",
+          "Mombuca",
+          "Piracicaba",
+          "Rafard",
+          "Rio Claro",
+          "Rio das Pedras",
+          "Saltinho",
+          "Santa Cruz da Conceição",
+          "Santa Gertrudes",
+          "Santa Maria da Serra",
+          "São Pedro",
+          "Tietê",
+          "Torrinha"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -48.1492,
+              -23.2253
+            ],
+            [
+              -47.1492,
+              -23.2253
+            ],
+            [
+              -47.1492,
+              -22.2253
+            ],
+            [
+              -48.1492,
+              -22.2253
+            ],
+            [
+              -48.1492,
+              -23.2253
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Campinas",
+        "total_municipios": 49,
+        "municipios": [
+          "Aguaí",
+          "Águas da Prata",
+          "Águas de Lindóia",
+          "Americana",
+          "Amparo",
+          "Artur Nogueira",
+          "Caconde",
+          "Campinas",
+          "Casa Branca",
+          "Cosmópolis",
+          "Divinolândia",
+          "Elias Fausto",
+          "Engenheiro Coelho",
+          "Espírito Santo do Pinhal",
+          "Holambra",
+          "Hortolândia",
+          "Indaiatuba",
+          "Itapira",
+          "Itobi",
+          "Jaguariúna",
+          "Lindóia",
+          "Mococa",
+          "Mogi Guaçu",
+          "Mogi Mirim",
+          "Monte Alegre do Sul",
+          "Monte Mor",
+          "Nova Odessa",
+          "Paulínia",
+          "Pedra Bela",
+          "Pedreira",
+          "Pinhalzinho",
+          "Pirassununga",
+          "Porto Ferreira",
+          "Santa Bárbara d'Oeste",
+          "Santa Cruz das Palmeiras",
+          "Santo Antônio de Posse",
+          "Santo Antônio do Jardim",
+          "São João da Boa Vista",
+          "São José do Rio Pardo",
+          "São Sebastião da Grama",
+          "Serra Negra",
+          "Socorro",
+          "Sumaré",
+          "Tambaú",
+          "Tapiratiba",
+          "Valinhos",
+          "Vargem Grande do Sul",
+          "Vinhedo",
+          "Estiva Gerbi"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -47.5616,
+              -23.4064
+            ],
+            [
+              -46.5616,
+              -23.4064
+            ],
+            [
+              -46.5616,
+              -22.4064
+            ],
+            [
+              -47.5616,
+              -22.4064
+            ],
+            [
+              -47.5616,
+              -23.4064
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Presidente Prudente",
+        "total_municipios": 54,
+        "municipios": [
+          "Adamantina",
+          "Alfredo Marcondes",
+          "Álvares Machado",
+          "Anhumas",
+          "Caiabu",
+          "Caiuá",
+          "Dracena",
+          "Emilianópolis",
+          "Estrela do Norte",
+          "Euclides da Cunha Paulista",
+          "Flora Rica",
+          "Flórida Paulista",
+          "Indiana",
+          "Inúbia Paulista",
+          "Irapuru",
+          "João Ramalho",
+          "Junqueirópolis",
+          "Lucélia",
+          "Marabá Paulista",
+          "Mariápolis",
+          "Martinópolis",
+          "Mirante do Paranapanema",
+          "Monte Castelo",
+          "Narandiba",
+          "Nova Guataporanga",
+          "Osvaldo Cruz",
+          "Ouro Verde",
+          "Pacaembu",
+          "Panorama",
+          "Parapuã",
+          "Paulicéia",
+          "Piquerobi",
+          "Pirapozinho",
+          "Pracinha",
+          "Presidente Bernardes",
+          "Presidente Epitácio",
+          "Presidente Prudente",
+          "Presidente Venceslau",
+          "Rancharia",
+          "Regente Feijó",
+          "Ribeirão dos Índios",
+          "Rinópolis",
+          "Rosana",
+          "Sagres",
+          "Salmourão",
+          "Sandovalina",
+          "Santa Mercedes",
+          "Santo Anastácio",
+          "Santo Expedito",
+          "São João do Pau d'Alho",
+          "Taciba",
+          "Tarabai",
+          "Teodoro Sampaio",
+          "Tupi Paulista"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -51.8889,
+              -22.6257
+            ],
+            [
+              -50.8889,
+              -22.6257
+            ],
+            [
+              -50.8889,
+              -21.6257
+            ],
+            [
+              -51.8889,
+              -21.6257
+            ],
+            [
+              -51.8889,
+              -22.6257
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Marília",
+        "total_municipios": 20,
+        "municipios": [
+          "Álvaro de Carvalho",
+          "Alvinlândia",
+          "Arco-Íris",
+          "Bastos",
+          "Echaporã",
+          "Fernão",
+          "Gália",
+          "Garça",
+          "Herculândia",
+          "Iacri",
+          "Lupércio",
+          "Marília",
+          "Ocauçu",
+          "Oriente",
+          "Oscar Bressane",
+          "Pompéia",
+          "Queiroz",
+          "Quintana",
+          "Tupã",
+          "Vera Cruz"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -50.45,
+              -22.7178
+            ],
+            [
+              -49.45,
+              -22.7178
+            ],
+            [
+              -49.45,
+              -21.7178
+            ],
+            [
+              -50.45,
+              -21.7178
+            ],
+            [
+              -50.45,
+              -22.7178
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Assis",
+        "total_municipios": 35,
+        "municipios": [
+          "Assis",
+          "Bernardino de Campos",
+          "Borá",
+          "Campos Novos Paulista",
+          "Cândido Mota",
+          "Canitar",
+          "Cruzália",
+          "Espírito Santo do Turvo",
+          "Fartura",
+          "Florínea",
+          "Ibirarema",
+          "Iepê",
+          "Ipaussu",
+          "Lutécia",
+          "Manduri",
+          "Maracaí",
+          "Nantes",
+          "Óleo",
+          "Ourinhos",
+          "Palmital",
+          "Paraguaçu Paulista",
+          "Pedrinhas Paulista",
+          "Piraju",
+          "Platina",
+          "Quatá",
+          "Ribeirão do Sul",
+          "Salto Grande",
+          "Santa Cruz do Rio Pardo",
+          "São Pedro do Turvo",
+          "Sarutaiá",
+          "Taguaí",
+          "Tarumã",
+          "Tejupá",
+          "Timburi",
+          "Chavantes"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -50.9116,
+              -23.1619
+            ],
+            [
+              -49.9116,
+              -23.1619
+            ],
+            [
+              -49.9116,
+              -22.1619
+            ],
+            [
+              -50.9116,
+              -22.1619
+            ],
+            [
+              -50.9116,
+              -23.1619
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Itapetininga",
+        "total_municipios": 36,
+        "municipios": [
+          "Alambari",
+          "Angatuba",
+          "Apiaí",
+          "Barão de Antonina",
+          "Barra do Chapéu",
+          "Boituva",
+          "Bom Sucesso de Itararé",
+          "Buri",
+          "Campina do Monte Alegre",
+          "Capão Bonito",
+          "Cerquilho",
+          "Cesário Lange",
+          "Coronel Macedo",
+          "Guapiara",
+          "Guareí",
+          "Iporanga",
+          "Itaberá",
+          "Itaoca",
+          "Itapetininga",
+          "Itapeva",
+          "Itapirapuã Paulista",
+          "Itaporanga",
+          "Itararé",
+          "Laranjal Paulista",
+          "Nova Campina",
+          "Pereiras",
+          "Porangaba",
+          "Quadra",
+          "Ribeira",
+          "Ribeirão Branco",
+          "Ribeirão Grande",
+          "Riversul",
+          "Taquarituba",
+          "Taquarivaí",
+          "Tatuí",
+          "Torre de Pedra"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -48.5483,
+              -24.0886
+            ],
+            [
+              -47.5483,
+              -24.0886
+            ],
+            [
+              -47.5483,
+              -23.0886
+            ],
+            [
+              -48.5483,
+              -23.0886
+            ],
+            [
+              -48.5483,
+              -24.0886
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Macro Metropolitana Paulista",
+        "total_municipios": 36,
+        "municipios": [
+          "Alumínio",
+          "Araçariguama",
+          "Araçoiaba da Serra",
+          "Atibaia",
+          "Bom Jesus dos Perdões",
+          "Bragança Paulista",
+          "Cabreúva",
+          "Campo Limpo Paulista",
+          "Capela do Alto",
+          "Ibiúna",
+          "Iperó",
+          "Itatiba",
+          "Itu",
+          "Itupeva",
+          "Jarinu",
+          "Joanópolis",
+          "Jundiaí",
+          "Louveira",
+          "Mairinque",
+          "Morungaba",
+          "Nazaré Paulista",
+          "Piedade",
+          "Pilar do Sul",
+          "Piracaia",
+          "Porto Feliz",
+          "Salto",
+          "Salto de Pirapora",
+          "São Miguel Arcanjo",
+          "São Roque",
+          "Sarapuí",
+          "Sorocaba",
+          "Tapiraí",
+          "Tuiuti",
+          "Vargem",
+          "Várzea Paulista",
+          "Votorantim"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -47.8022,
+              -23.6861
+            ],
+            [
+              -46.8022,
+              -23.6861
+            ],
+            [
+              -46.8022,
+              -22.6861
+            ],
+            [
+              -47.8022,
+              -22.6861
+            ],
+            [
+              -47.8022,
+              -23.6861
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Vale do Paraíba Paulista",
+        "total_municipios": 39,
+        "municipios": [
+          "Aparecida",
+          "Arapeí",
+          "Areias",
+          "Bananal",
+          "Caçapava",
+          "Cachoeira Paulista",
+          "Campos do Jordão",
+          "Canas",
+          "Caraguatatuba",
+          "Cruzeiro",
+          "Cunha",
+          "Guaratinguetá",
+          "Igaratá",
+          "Ilhabela",
+          "Jacareí",
+          "Jambeiro",
+          "Lagoinha",
+          "Lavrinhas",
+          "Lorena",
+          "Monteiro Lobato",
+          "Natividade da Serra",
+          "Paraibuna",
+          "Pindamonhangaba",
+          "Piquete",
+          "Potim",
+          "Queluz",
+          "Redenção da Serra",
+          "Roseira",
+          "Santa Branca",
+          "Santo Antônio do Pinhal",
+          "São Bento do Sapucaí",
+          "São José do Barreiro",
+          "São José dos Campos",
+          "São Luiz do Paraitinga",
+          "São Sebastião",
+          "Silveiras",
+          "Taubaté",
+          "Tremembé",
+          "Ubatuba"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -46.3847,
+              -23.6861
+            ],
+            [
+              -45.3847,
+              -23.6861
+            ],
+            [
+              -45.3847,
+              -22.6861
+            ],
+            [
+              -46.3847,
+              -22.6861
+            ],
+            [
+              -46.3847,
+              -23.6861
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Litoral Sul Paulista",
+        "total_municipios": 17,
+        "municipios": [
+          "Barra do Turvo",
+          "Cajati",
+          "Cananéia",
+          "Eldorado",
+          "Iguape",
+          "Ilha Comprida",
+          "Itanhaém",
+          "Itariri",
+          "Jacupiranga",
+          "Juquiá",
+          "Miracatu",
+          "Mongaguá",
+          "Pariquera-Açu",
+          "Pedro de Toledo",
+          "Peruíbe",
+          "Registro",
+          "Sete Barras"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -47.5011,
+              -24.6125
+            ],
+            [
+              -46.5011,
+              -24.6125
+            ],
+            [
+              -46.5011,
+              -23.6125
+            ],
+            [
+              -47.5011,
+              -23.6125
+            ],
+            [
+              -47.5011,
+              -24.6125
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Metropolitana de São Paulo",
+        "total_municipios": 45,
+        "municipios": [
+          "Arujá",
+          "Barueri",
+          "Bertioga",
+          "Biritiba Mirim",
+          "Caieiras",
+          "Cajamar",
+          "Carapicuíba",
+          "Cotia",
+          "Cubatão",
+          "Diadema",
+          "Embu das Artes",
+          "Embu-Guaçu",
+          "Ferraz de Vasconcelos",
+          "Francisco Morato",
+          "Franco da Rocha",
+          "Guararema",
+          "Guarujá",
+          "Guarulhos",
+          "Itapecerica da Serra",
+          "Itapevi",
+          "Itaquaquecetuba",
+          "Jandira",
+          "Juquitiba",
+          "Mairiporã",
+          "Mauá",
+          "Mogi das Cruzes",
+          "Osasco",
+          "Pirapora do Bom Jesus",
+          "Poá",
+          "Praia Grande",
+          "Ribeirão Pires",
+          "Rio Grande da Serra",
+          "Salesópolis",
+          "Santa Isabel",
+          "Santana de Parnaíba",
+          "Santo André",
+          "Santos",
+          "São Bernardo do Campo",
+          "São Caetano do Sul",
+          "São Lourenço da Serra",
+          "São Paulo",
+          "São Vicente",
+          "Suzano",
+          "Taboão da Serra",
+          "Vargem Grande Paulista"
+        ],
+        "cor": "#FF6B6B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -47.1333,
+              -24.0505
+            ],
+            [
+              -46.1333,
+              -24.0505
+            ],
+            [
+              -46.1333,
+              -23.0505
+            ],
+            [
+              -47.1333,
+              -23.0505
+            ],
+            [
+              -47.1333,
+              -24.0505
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

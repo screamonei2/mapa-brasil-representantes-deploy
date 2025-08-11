@@ -1,0 +1,98 @@
+{
+  "total_mesorregioes": 15,
+  "total_municipios_sp": 645,
+  "municipios_encontrados_geojs": 639,
+  "municipios_nao_encontrados": 6,
+  "mesorregioes": [
+    {
+      "nome": "São José do Rio Preto",
+      "total_municipios": 109,
+      "municipios_encontrados": 109,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Ribeirão Preto",
+      "total_municipios": 66,
+      "municipios_encontrados": 66,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Araçatuba",
+      "total_municipios": 36,
+      "municipios_encontrados": 36,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Bauru",
+      "total_municipios": 56,
+      "municipios_encontrados": 56,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Araraquara",
+      "total_municipios": 21,
+      "municipios_encontrados": 21,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Piracicaba",
+      "total_municipios": 26,
+      "municipios_encontrados": 26,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Campinas",
+      "total_municipios": 49,
+      "municipios_encontrados": 48,
+      "municipios_nao_encontrados": 1
+    },
+    {
+      "nome": "Presidente Prudente",
+      "total_municipios": 54,
+      "municipios_encontrados": 54,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Marília",
+      "total_municipios": 20,
+      "municipios_encontrados": 20,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Assis",
+      "total_municipios": 35,
+      "municipios_encontrados": 34,
+      "municipios_nao_encontrados": 1
+    },
+    {
+      "nome": "Itapetininga",
+      "total_municipios": 36,
+      "municipios_encontrados": 35,
+      "municipios_nao_encontrados": 1
+    },
+    {
+      "nome": "Macro Metropolitana Paulista",
+      "total_municipios": 36,
+      "municipios_encontrados": 36,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Vale do Paraíba Paulista",
+      "total_municipios": 39,
+      "municipios_encontrados": 38,
+      "municipios_nao_encontrados": 1
+    },
+    {
+      "nome": "Litoral Sul Paulista",
+      "total_municipios": 17,
+      "municipios_encontrados": 17,
+      "municipios_nao_encontrados": 0
+    },
+    {
+      "nome": "Metropolitana de São Paulo",
+      "total_municipios": 45,
+      "municipios_encontrados": 43,
+      "municipios_nao_encontrados": 2
+    }
+  ]
+}

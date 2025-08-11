@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesorregiões de São Paulo</title>
+
+    <!-- Dependências do Mapa (Leaflet.js) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Estilização com Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        body, html {
+            height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .map-container {
+            flex: 1;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1rem;
+            position: relative;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 0.5rem;
+            background-color: #fff;
+        }
+
+        .legend {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem;
+            max-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .tooltip {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            max-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Mesorregiões de São Paulo</h1>
+            <p class="text-gray-600">Visualização das 15 mesorregiões e seus 645 municípios no mapa interativo</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-mesorregioes">-</div>
+                <div class="stat-label">Mesorregiões</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-municipios">-</div>
+                <div class="stat-label">Municípios</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="maior-regiao">-</div>
+                <div class="stat-label">Maior Região</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="menor-regiao">-</div>
+                <div class="stat-label">Menor Região</div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <div class="legend">
+                <h3 class="font-semibold text-gray-900 mb-3">Mesorregiões</h3>
+                <div id="legend-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cores para as mesorregiões
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2'
+        ];
+
+        // Inicializar mapa
+        const map = L.map('map').setView([-23.5505, -46.6333], 7); // Centro em SP
+
+        // Adicionar tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Carregar dados das mesorregiões
+        let mesorregioes = [];
+        let municipios = [];
+
+        // Função para carregar os dados
+        async function carregarDados() {
+            try {
+                const response = await fetch('sp_mesorregioes.json');
+                mesorregioes = await response.json();
+                
+                // Processar dados
+                processarDados();
+                
+                // Atualizar estatísticas
+                atualizarEstatisticas();
+                
+                // Criar legendas
+                criarLegendas();
+                
+                // Renderizar no mapa (quando tiver geometrias)
+                renderizarMapa();
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                document.getElementById('map').innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🗺️</div>
+                            <h3 class="text-xl font-semibold mb-2">Dados Carregados!</h3>
+                            <p class="text-sm">Arquivo sp_mesorregioes.json carregado com sucesso.</p>
+                            <p class="text-sm mt-2">Carregando geometrias do mapa...</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Processar dados das mesorregiões
+        function processarDados() {
+            municipios = [];
+            mesorregioes.forEach((mesorregiao, index) => {
+                mesorregiao.cor = colors[index % colors.length];
+                mesorregiao.index = index;
+                
+                // Adicionar municípios à lista geral
+                mesorregiao.municipios.forEach(municipio => {
+                    municipios.push({
+                        nome: municipio,
+                        mesorregiao: mesorregiao.mesorregiao,
+                        cor: mesorregiao.cor
+                    });
+                });
+            });
+        }
+
+        // Atualizar estatísticas
+        function atualizarEstatisticas() {
+            document.getElementById('total-mesorregioes').textContent = mesorregioes.length;
+            document.getElementById('total-municipios').textContent = municipios.length;
+            
+            const maiorRegiao = mesorregioes.reduce((max, atual) => 
+                atual.municipios.length > max.municipios.length ? atual : max
+            );
+            const menorRegiao = mesorregioes.reduce((min, atual) => 
+                atual.municipios.length < min.municipios.length ? atual : min
+            );
+            
+            document.getElementById('maior-regiao').textContent = maiorRegiao.municipios.length;
+            document.getElementById('menor-regiao').textContent = menorRegiao.municipios.length;
+        }
+
+        // Criar legendas
+        function criarLegendas() {
+            const legendContent = document.getElementById('legend-content');
+            legendContent.innerHTML = '';
+            
+            mesorregioes.forEach(mesorregiao => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${mesorregiao.cor}"></div>
+                    <div>
+                        <div class="font-medium">${mesorregiao.mesorregiao}</div>
+                        <div class="text-xs text-gray-500">${mesorregiao.municipios.length} municípios</div>
+                    </div>
+                `;
+                legendContent.appendChild(legendItem);
+            });
+        }
+
+        // Renderizar no mapa com o arquivo geojs filtrado
+        async function renderizarMapa() {
+            try {
+                const response = await fetch('sp_mesorregioes_filtrado.geojson');
+                const geojson = await response.json();
+                
+                // Agrupar features por mesorregião
+                const featuresPorMesorregiao = {};
+                geojson.features.forEach(feature => {
+                    const mesorregiao = feature.properties.mesorregiao;
+                    if (!featuresPorMesorregiao[mesorregiao]) {
+                        featuresPorMesorregiao[mesorregiao] = [];
+                    }
+                    featuresPorMesorregiao[mesorregiao].push(feature);
+                });
+                
+                // Renderizar cada mesorregião no mapa
+                Object.keys(featuresPorMesorregiao).forEach(nomeMesorregiao => {
+                    const features = featuresPorMesorregiao[nomeMesorregiao];
+                    const mesorregiao = mesorregioes.find(m => m.mesorregiao === nomeMesorregiao);
+                    
+                    if (mesorregiao) {
+                        // Criar grupo para a mesorregião
+                        const grupoMesorregiao = L.featureGroup();
+                        
+                        features.forEach(feature => {
+                            const layer = L.geoJSON(feature, {
+                                style: function(feature) {
+                                    return {
+                                        fillColor: mesorregiao.cor,
+                                        weight: 2,
+                                        opacity: 1,
+                                        color: 'white',
+                                        fillOpacity: 0.7
+                                    };
+                                },
+                                onEachFeature: function(feature, layer) {
+                                    // Tooltip com informações do município
+                                    const tooltipContent = `
+                                        <div class="tooltip">
+                                            <strong>${feature.properties.name}</strong><br>
+                                            Mesorregião: ${feature.properties.mesorregiao}<br>
+                                            <small>Clique para ver detalhes</small>
+                                        </div>
+                                    `;
+                                    
+                                    layer.bindTooltip(tooltipContent, {
+                                        permanent: false,
+                                        direction: 'top',
+                                        className: 'tooltip'
+                                    });
+                                    
+                                    // Popup com informações detalhadas
+                                    const popupContent = `
+                                        <div style="max-width: 300px;">
+                                            <h3 style="margin: 0 0 10px 0; color: #1f2937;">${feature.properties.name}</h3>
+                                            <p style="margin: 0 0 10px 0; color: #6b7280;">
+                                                <strong>Mesorregião:</strong> ${feature.properties.mesorregiao}<br>
+                                                <strong>Total na região:</strong> ${feature.properties.total_municipios_mesorregiao} municípios
+                                            </p>
+                                            <div style="max-height: 150px; overflow-y: auto; font-size: 0.875rem;">
+                                                <strong>Outros municípios da região:</strong><br>
+                                                ${feature.properties.municipios_mesorregiao.slice(0, 15).join(', ')}
+                                                ${feature.properties.municipios_mesorregiao.length > 15 ? 
+                                                    `<br><em>... e mais ${feature.properties.municipios_mesorregiao.length - 15} municípios</em>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                    
+                                    layer.bindPopup(popupContent);
+                                }
+                            });
+                            
+                            grupoMesorregiao.addLayer(layer);
+                        });
+                        
+                        // Adicionar grupo ao mapa
+                        grupoMesorregiao.addTo(map);
+                        
+                        // Adicionar controle de camadas
+                        if (!map.controlLayers) {
+                            map.controlLayers = {};
+                        }
+                        
+                        map.controlLayers[nomeMesorregiao] = grupoMesorregiao;
+                    }
+                });
+                
+                // Ajustar zoom para mostrar todas as mesorregiões
+                if (geojson.features.length > 0) {
+                    const bounds = L.geoJSON(geojson).getBounds();
+                    map.fitBounds(bounds, { padding: [20, 20] });
+                }
+                
+                // Adicionar controle de camadas
+                const overlays = {};
+                Object.keys(featuresPorMesorregiao).forEach(nomeMesorregiao => {
+                    overlays[nomeMesorregiao] = map.controlLayers[nomeMesorregiao];
+                });
+                
+                L.control.layers(null, overlays, {
+                    collapsed: false,
+                    position: 'bottomleft'
+                }).addTo(map);
+                
+            } catch (error) {
+                console.error('Erro ao carregar geojs:', error);
+                document.getElementById('map').innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">⚠️</div>
+                            <h3 class="text-xl font-semibold mb-2">Erro ao carregar mapa</h3>
+                            <p class="text-sm">Não foi possível carregar o arquivo geojs.</p>
+                            <p class="text-sm mt-2">Verifique se o arquivo sp_mesorregioes_filtrado.geojson existe.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Carregar dados quando a página carregar
+        document.addEventListener('DOMContentLoaded', carregarDados);
+
+        // Função para exportar dados (opcional)
+        function exportarDados() {
+            const dados = {
+                mesorregioes: mesorregioes,
+                total_mesorregioes: mesorregioes.length,
+                total_municipios: municipios.length,
+                data_geracao: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sp_mesorregioes_relatorio.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Adicionar botão de exportação
+        const header = document.querySelector('.header');
+        const exportButton = document.createElement('button');
+        exportButton.className = 'mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors';
+        exportButton.innerHTML = '📊 Exportar Dados';
+        exportButton.onclick = exportarDados;
+        header.appendChild(exportButton);
+    </script>
+</body>
+
+</html>
