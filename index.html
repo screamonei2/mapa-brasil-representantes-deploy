@@ -1747,17 +1747,26 @@
                         estadosInfo = `${item.Estado} (${item.SiglaEstado})`;
                     }
 
+                    // Separar telefones quando há mais de um
+                    let telefonesHtml = '';
+                    if (item.celular) {
+                        const telefones = item.celular.split(/[\/\s]+/).filter(tel => tel.trim() && tel.trim() !== 'nan');
+                        if (telefones.length > 0) {
+                            telefonesHtml = telefones.map(tel => 
+                                `<a href="tel:${tel.trim()}" class="text-blue-600 underline block" onclick="event.stopPropagation()">${tel.trim()}</a>`
+                            ).join('');
+                        }
+                    }
+
                     return `
                 <div class="result-item bg-blue-50 rounded-lg p-4 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors" 
                      data-representante-index="${index}" 
                      onclick="highlightRepresentanteAreas(${index})">
                     <div class="font-semibold text-blue-800 text-lg mb-2">${item.NomeRepresentante}</div>
-                    ${item.Contato ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">Contato:</span> ${item.Contato}</div>` : ''}
-                    <div class="text-gray-700 text-sm mb-1"><span class="font-medium">Estados:</span> ${estadosInfo}</div>
-                    <div class="text-gray-700 text-sm mb-2"><span class="font-medium">Total de cidades:</span> ${item.CidadesAtendidas.length}</div>
-                    ${item.email ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">E-mail:</span> <a href="mailto:${item.email}" class="text-blue-600 underline" onclick="event.stopPropagation()">${item.email}</a></div>` : ''}
-                    ${item.celular ? `<div class="text-gray-700 text-sm"><span class="font-medium">Celular:</span> <a href="tel:${item.celular}" class="text-blue-600 underline" onclick="event.stopPropagation()">${item.celular}</a></div>` : ''}
-                    <div class="text-xs text-blue-600 mt-2 font-medium">👆 Clique para destacar no mapa</div>
+                    ${item.codigo ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">📋 Código:</span> ${item.codigo}</div>` : ''}
+                    ${item.Contato ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">👤 Contato:</span> ${item.Contato}</div>` : ''}
+                    ${item.email ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">📧 E-mail:</span> <a href="mailto:${item.email}" class="text-blue-600 underline" onclick="event.stopPropagation()">${item.email}</a></div>` : ''}
+                    ${telefonesHtml ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">📱 Telefones:</span> ${telefonesHtml}</div>` : ''}
                 </div>
             `;
                 }).join('');
