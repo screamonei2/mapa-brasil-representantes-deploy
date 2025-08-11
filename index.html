@@ -15,6 +15,9 @@
     <!-- Estilização com Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
     <style>
         /* Remover todos os outlines de focus */
@@ -1763,16 +1766,23 @@
                      data-representante-index="${index}" 
                      onclick="highlightRepresentanteAreas(${index})">
                     <div class="font-semibold text-blue-800 text-lg mb-2">${item.NomeRepresentante}</div>
-                    ${item.codigo ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">📋 Código:</span> ${item.codigo}</div>` : ''}
-                    ${item.Contato ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">👤 Contato:</span> ${item.Contato}</div>` : ''}
-                    ${item.email ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">📧 E-mail:</span> <a href="mailto:${item.email}" class="text-blue-600 underline" onclick="event.stopPropagation()">${item.email}</a></div>` : ''}
-                    ${telefonesHtml ? `<div class="text-gray-700 text-sm mb-1"><span class="font-medium">📱 Telefones:</span> ${telefonesHtml}</div>` : ''}
+                    ${item.codigo ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="hash" class="w-4 h-4"></i><span class="font-medium">Código:</span> ${item.codigo}</div>` : ''}
+                    ${item.Contato ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i><span class="font-medium">Contato:</span> ${item.Contato}</div>` : ''}
+                    ${item.email ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i><span class="font-medium">E-mail:</span> <a href="mailto:${item.email}" class="text-blue-600 underline" onclick="event.stopPropagation()">${item.email}</a></div>` : ''}
+                    ${telefonesHtml ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i><span class="font-medium">Telefones:</span> ${telefonesHtml}</div>` : ''}
                 </div>
             `;
                 }).join('');
                 
                 // Armazenar resultados globalmente para acesso nas funções de highlight
                 window.currentResults = results;
+                
+                // Inicializar ícones da Lucide após renderizar o conteúdo
+                setTimeout(() => {
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                }, 100);
             }
 
             function showInitialMessage() {
