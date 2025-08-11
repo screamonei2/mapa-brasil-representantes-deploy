@@ -229,7 +229,7 @@
         .reset-zoom-btn {
             position: absolute;
             bottom: 10px;
-            right: 10px;
+            right: 50px;
             z-index: 1000;
             background: white;
             border: 2px solid rgba(0, 0, 0, 0.2);
@@ -240,7 +240,6 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            /* box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65); */
             transition: all 0.2s ease;
         }
 
@@ -254,6 +253,118 @@
             height: 18px;
             color: #333;
         }
+
+        /* Botão de Maximizar Mapa */
+        .maximize-map-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .maximize-map-btn:hover {
+            background: #f4f4f4;
+            border-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .maximize-map-btn svg {
+            width: 18px;
+            height: 18px;
+            color: #333;
+        }
+
+        /* Estado maximizado */
+        .map-maximized .grid-container {
+            grid-template-columns: 1fr !important;
+        }
+
+        .map-maximized .sidebar {
+            display: none !important;
+        }
+
+        .map-maximized .map-container {
+            grid-column: 1 / -1;
+        }
+
+        .map-maximized .map-wrapper {
+            min-height: calc(100vh - 100px) !important;
+        }
+
+        /* Labels dos municípios */
+        .municipio-label-tooltip {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: #000000 !important;
+            font-size: 10px !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            text-shadow: 
+                -1px -1px 0 #ffffff,
+                1px -1px 0 #ffffff,
+                -1px 1px 0 #ffffff,
+                1px 1px 0 #ffffff;
+            white-space: nowrap !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            font-family: 'Inter', sans-serif !important;
+            line-height: 1.2 !important;
+            max-width: 120px !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+
+        /* Ajustar tamanho do texto baseado no zoom */
+        .leaflet-zoom-animated .municipio-label-tooltip {
+            font-size: 11px !important;
+        }
+
+        .leaflet-zoom-animated.leaflet-zoom-level-6 .municipio-label-tooltip,
+        .leaflet-zoom-animated.leaflet-zoom-level-7 .municipio-label-tooltip {
+            font-size: 12px !important;
+        }
+
+        .leaflet-zoom-animated.leaflet-zoom-level-8 .municipio-label-tooltip,
+        .leaflet-zoom-animated.leaflet-zoom-level-9 .municipio-label-tooltip {
+            font-size: 13px !important;
+        }
+
+        .leaflet-zoom-animated.leaflet-zoom-level-10 .municipio-label-tooltip {
+            font-size: 14px !important;
+        }
+        
+        /* Garantir que os labels sejam sempre visíveis */
+        .leaflet-tooltip.municipio-label-tooltip {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block !important;
+            z-index: 1000 !important;
+        }
+        
+        /* Forçar visibilidade mesmo em diferentes estados do mapa */
+        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-top,
+        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-bottom,
+        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-left,
+        .leaflet-tooltip.municipio-label-tooltip.leaflet-tooltip-right {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
     </style>
 
 </head>
@@ -283,6 +394,14 @@
                                     d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                            </svg>
+                        </button>
+                        
+                        <button id="maximize-map-btn" class="maximize-map-btn" title="Maximizar mapa">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                             </svg>
                         </button>
                     </div>
@@ -880,6 +999,12 @@
                 resetZoomBtn.addEventListener('click', function () {
                     resetView(false); // false para não limpar a busca
                 });
+
+                // Event listener para o botão de maximizar mapa
+                const maximizeMapBtn = document.getElementById('maximize-map-btn');
+                maximizeMapBtn.addEventListener('click', function () {
+                    toggleMapMaximize();
+                });
             }
 
             // --- ESTILOS DO MAPA ---
@@ -1110,6 +1235,17 @@
                 if (municipiosLayer) {
                     map.removeLayer(municipiosLayer);
                     municipiosLayer = null;
+                }
+
+                // Limpar labels antigos dos municípios
+                if (window.municipioLabels) {
+                    window.municipioLabels.forEach(layer => {
+                        // Remover tooltip permanente se existir
+                        if (layer.getTooltip()) {
+                            layer.unbindTooltip();
+                        }
+                    });
+                    window.municipioLabels = [];
                 }
 
                 // Criar layer dos municípios com cores por representante
@@ -1355,7 +1491,10 @@
                     // Removemos o click handler - será tratado pelo listener global
                 });
 
-                // Tooltip com informações do município e representantes
+                // Adicionar label com nome do município centralizado (sempre visível)
+                addMunicipioLabel(layer, municipioName);
+                
+                // Tooltip com informações do município e representantes (apenas no hover)
                 let tooltipContent = `<strong>${municipioName}</strong>`;
                 if (representatives.length > 0) {
                     tooltipContent += `<br><small>Representantes: ${representatives.length}</small>`;
@@ -1649,6 +1788,75 @@
 
             function showInitialMessage() {
                 resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">Digite uma cidade ou estado para encontrar representantes, ou clique no mapa.</div>';
+            }
+
+            // Função para alternar entre modo normal e maximizado do mapa
+            function toggleMapMaximize() {
+                const container = document.getElementById('representantes-container');
+                const maximizeBtn = document.getElementById('maximize-map-btn');
+                const isMaximized = container.classList.contains('map-maximized');
+                
+                if (isMaximized) {
+                    // Restaurar modo normal
+                    container.classList.remove('map-maximized');
+                    maximizeBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>
+                    `;
+                    maximizeBtn.title = 'Maximizar mapa';
+                } else {
+                    // Maximizar mapa
+                    container.classList.add('map-maximized');
+                    maximizeBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>
+                    `;
+                    maximizeBtn.title = 'Restaurar mapa';
+                }
+                
+                // Forçar redimensionamento do mapa
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize();
+                    }
+                }, 100);
+            }
+
+            // Função para adicionar label com nome do município
+            function addMunicipioLabel(layer, municipioName) {
+                // Obter o centro do município
+                const bounds = layer.getBounds();
+                const center = bounds.getCenter();
+                
+                console.log(`🏷️ Adicionando label para ${municipioName} em ${center.lat}, ${center.lng}`);
+                
+                // Criar o label usando L.tooltip permanente
+                const tooltip = layer.bindTooltip(municipioName, {
+                    permanent: true,
+                    direction: 'center',
+                    className: 'municipio-label-tooltip',
+                    offset: [0, 0]
+                });
+                
+                // Forçar a exibição do tooltip
+                if (tooltip) {
+                    tooltip.setOpacity(1);
+                    tooltip.setZIndex(1000);
+                }
+                
+                // Armazenar referência para poder remover depois se necessário
+                if (!window.municipioLabels) {
+                    window.municipioLabels = [];
+                }
+                window.municipioLabels.push(layer);
+                
+                console.log(`✅ Label adicionado para ${municipioName}`);
             }
 
             // Função para destacar áreas atendidas por um representante
