@@ -40,7 +40,6 @@
             "BAURU",
             "BERNARDINO DE CAMPOS",
             "BOCAINA",
-            "BOFETE",
             "BORACEIA",
             "BOREBI",
             "BORA",
@@ -54,7 +53,6 @@
             "CANITAR",
             "CERQUEIRA CESAR",
             "CHAVANTES",
-            "CONCHAS",
             "CRUZALIA",
             "DOIS CORREGOS",
             "DRACENA",
@@ -64,7 +62,6 @@
             "ESPIRITO SANTO DO TURVO",
             "ESTRELA DO NORTE",
             "EUCLIDES DA CUNHA PAULISTA",
-            "FARTURA",
             "FERNAO",
             "FLORA RICA",
             "FLORIDA PAULISTA",
@@ -88,8 +85,6 @@
             "IRAPURU",
             "ITAJU",
             "ITAPUI",
-            "ITATINGA",
-            "ITAI",
             "JAU",
             "JOAO RAMALHO",
             "JULIO MESQUITA",
@@ -124,9 +119,7 @@
             "PALMITAL",
             "PANORAMA",
             "PARAGUACU PAULISTA",
-            "PARANAPANEMA",
             "PARAPUA",
-            "PARDINHO",
             "PAULICEIA",
             "PAULISTANIA",
             "PEDERNEIRAS",
@@ -173,11 +166,9 @@
             "SAO PEDRO DO TURVO",
             "SARUTAIA",
             "TACIBA",
-            "TAGUAI",
             "TARABAI",
             "TARUMA",
             "TECAINDA",
-            "TEJUPA",
             "TEODORO SAMPAIO",
             "TIMBURI",
             "TORRINHA",
@@ -224,7 +215,9 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "MAUA",
+            "RIBEIRAO PIRES",
+            "RIO GRANDE DA SERRA"
           ],
           "total_cidades": 13,
           "mesorregioes": [],
@@ -1081,7 +1074,6 @@
             "SANTANA DE MANGUEIRA",
             "SANTANA DOS GARROTES",
             "SANTAREM",
-            "SANTO ANDRE",
             "SAO BENTINHO",
             "SAO BENTO",
             "SAO DOMINGOS DE POMBAL",
@@ -1319,9 +1311,7 @@
       "performance": {},
       "estados": {
         "SP": {
-          "cidades": [
-            
-          ],
+          "cidades": [],
           "total_cidades": 9,
           "mesorregioes": [],
           "total_mesorregioes": 0
@@ -1550,7 +1540,6 @@
             "SANTA CRUZ DE GOIAS",
             "SANTA FE DE GOIAS",
             "SANTA HELENA DE GOIAS",
-            "SANTA ISABEL",
             "SANTA RITA DO ARAGUAIA",
             "SANTA RITA DO NOVO DESTINO",
             "SANTA ROSA DE GOIAS",
@@ -1620,9 +1609,7 @@
       "performance": {},
       "estados": {
         "SP": {
-          "cidades": [
-            
-          ],
+          "cidades": [],
           "total_cidades": 13,
           "mesorregioes": [],
           "total_mesorregioes": 0
@@ -1638,7 +1625,7 @@
         "celular": "16-99211-6497"
       },
       "observacoes": "Será enviado para pesquisa no mapa",
-      "total_cidades": 69,
+      "total_cidades": 88,
       "estados_atendidos": [
         "SP   "
       ],
@@ -1647,11 +1634,67 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "ALTINOPOLIS",
+            "ARAMINA",
+            "BARRINHA",
+            "BATATAIS",
+            "BEBEDOURO",
+            "BRODOWSKI",
+            "BURITIZAL",
+            "CAJURU",
+            "CASSIA DOS COQUEIROS",
+            "CRAVINHOS",
+            "CRISTAIS PAULISTA",
+            "DUMONT",
+            "FRANCA",
+            "GUARA",
+            "GUARIBA",
+            "GUATAPARA",
+            "IGARAPAVA",
+            "IPUA",
+            "ITIRAPUA",
+            "ITUVERAVA",
+            "JABOTICABAL",
+            "JARDINOPOLIS",
+            "JERIQUARA",
+            "LUIS ANTONIO",
+            "MIGUELOPOLIS",
+            "MONTE ALTO",
+            "MONTE AZUL PAULISTA",
+            "MORRO AGUDO",
+            "NUPORANGA",
+            "ORLANDIA",
+            "PATROCINIO PAULISTA",
+            "PEDREGULHO",
+            "PITANGUEIRAS",
+            "PONTAL",
+            "PRADOPOLIS",
+            "RESTINGA",
+            "RIBEIRAO CORRENTE",
+            "RIBEIRAO PRETO",
+            "RIFAINA",
+            "SALES OLIVEIRA",
+            "SANTA CRUZ DA ESPERANCA",
+            "SANTA ROSA DE VITERBO",
+            "SANTO ANTONIO DA ALEGRIA",
+            "SAO JOAQUIM DA BARRA",
+            "SAO JOSE DA BELA VISTA",
+            "SAO SIMAO",
+            "SERRA AZUL",
+            "SERRANA",
+            "SERTAOZINHO",
+            "TAIACU",
+            "TAIUVA",
+            "TAQUARAL",
+            "TERRA ROXA",
+            "VIRADOURO"
           ],
-          "total_cidades": 25,
-          "mesorregioes": [],
-          "total_mesorregioes": 0
+          "total_cidades": 88,
+          "mesorregioes": [
+            "Araraquara",
+            "Ribeirão Preto"
+          ],
+          "total_mesorregioes": 2
         }
       }
     },
@@ -1923,7 +1966,19 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "RIO DAS PEDRAS",
+            "RAFARD",
+            "CAPIVARI",
+            "ELIAS FAUSTO",
+            "INDAIATUBA",
+            "MONTE MOR",
+            "SUMARE",
+            "HORTOLANDIA",
+            "CAMPINAS",
+            "PAULINIA",
+            "MOMBUCA",
+            "VINHEDO",
+            "VALINHOS"
           ],
           "total_cidades": 36,
           "mesorregioes": [
@@ -1951,7 +2006,9 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "SAO BERNARDO DO CAMPO",
+            "DIADEMA",
+            "SANTO ANDRE"
           ],
           "total_cidades": 21,
           "mesorregioes": [],
@@ -2152,7 +2209,15 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "GUARULHOS",
+            "ITAQUAQUECETUBA",
+            "MOGI DAS CRUZES",
+            "BIRITIBA-MIRIM",
+            "SUZANO",
+            "FERRAZ DE VASCONCELOS",
+            "POA",
+            "SAO CAETANO DO SUL",
+            "ARUJA"
           ],
           "total_cidades": 32,
           "mesorregioes": [],
@@ -2936,7 +3001,11 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "SAO LOURENCO DA SERRA",
+            "EMBU-GUACU",
+            "ITAPECERICA DA SERRA",
+            "TABOAO DA SERRA",
+            "EMBU"
           ],
           "total_cidades": 14,
           "mesorregioes": [],
@@ -3026,7 +3095,6 @@
             "QUISSAMA",
             "RESENDE",
             "RIO BONITO",
-            "RIO CLARO",
             "RIO DAS FLORES",
             "RIO DAS OSTRAS",
             "SANTA MARIA MADALENA",
@@ -3318,7 +3386,49 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "APARECIDA",
+            "ARAPEI",
+            "AREIAS",
+            "BANANAL",
+            "CACAPAVA",
+            "CACHOEIRA PAULISTA",
+            "CAMPOS DO JORDAO",
+            "CANAS",
+            "CARAGUATATUBA",
+            "CRUZEIRO",
+            "CUNHA",
+            "GUARATINGUETA",
+            "GUARAREMA",
+            "IGARATA",
+            "ILHABELA",
+            "JACAREI",
+            "JAMBEIRO",
+            "LAGOINHA",
+            "LAVRINHAS",
+            "LORENA",
+            "MONTEIRO LOBATO",
+            "NATIVIDADE DA SERRA",
+            "PARAIBUNA",
+            "PINDAMONHANGABA",
+            "PIQUETE",
+            "POTIM",
+            "QUELUZ",
+            "REDENCAO DA SERRA",
+            "RIO CLARO",
+            "ROSEIRA",
+            "SANTA BRANCA",
+            "SANTA ISABEL",
+            "SANTO ANTONIO DO PINHAL",
+            "SAO BENTO DO SAPUCAI",
+            "SAO JOSE DO BARREIRO",
+            "SAO JOSE DOS CAMPOS",
+            "SAO LUIS DO PARAITINGA",
+            "SAO SEBASTIAO",
+            "SILVEIRAS",
+            "TAUBATE",
+            "TREMEMBE",
+            "SALESOPOLIS",
+            "UBATUBA"
           ],
           "total_cidades": 30,
           "mesorregioes": [],
@@ -4428,7 +4538,30 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "AGUAS DE SAO PEDRO",
+            "AMERICANA",
+            "ANALANDIA",
+            "CHARQUEADA",
+            "COSMOPOLIS",
+            "CORDEIROPOLIS",
+            "CORUMBATAI",
+            "DESCALVADO",
+            "DOURADO",
+            "IBATE",
+            "IPEUNA",
+            "IRACEMAPOLIS",
+            "ITIRAPINA",
+            "LIMEIRA",
+            "NOVA ODESSA",
+            "PIRACICABA",
+            "PORTO FERREIRA",
+            "RIBEIRAO BONITO",
+            "SANTA GERTRUDES",
+            "SANTA BARBARA D'OESTE",
+            "SANTA RITA DO PASSA QUATRO",
+            "SAO CARLOS",
+            "SAO PEDRO",
+            "TRABIJU"
           ],
           "total_cidades": 42,
           "mesorregioes": [],
@@ -4758,7 +4891,30 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "BARRA DO TURVO",
+            "CAJATI",
+            "CANANEIA",
+            "CUBATAO",
+            "ELDORADO",
+            "IGUAPE",
+            "ILHA COMPRIDA",
+            "ITANHAEM",
+            "ITARIRI",
+            "JACUPIRANGA",
+            "JUQUIA",
+            "MIRACATU",
+            "MONGAGUA",
+            "PARIQUERA-ACU",
+            "PRAIA GRANDE",
+            "PEDRO DE TOLEDO",
+            "PERUIBE",
+            "REGISTRO",
+            "SAO VICENTE",
+            "SANTOS",
+            "GUARUJA",
+            "JUQUITIBA",
+            "BERTIOGA",
+            "SETE BARRAS"
           ],
           "total_cidades": 26,
           "mesorregioes": [],
@@ -10401,7 +10557,36 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "PINHALZINHO",
+            "PEDRA BELA",
+            "SALTINHO",
+            "TIETE",
+            "PORTO FELIZ",
+            "ITU",
+            "SALTO",
+            "CABREUVA",
+            "ITUPEVA",
+            "LOUVEIRA",
+            "ITATIBA",
+            "MORUNGABA",
+            "TUIUTI",
+            "JUNDIAI",
+            "VARZEA PAULISTA",
+            "JARINU",
+            "ATIBAIA",
+            "PIRACAIA",
+            "JOANOPOLIS",
+            "BRAGANCA PAULISTA",
+            "CAMPO LIMPO PAULISTA",
+            "FRANCISCO MORATO",
+            "BOM JESUS DOS PERDOES",
+            "NAZARE PAULISTA",
+            "IPERO",
+            "BOITUVA",
+            "CERQUILHO",
+            "JUMIRIM",
+            "MAIRIPORA",
+            "VARGEM"
           ],
           "total_cidades": 21,
           "mesorregioes": [],
@@ -10427,11 +10612,134 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "AGUAI",
+            "AGUAS DA PRATA",
+            "AGUAS DE LINDOIA",
+            "AMPARO",
+            "ARARAS",
+            "ARTUR NOGUEIRA",
+            "CACONDE",
+            "CASA BRANCA",
+            "CONCHAL",
+            "DIVINOLANDIA",
+            "ENGENHEIRO COELHO",
+            "ESPIRITO SANTO DO PINHAL",
+            "HOLAMBRA",
+            "ITAPIRA",
+            "ITOBI",
+            "JAGUARIUNA",
+            "LEME",
+            "LINDOIA",
+            "MOCOCA",
+            "MOGI GUACU",
+            "MOJI MIRIM",
+            "MONTE ALEGRE DO SUL",
+            "PEDREIRA",
+            "PIRASSUNUNGA",
+            "SANTA BARBARA D OESTE",
+            "SANTA CRUZ DA CONCEICAO",
+            "SANTA CRUZ DAS PALMEIRAS",
+            "SANTO ANTONIO DE POSSE",
+            "SANTO ANTONIO DO JARDIM",
+            "SAO JOAO DA BOA VISTA",
+            "SAO JOSE DO RIO PARDO",
+            "SAO SEBASTIAO DA GRAMA",
+            "SERRA NEGRA",
+            "SOCORRO",
+            "TAMBAU",
+            "TAPIRATIBA",
+            "VARGEM GRANDE DO SUL",
+            "ESTIVA GERBI"
           ],
           "total_cidades": 22,
           "mesorregioes": [],
           "total_mesorregioes": 0
+        }
+      }
+    },
+    "NEW REPRESENTAÇÃO S/S LTDA EPP": {
+      "codigo": "38.04",
+      "nome": "NEW REPRESENTAÇÃO S/S LTDA EPP",
+      "contato": {
+        "nome_contato": "Newton",
+        "email": "newrepresentacao@uol.com.br                       ",
+        "celular": "15-3012-4866 / 15-99759-9911 / 15-99774-5213"
+      },
+      "observacoes": "Será enviado para pesquisa no mapa",
+      "total_cidades": 13,
+      "estados_atendidos": [
+        "SP   "
+      ],
+      "resumo_atividades": "",
+      "performance": {},
+      "estados": {
+        "SP": {
+          "cidades": [
+            "CONCHAS",
+            "PARDINHO",
+            "ITATINGA",
+            "PARANAPANEMA",
+            "ITAI",
+            "TEJUPA",
+            "TAGUAI",
+            "FARTURA",
+            "BOFETE",
+            "ALAMBARI",
+            "ANGATUBA",
+            "APIAI",
+            "BARAO DE ANTONINA",
+            "BARRA DO CHAPEU",
+            "BOM SUCESSO DE ITARARE",
+            "BURI",
+            "CAMPINA DO MONTE ALEGRE",
+            "CAPAO BONITO",
+            "CESARIO LANGE",
+            "CORONEL MACEDO",
+            "GUAPIARA",
+            "GUAREI",
+            "IPORANGA",
+            "ITABERA",
+            "ITAOCA",
+            "ITAPETININGA",
+            "ITAPEVA",
+            "ITAPIRAPUA PAULISTA",
+            "ITAPORANGA",
+            "ITARARE",
+            "LARANJAL PAULISTA",
+            "NOVA CAMPINA",
+            "PEREIRAS",
+            "PORANGABA",
+            "QUADRA",
+            "RIBEIRA",
+            "RIBEIRAO BRANCO",
+            "RIBEIRAO GRANDE",
+            "RIVERSUL",
+            "TAQUARITUBA",
+            "TAQUARIVAI",
+            "TATUI",
+            "SAO MIGUEL ARCANJO",
+            "TAPIRAI",
+            "PILAR DO SUL",
+            "SARAPUI",
+            "CAPELA DO ALTO",
+            "CAPELA DO ALTOARACOIABA DA SERRA",
+            "SALTO DE PIRAPORA",
+            "PIEDADE",
+            "ARACOIABA DA SERRA",
+            "SOROCABA",
+            "VOTORANTIM",
+            "ALUMINIO",
+            "MAIRINQUE",
+            "SAO ROQUE",
+            "IBIUNA",
+            "ARACARIGUAMA",
+            "TORRE DE PEDRA"
+          ],
+          "total_cidades": 13,
+          "mesorregioes": [
+            "Zona da Mata"
+          ],
+          "total_mesorregioes": 1
         }
       }
     },
@@ -10452,9 +10760,7 @@
       "performance": {},
       "estados": {
         "SP": {
-          "cidades": [
-            
-          ],
+          "cidades": [],
           "total_cidades": 13,
           "mesorregioes": [
             "Zona da Mata"
@@ -10641,7 +10947,6 @@
             "PEDRAS GRANDES",
             "PERITIBA",
             "PETROLÂNDIA",
-            "PINHALZINHO",
             "PINHEIRO PRETO",
             "PIRATUBA",
             "PLANALTO ALEGRE",
@@ -10858,7 +11163,7 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "SAO CAETANO DO SUL"
           ],
           "total_cidades": 14,
           "mesorregioes": [],
@@ -10884,7 +11189,9 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "CAJAMAR",
+            "FRANCO DA ROCHA",
+            "CAIEIRAS"
           ],
           "total_cidades": 18,
           "mesorregioes": [
@@ -11027,7 +11334,15 @@
       "estados": {
         "SP": {
           "cidades": [
-            
+            "COTIA",
+            "VARGEM GRANDE PAULISTA",
+            "JANDIRA",
+            "BARUERI",
+            "CARAPICUIBA",
+            "SANTANA DE PARNAIBA",
+            "OSASCO",
+            "PIRAPORA DO BOM JESUS",
+            "ITAPEVI"
           ],
           "total_cidades": 19,
           "mesorregioes": [],
