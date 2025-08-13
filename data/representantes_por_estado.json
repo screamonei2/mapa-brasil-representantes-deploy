@@ -10765,7 +10765,12 @@
           "mesorregioes": [
             "Zona da Mata"
           ],
-          "total_mesorregioes": 1
+          "total_mesorregioes": 1,
+          "bairros": [
+            "Lapa",
+            "Sé"
+          ],
+          "total_bairros": 2
         }
       }
     },

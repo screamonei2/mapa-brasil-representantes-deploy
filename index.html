@@ -648,6 +648,21 @@
                                 municipioRepresentativeMap.get(normalizedCidade).push(representante);
                             });
                         }
+                        
+                        // Mapear bairros se existirem para o estado SP
+                        if (estado === 'SP' && dadosEstado.bairros && Array.isArray(dadosEstado.bairros)) {
+                            dadosEstado.bairros.forEach(bairro => {
+                                const normalizedBairro = normalize(bairro);
+                                
+                                // Mapear bairro para representante
+                                if (!municipioRepresentativeMap.has(normalizedBairro)) {
+                                    municipioRepresentativeMap.set(normalizedBairro, []);
+                                }
+                                municipioRepresentativeMap.get(normalizedBairro).push(representante);
+                                
+                                console.log(`🏘️ Mapeando bairro "${bairro}" para representante "${nome}"`);
+                            });
+                        }
                     }
                 }
 
@@ -830,12 +845,35 @@
                     const bairrosGeoJson = await bairrosResponse.json();
                     
                     bairrosLayer = L.geoJson(bairrosGeoJson, {
-                        style: {
-                            color: 'white',
-                            weight: 1,
-                            opacity: 1,
-                            fillColor: '#999',
-                            fillOpacity: 0.2
+                        style: function(feature) {
+                            const bairroName = feature.properties.NOME_DIST;
+                            if (bairroName) {
+                                const normalizedBairroName = normalize(bairroName);
+                                const representatives = municipioRepresentativeMap.get(normalizedBairroName) || [];
+                                
+                                if (representatives.length > 0) {
+                                    // Se há representantes, usar a cor do primeiro representante
+                                    const firstRep = representatives[0];
+                                    const color = representativeColorMap.get(firstRep.id) || '#9CA3AF';
+                                    
+                                    return {
+                                        color: 'white',
+                                        weight: 2,
+                                        opacity: 1,
+                                        fillColor: color,
+                                        fillOpacity: 0.7
+                                    };
+                                }
+                            }
+                            
+                            // Estilo padrão para bairros sem representantes
+                            return {
+                                color: 'white',
+                                weight: 1,
+                                opacity: 1,
+                                fillColor: '#999',
+                                fillOpacity: 0.2
+                            };
                         },
                         onEachFeature: function(feature, layer) {
                             const bairroName = feature.properties.NOME_DIST;
@@ -848,13 +886,13 @@
                                 let tooltipContent = `<strong>${bairroName}</strong>`;
                                 if (representatives.length > 0) {
                                     tooltipContent += `<br><small>Representantes: ${representatives.length}</small>`;
-                                    representatives.slice(0, 2).forEach(rep => {
+                                    representatives.forEach((rep, index) => {
                                         const color = representativeColorMap.get(rep.id) || '#9CA3AF';
                                         tooltipContent += `<br><span style="color: ${color}; font-weight: bold;">•</span> ${rep.NomeRepresentante}`;
+                                        if (rep.Contato) {
+                                            tooltipContent += ` (${rep.Contato})`;
+                                        }
                                     });
-                                    if (representatives.length > 2) {
-                                        tooltipContent += `<br>... e mais ${representatives.length - 2}`;
-                                    }
                                 } else {
                                     tooltipContent += `<br><small style="color: #6B7280;">Sem representantes</small>`;
                                 }
