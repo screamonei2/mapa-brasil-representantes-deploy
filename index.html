@@ -641,11 +641,12 @@
                                 }
                                 municipioRepresentativeMap.get(cidadeEstadoKey).push(representante);
                                 
-                                // Também manter o mapeamento apenas por cidade para compatibilidade
-                                if (!municipioRepresentativeMap.has(normalizedCidade)) {
-                                    municipioRepresentativeMap.set(normalizedCidade, []);
-                                }
-                                municipioRepresentativeMap.get(normalizedCidade).push(representante);
+                                // IMPORTANTE: NÃO mapear apenas por cidade para evitar conflitos entre estados
+                                // Remover esta parte que causava o problema:
+                                // if (!municipioRepresentativeMap.has(normalizedCidade)) {
+                                //     municipioRepresentativeMap.set(normalizedCidade, []);
+                                // }
+                                // municipioRepresentativeMap.get(normalizedCidade).push(representante);
                             });
                         }
                         
@@ -718,35 +719,37 @@
                             const nomeMunicipio = props.nome || props.name || props.municipio || '';
                             const normalizedName = normalize(nomeMunicipio);
                             
-                                                            if (normalizedName) {
-                                    // Adicionar SCHIOPPA ao mapeamento deste município
-                                    const cidadeEstadoKey = `${normalizedName}-${ufMunicipio.toLowerCase()}`;
-                                    
-                                    if (!municipioRepresentativeMap.has(cidadeEstadoKey)) {
-                                        municipioRepresentativeMap.set(cidadeEstadoKey, []);
-                                    }
-                                    
-                                    // Verificar se SCHIOPPA já está mapeada para este município
-                                    const existingReps = municipioRepresentativeMap.get(cidadeEstadoKey);
-                                    const jaExiste = existingReps.some(rep => rep.id === schioppaRep.id);
-                                    
-                                    if (!jaExiste) {
-                                        municipioRepresentativeMap.get(cidadeEstadoKey).push(schioppaRep);
-                                        municipiosMapeados++;
-                                    }
-                                    
-                                    // Também manter o mapeamento apenas por cidade para compatibilidade
-                                    if (!municipioRepresentativeMap.has(normalizedName)) {
-                                        municipioRepresentativeMap.set(normalizedName, []);
-                                    }
-                                    
-                                    const existingRepsCidade = municipioRepresentativeMap.get(normalizedName);
-                                    const jaExisteCidade = existingRepsCidade.some(rep => rep.id === schioppaRep.id);
-                                    
-                                    if (!jaExisteCidade) {
-                                        municipioRepresentativeMap.get(normalizedName).push(schioppaRep);
-                                    }
+                            if (normalizedName) {
+                                // IMPORTANTE: Sempre usar cidade+estado para evitar conflitos
+                                // Não mapear apenas por nome da cidade
+                                const cidadeEstadoKey = `${normalizedName}-${ufMunicipio.toLowerCase()}`;
+                                
+                                if (!municipioRepresentativeMap.has(cidadeEstadoKey)) {
+                                    municipioRepresentativeMap.set(cidadeEstadoKey, []);
                                 }
+                                
+                                // Verificar se SCHIOPPA já está mapeada para este município+estado
+                                const existingReps = municipioRepresentativeMap.get(cidadeEstadoKey);
+                                const jaExiste = existingReps.some(rep => rep.id === schioppaRep.id);
+                                
+                                if (!jaExiste) {
+                                    municipioRepresentativeMap.get(cidadeEstadoKey).push(schioppaRep);
+                                    municipiosMapeados++;
+                                }
+                                
+                                // NÃO mapear apenas por cidade para evitar conflitos entre estados
+                                // Remover esta parte que causava o problema:
+                                // if (!municipioRepresentativeMap.has(normalizedName)) {
+                                //     municipioRepresentativeMap.set(normalizedName, []);
+                                // }
+                                // 
+                                // const existingRepsCidade = municipioRepresentativeMap.get(normalizedName);
+                                // const jaExisteCidade = existingRepsCidade.some(rep => rep.id === schioppaRep.id);
+                                // 
+                                // if (!jaExisteCidade) {
+                                //     municipioRepresentativeMap.get(normalizedName).push(schioppaRep);
+                                // }
+                            }
                         }
                     });
                     
@@ -1161,6 +1164,7 @@
             function getMunicipioStyleByRepresentative(municipioName) {
                 const normalizedName = normalize(municipioName);
                 
+                // IMPORTANTE: Sempre usar cidade+estado para evitar conflitos
                 // Buscar representantes considerando o estado atual apenas quando estamos visualizando municípios
                 let representatives = [];
                 if (viewMode === 'municipios' && currentState && currentState.code) {
@@ -1168,8 +1172,9 @@
                     const cidadeEstadoKey = `${normalizedName}-${normalizedEstado}`;
                     representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
                 } else {
-                    // Busca geral - usar apenas cidade
-                    representatives = municipioRepresentativeMap.get(normalizedName) || [];
+                    // IMPORTANTE: Não fazer busca apenas por cidade para evitar conflitos
+                    // Se não temos estado específico, não podemos determinar qual cidade específica
+                    representatives = [];
                 }
                 
                 if (representatives.length === 0) {
@@ -1200,6 +1205,7 @@
             function getMunicipioHighlightStyle(municipioName) {
                 const normalizedName = normalize(municipioName);
                 
+                // IMPORTANTE: Sempre usar cidade+estado para evitar conflitos
                 // Buscar representantes considerando o estado atual apenas quando estamos visualizando municípios
                 let representatives = [];
                 if (viewMode === 'municipios' && currentState && currentState.code) {
@@ -1207,8 +1213,9 @@
                     const cidadeEstadoKey = `${normalizedName}-${normalizedEstado}`;
                     representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
                 } else {
-                    // Busca geral - usar apenas cidade
-                    representatives = municipioRepresentativeMap.get(normalizedName) || [];
+                    // IMPORTANTE: Não fazer busca apenas por cidade para evitar conflitos
+                    // Se não temos estado específico, não podemos determinar qual cidade específica
+                    representatives = [];
                 }
                 
                 if (representatives.length === 0) {
@@ -1623,6 +1630,7 @@
                 const municipioName = props.name || props.nome || props.municipio || props.description;
                 const normalizedName = normalize(municipioName);
                 
+                // IMPORTANTE: Sempre usar cidade+estado para evitar conflitos
                 // Buscar representantes considerando o estado atual apenas quando estamos visualizando municípios
                 let representatives = [];
                 if (viewMode === 'municipios' && currentState && currentState.code) {
@@ -1630,8 +1638,9 @@
                     const cidadeEstadoKey = `${normalizedName}-${normalizedEstado}`;
                     representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
                 } else {
-                    // Busca geral - usar apenas cidade
-                    representatives = municipioRepresentativeMap.get(normalizedName) || [];
+                    // IMPORTANTE: Não fazer busca apenas por cidade para evitar conflitos
+                    // Se não temos estado específico, não podemos determinar qual cidade específica
+                    representatives = [];
                 }
 
                 layer.on({
@@ -1681,6 +1690,7 @@
                 const normalizedName = normalize(municipioName);
                 console.log(`📍 Nome normalizado: ${normalizedName}`);
                 
+                // IMPORTANTE: Sempre usar cidade+estado para evitar conflitos
                 // Se estamos em um estado específico e visualizando municípios, usar cidade+estado
                 let representatives = [];
                 if (viewMode === 'municipios' && currentState && currentState.code) {
@@ -1690,9 +1700,10 @@
                     console.log('📍 Buscando por cidade+estado:', cidadeEstadoKey);
                     console.log('📍 Chaves disponíveis no map:', Array.from(municipioRepresentativeMap.keys()).slice(0, 10));
                 } else {
-                    // Busca geral - usar apenas cidade
-                    representatives = municipioRepresentativeMap.get(normalizedName) || [];
-                    console.log('📍 Buscando apenas por cidade:', normalizedName);
+                    // IMPORTANTE: Não fazer busca apenas por cidade para evitar conflitos
+                    // Se não temos estado específico, não podemos determinar qual cidade específica
+                    console.log('⚠️ Não é possível buscar apenas por cidade sem especificar o estado (evita conflitos)');
+                    representatives = [];
                 }
                 
                 console.log(`📊 Representantes encontrados inicialmente: ${representatives.length}`);
@@ -1808,38 +1819,80 @@
                 }
 
                 // 2. Verificar se é busca por município específico
-                // Buscar em todas as cidades atendidas de todos os representantes
+                // IMPORTANTE: Buscar por cidade+estado para evitar conflitos
                 let foundMunicipio = null;
                 let municipioState = null;
                 
-                for (const rep of results) {
-                    const exactMatch = rep.CidadesAtendidas.find(cidade =>
-                        normalize(cidade) === normalizedQuery
-                    );
-                    
-                    if (exactMatch) {
-                        foundMunicipio = exactMatch;
-                        municipioState = rep.Estado;
-                        break;
-                    }
+                // Primeiro, tentar encontrar um estado selecionado para contexto
+                let contextState = null;
+                if (currentState && currentState.code) {
+                    contextState = currentState.code;
                 }
                 
-                // Se não encontrou match exato, buscar por match parcial
-                if (!foundMunicipio) {
-                    for (const rep of results) {
-                        const partialMatch = rep.CidadesAtendidas.find(cidade =>
-                            normalize(cidade).includes(normalizedQuery) && 
-                            normalize(cidade).startsWith(normalizedQuery)
+                // Buscar em todas as cidades atendidas de todos os representantes
+                for (const rep of results) {
+                    // Se temos contexto de estado, priorizar busca por cidade+estado
+                    if (contextState && rep.EstadosDetalhados && rep.EstadosDetalhados[contextState]) {
+                        const cidadesEstado = rep.EstadosDetalhados[contextState].cidades || [];
+                        const exactMatch = cidadesEstado.find(cidade =>
+                            normalize(cidade) === normalizedQuery
                         );
                         
-                        if (partialMatch) {
-                            foundMunicipio = partialMatch;
+                        if (exactMatch) {
+                            foundMunicipio = exactMatch;
+                            municipioState = contextState;
+                            break;
+                        }
+                    }
+                    
+                    // Fallback: buscar em todas as cidades do representante
+                    if (rep.CidadesAtendidas) {
+                        const exactMatch = rep.CidadesAtendidas.find(cidade =>
+                            normalize(cidade) === normalizedQuery
+                        );
+                        
+                        if (exactMatch) {
+                            foundMunicipio = exactMatch;
                             municipioState = rep.Estado;
                             break;
                         }
                     }
                 }
                 
+                // Se não encontrou match exato, buscar por match parcial
+                if (!foundMunicipio) {
+                    for (const rep of results) {
+                        // Se temos contexto de estado, priorizar busca por cidade+estado
+                        if (contextState && rep.EstadosDetalhados && rep.EstadosDetalhados[contextState]) {
+                            const cidadesEstado = rep.EstadosDetalhados[contextState].cidades || [];
+                            const partialMatch = cidadesEstado.find(cidade =>
+                                normalize(cidade).includes(normalizedQuery) && 
+                                normalize(cidade).startsWith(normalizedQuery)
+                            );
+                            
+                            if (partialMatch) {
+                                foundMunicipio = partialMatch;
+                                municipioState = contextState;
+                                break;
+                            }
+                        }
+                        
+                        // Fallback: buscar em todas as cidades do representante
+                        if (rep.CidadesAtendidas) {
+                            const partialMatch = rep.CidadesAtendidas.find(cidade =>
+                                normalize(cidade).includes(normalizedQuery) && 
+                                normalize(cidade).startsWith(normalizedQuery)
+                            );
+                            
+                            if (partialMatch) {
+                                foundMunicipio = partialMatch;
+                                municipioState = rep.Estado;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 if (foundMunicipio && municipioState) {
                     // É uma busca por município específico
                     const success = zoomToMunicipio(foundMunicipio, municipioState);
@@ -2082,11 +2135,24 @@
                             dadosEstado.cidades.forEach(cidade => {
                                 const normalizedCidade = normalize(cidade);
                                 
-                                // Buscar município no GeoJSON
+                                // IMPORTANTE: Buscar município considerando o estado para evitar conflitos
                                 const municipioFeature = municipiosData.features.find(feature => {
                                     const props = feature.properties;
                                     const municipioName = props.name || props.nome || props.municipio || props.description;
-                                    return normalize(municipioName) === normalizedCidade;
+                                    const municipioState = props.uf || props.estado || props.sigla_uf || props.UF || props.ESTADO || props.cd_geocuf;
+                                    
+                                    // Para geojs-100-mun-v2.json, extrair UF do campo uf_municipio
+                                    let extractedState = municipioState;
+                                    if (!extractedState && props.uf_municipio) {
+                                        const match = props.uf_municipio.match(/^([A-Z]{2})\s*-/);
+                                        if (match) {
+                                            extractedState = match[1];
+                                        }
+                                    }
+                                    
+                                    // Verificar se o município e estado correspondem
+                                    return normalize(municipioName) === normalizedCidade && 
+                                           (extractedState === estado || normalize(extractedState) === normalize(estado));
                                 });
 
                                 if (municipioFeature) {
@@ -2101,11 +2167,24 @@
                     cidadesAtendidas.forEach(cidade => {
                         const normalizedCidade = normalize(cidade);
                         
-                        // Buscar município no GeoJSON
+                        // IMPORTANTE: Buscar município considerando o estado para evitar conflitos
                         const municipioFeature = municipiosData.features.find(feature => {
                             const props = feature.properties;
                             const municipioName = props.name || props.nome || props.municipio || props.description;
-                            return normalize(municipioName) === normalizedCidade;
+                            const municipioState = props.uf || props.estado || props.sigla_uf || props.UF || props.ESTADO || props.cd_geocuf;
+                            
+                            // Para geojs-100-mun-v2.json, extrair UF do campo uf_municipio
+                            let extractedState = municipioState;
+                            if (!extractedState && props.uf_municipio) {
+                                const match = props.uf_municipio.match(/^([A-Z]{2})\s*-/);
+                                if (match) {
+                                    extractedState = match[1];
+                                }
+                            }
+                            
+                            // Verificar se o município e estado correspondem
+                            return normalize(municipioName) === normalizedCidade && 
+                                   (extractedState === representante.SiglaEstado || normalize(extractedState) === normalize(representante.SiglaEstado));
                         });
 
                         if (municipioFeature) {
