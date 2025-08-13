@@ -864,6 +864,16 @@
                                     direction: 'top',
                                     className: 'bairro-tooltip'
                                 });
+
+                                // Adicionar evento de clique para zoom no bairro
+                                layer.on('click', function(e) {
+                                    const bounds = layer.getBounds();
+                                    map.fitBounds(bounds, { 
+                                        padding: [20, 20],
+                                        maxZoom: 12  // Zoom mais próximo para bairros
+                                    });
+                                    console.log('🎯 Zoom aplicado no bairro:', bairroName);
+                                });
                             }
                         },
                         interactive: true
