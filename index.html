@@ -865,14 +865,19 @@
                                     className: 'bairro-tooltip'
                                 });
 
-                                // Adicionar evento de clique para zoom no bairro
+                                // Adicionar evento de clique para zoom na capital de São Paulo
                                 layer.on('click', function(e) {
-                                    const bounds = layer.getBounds();
-                                    map.fitBounds(bounds, { 
-                                        padding: [20, 20],
-                                        maxZoom: 12  // Zoom mais próximo para bairros
+                                    // Coordenadas aproximadas da capital de São Paulo
+                                    const capitalBounds = L.latLngBounds(
+                                        [-23.8, -46.8],  // Sudoeste
+                                        [-23.4, -46.4]   // Nordeste
+                                    );
+                                    
+                                    map.fitBounds(capitalBounds, { 
+                                        padding: [30, 30],
+                                        maxZoom: 10  // Zoom para mostrar toda a capital
                                     });
-                                    console.log('🎯 Zoom aplicado no bairro:', bairroName);
+                                    console.log('🏙️ Zoom aplicado na capital de São Paulo');
                                 });
                             }
                         },
