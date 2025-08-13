@@ -11364,7 +11364,7 @@
         "celular": "66-99984-1208"
       },
       "observacoes": "Representante exclusivo para todo o estado do Mato Grosso",
-      "total_cidades": 136,
+      "total_cidades": 141,
       "estados_atendidos": [
         "MT"
       ],
@@ -11450,11 +11450,7 @@
             "NOVA SANTA HELENA",
             "NOVA BRASILANDIA",
             "NOVA CANAA DO NORTE",
-            "NOVA GUARITA",
             "NOVA MUTUM",
-            "NOVA MONTE VERDE",
-            "NOVA MARINGA",
-            "NOVA MARILANDIA",
             "NOVA OLIMPIA",
             "NOVA UBIRATA",
             "NOVA XAVANTINA",
@@ -11509,13 +11505,12 @@
             "TERRA NOVA DO NORTE",
             "TESOURO",
             "TORIXOREU",
-            "UNIAO DO SUL",
             "VALE DE SAO DOMINGOS",
             "VARZEA GRANDE",
             "VERA",
             "VILA RICA"
           ],
-          "total_cidades": 136,
+          "total_cidades": 141,
           "mesorregioes": [],
           "total_mesorregioes": 0
         }
