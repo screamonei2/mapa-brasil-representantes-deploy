@@ -849,13 +849,8 @@
                     // Configurar a layer dos bairros para ter prioridade menor que os estados
                     bairrosLayer.setZIndex(5);
                     
-                    // Adicionar controle de camadas para ligar/desligar os bairros
-                    const layerControl = L.control.layers(null, {
-                        'Bairros de São Paulo': bairrosLayer
-                    }, {
-                        position: 'topright',
-                        collapsed: false
-                    }).addTo(map);
+                    // Inicialmente, os bairros ficam ocultos
+                    bairrosLayer.remove();
                     
                     console.log('✅ Camada dos bairros de São Paulo carregada com sucesso');
                 } catch (error) {
@@ -1351,6 +1346,20 @@
                 viewMode = 'municipios';
                 mainTitle.textContent = `Municípios de ${stateName || stateCode} - Clique em um município para ver os representantes`;
                 backButton.classList.remove('hidden');
+                
+                // Se for São Paulo, mostrar os bairros
+                if (stateCode === 'SP' || stateName === 'SAO PAULO') {
+                    if (bairrosLayer) {
+                        map.addLayer(bairrosLayer);
+                        console.log('🏘️ Bairros de São Paulo adicionados ao mapa');
+                    }
+                } else {
+                    // Se não for SP, remover os bairros se estiverem visíveis
+                    if (bairrosLayer && map.hasLayer(bairrosLayer)) {
+                        map.removeLayer(bairrosLayer);
+                        console.log('🏘️ Bairros removidos do mapa (não é SP)');
+                    }
+                }
                 
                 console.log(`🎯 Modo municípios ativado para ${stateName}. Municípios carregados: ${estadoMunicipios.length}`);
             }
@@ -2104,6 +2113,12 @@
                 if (highlightedMunicipiosLayer) {
                     map.removeLayer(highlightedMunicipiosLayer);
                     highlightedMunicipiosLayer = null;
+                }
+
+                // Remover bairros quando voltar para visualização geral
+                if (bairrosLayer && map.hasLayer(bairrosLayer)) {
+                    map.removeLayer(bairrosLayer);
+                    console.log('🏘️ Bairros removidos ao voltar para visualização geral');
                 }
 
                 currentState = null;
