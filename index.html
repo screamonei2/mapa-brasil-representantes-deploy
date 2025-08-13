@@ -505,6 +505,7 @@
             let geoJsonLayer;
             let municipiosLayer = null;
             let bairrosLayer = null;
+            let bairrosLabels = [];
             let selectedStateLayer = null;
             let selectedMunicipioLayer = null;
             let currentState = null;
@@ -842,6 +843,9 @@
                             if (feature.properties && feature.properties.NOME_DIST) {
                                 layer.bindPopup(`<b>Bairro:</b> ${feature.properties.NOME_DIST}`);
                             }
+                            
+                            // Adicionar label com nome do bairro
+                            addBairroLabel(layer, feature.properties.NOME_DIST);
                         },
                         interactive: true
                     }).addTo(map);
@@ -1978,6 +1982,51 @@
                 window.municipioLabels.push(labelMarker);
             }
 
+            // Função para adicionar label com nome do bairro
+            function addBairroLabel(layer, bairroName) {
+                // Obter o centro do bairro
+                const bounds = layer.getBounds();
+                const center = bounds.getCenter();
+                
+                // Criar um div personalizado para o label fixo
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'bairro-label-fixo';
+                labelDiv.innerHTML = bairroName;
+                labelDiv.style.cssText = `
+                    position: absolute;
+                    background: transparent;
+                    border: none;
+                    border-radius: 0;
+                    padding: 0;
+                    font-size: 4px;
+                    font-weight: 600;
+                    color: #333;
+                    text-align: center;
+                    white-space: nowrap;
+                    pointer-events: none;
+                    z-index: 1000;
+                    box-shadow: none;
+                    transform: translate(-50%, -50%);
+                `;
+                
+                // Criar um elemento Leaflet para o label
+                const labelElement = L.divIcon({
+                    html: labelDiv,
+                    className: 'bairro-label-container',
+                    iconSize: [1, 1],
+                    iconAnchor: [0, 0]
+                });
+                
+                // Criar um marcador para o label
+                const labelMarker = L.marker(center, {
+                    icon: labelElement,
+                    interactive: false
+                }).addTo(map);
+                
+                // Armazenar referência para poder remover depois se necessário
+                bairrosLabels.push(labelMarker);
+            }
+
             // Função para destacar áreas atendidas por um representante
             function highlightRepresentanteAreas(index) {
                 if (!window.currentResults || !window.currentResults[index]) {
@@ -2119,6 +2168,17 @@
                 if (bairrosLayer && map.hasLayer(bairrosLayer)) {
                     map.removeLayer(bairrosLayer);
                     console.log('🏘️ Bairros removidos ao voltar para visualização geral');
+                }
+
+                // Limpar labels dos bairros
+                if (bairrosLabels.length > 0) {
+                    bairrosLabels.forEach(labelMarker => {
+                        if (map.hasLayer(labelMarker)) {
+                            map.removeLayer(labelMarker);
+                        }
+                    });
+                    bairrosLabels = [];
+                    console.log('🏷️ Labels dos bairros removidos');
                 }
 
                 currentState = null;
