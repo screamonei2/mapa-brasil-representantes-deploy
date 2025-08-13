@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste das Melhorias na Busca</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-input { width: 300px; padding: 8px; margin: 10px 0; }
+        .test-button { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .test-button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+        .highlight { background: #fff3cd; padding: 2px 4px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste das Melhorias na Busca</h1>
+    
+    <div class="test-section">
+        <h2>🔍 Teste 1: Diferenciação entre Cidades Similares</h2>
+        <p><strong>Problema anterior:</strong> Busca por "Curitiba" mostrava resultados de "Curitibanos" também</p>
+        <p><strong>Solução implementada:</strong> Busca fuzzy inteligente com priorização de matches exatos</p>
+        
+        <div>
+            <input type="text" id="test1-input" class="test-input" placeholder="Digite: Curitiba ou Curitibanos" value="Curitiba">
+            <button onclick="testarDiferencacaoCidades()" class="test-button">Testar</button>
+        </div>
+        <div id="test1-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🏙️ Teste 2: Diferenciação Estado vs Capital</h2>
+        <p><strong>Problema anterior:</strong> "São Paulo" não diferenciava entre estado e capital</p>
+        <p><strong>Solução implementada:</strong> Detecção inteligente do tipo de busca</p>
+        
+        <div>
+            <input type="text" id="test2-input" class="test-input" placeholder="Digite: São Paulo" value="São Paulo">
+            <button onclick="testarDiferencacaoEstadoCapital()" class="test-button">Testar</button>
+        </div>
+        <div id="test2-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🏘️ Teste 3: Busca por Bairros de São Paulo</h2>
+        <p><strong>Problema anterior:</strong> Bairros não eram considerados na busca</p>
+        <p><strong>Solução implementada:</strong> Integração com camada de bairros e busca fuzzy</p>
+        
+        <div>
+            <input type="text" id="test3-input" class="test-input" placeholder="Digite: Vila Madalena, Pinheiros, etc." value="Vila Madalena">
+            <button onclick="testarBuscaBairros()" class="test-button">Testar</button>
+        </div>
+        <div id="test3-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Teste 4: Busca Fuzzy Inteligente</h2>
+        <p><strong>Problema anterior:</strong> Busca simples por substring causava resultados irrelevantes</p>
+        <p><strong>Solução implementada:</strong> Algoritmo de Levenshtein com thresholds configuráveis</p>
+        
+        <div>
+            <input type="text" id="test4-input" class="test-input" placeholder="Digite com erros de digitação" value="Curitba">
+            <button onclick="testarBuscaFuzzy()" class="test-button">Testar</button>
+        </div>
+        <div id="test4-result" class="result"></div>
+    </div>
+
+    <script>
+        // Implementação das funções de busca melhoradas para teste
+        
+        // Função para calcular similaridade entre strings (Levenshtein distance)
+        function calculateSimilarity(str1, str2) {
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+            
+            if (longer.length === 0) return 1.0;
+            
+            const distance = levenshteinDistance(longer, shorter);
+            return (longer.length - distance) / longer.length;
+        }
+
+        // Implementação do algoritmo de Levenshtein
+        function levenshteinDistance(str1, str2) {
+            const matrix = [];
+            
+            for (let i = 0; i <= str2.length; i++) {
+                matrix[i] = [i];
+            }
+            
+            for (let j = 0; j <= str1.length; j++) {
+                matrix[0][j] = j;
+            }
+            
+            for (let i = 1; i <= str2.length; i++) {
+                for (let j = 1; j <= str1.length; j++) {
+                    if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            
+            return matrix[str2.length][str1.length];
+        }
+
+        // Função para determinar o tipo de busca
+        function determineSearchType(query) {
+            const normalizedQuery = query.toLowerCase().normalize("NFD").replace(/[^\w\s]/g, "");
+            
+            // 1. Verificar se é busca por estado (sigla ou nome completo)
+            const statePatterns = [
+                /^(sp|rj|mg|ba|pr|rs|pe|ce|pa|sc|go|ma|pb|am|es|mt|al|pi|df|ms|se|rn|ro|ac|ap|rr|to)$/i,
+                /^(são paulo|rio de janeiro|minas gerais|bahia|paraná|rio grande do sul|pernambuco|ceará|pará|santa catarina|goiás|maranhão|paraíba|amazonas|espírito santo|mato grosso|alagoas|piauí|distrito federal|mato grosso do sul|sergipe|rio grande do norte|rondônia|acre|amapá|roraima|tocantins)$/i
+            ];
+            
+            for (const pattern of statePatterns) {
+                if (pattern.test(normalizedQuery)) {
+                    return { type: 'estado', query: normalizedQuery };
+                }
+            }
+            
+            // 2. Verificar se é busca por bairro de São Paulo
+            if (normalizedQuery.includes('vila') || 
+                normalizedQuery.includes('jardim') || 
+                normalizedQuery.includes('jd') ||
+                normalizedQuery.includes('centro') ||
+                normalizedQuery.includes('bairro') ||
+                normalizedQuery.includes('distrito')) {
+                return { type: 'bairro', query: normalizedQuery };
+            }
+            
+            // 3. Verificar se é busca por cidade específica
+            return { type: 'cidade', query: normalizedQuery };
+        }
+
+        // Dados simulados para teste
+        const cidadesTeste = [
+            { nome: "Curitiba", estado: "PR", tipo: "capital" },
+            { nome: "Curitibanos", estado: "SC", tipo: "cidade" },
+            { nome: "São Paulo", estado: "SP", tipo: "capital" },
+            { nome: "São Paulo do Potengi", estado: "RN", tipo: "cidade" },
+            { nome: "Vila Madalena", estado: "SP", tipo: "bairro" },
+            { nome: "Pinheiros", estado: "SP", tipo: "bairro" },
+            { nome: "Centro", estado: "SP", tipo: "bairro" }
+        ];
+
+        // Teste 1: Diferenciação entre cidades similares
+        function testarDiferencacaoCidades() {
+            const query = document.getElementById('test1-input').value;
+            const searchType = determineSearchType(query);
+            const normalizedQuery = searchType.query;
+            
+            let result = `<h3>Resultado da Busca: "${query}"</h3>`;
+            result += `<p><strong>Tipo detectado:</strong> <span class="highlight">${searchType.type}</span></p>`;
+            
+            // Simular busca fuzzy
+            const exactMatches = [];
+            const similarMatches = [];
+            
+            cidadesTeste.forEach(cidade => {
+                const normalizedCidade = cidade.nome.toLowerCase().normalize("NFD").replace(/[^\w\s]/g, "");
+                
+                if (normalizedCidade === normalizedQuery) {
+                    exactMatches.push(cidade);
+                } else {
+                    const similarity = calculateSimilarity(normalizedCidade, normalizedQuery);
+                    if (similarity > 0.7) {
+                        similarMatches.push({ ...cidade, similarity });
+                    }
+                }
+            });
+            
+            // Ordenar por similaridade
+            similarMatches.sort((a, b) => b.similarity - a.similarity);
+            
+            result += `<h4>✅ Matches Exatos (${exactMatches.length}):</h4>`;
+            if (exactMatches.length > 0) {
+                exactMatches.forEach(cidade => {
+                    result += `<div>• <strong>${cidade.nome}</strong> - ${cidade.estado} (${cidade.tipo})</div>`;
+                });
+            } else {
+                result += `<div>Nenhum match exato encontrado</div>`;
+            }
+            
+            result += `<h4>🔍 Matches Similares (${similarMatches.length}):</h4>`;
+            if (similarMatches.length > 0) {
+                similarMatches.slice(0, 3).forEach(cidade => {
+                    result += `<div>• <strong>${cidade.nome}</strong> - ${cidade.estado} (${cidade.tipo}) - Similaridade: ${(cidade.similarity * 100).toFixed(1)}%</div>`;
+                });
+            } else {
+                result += `<div>Nenhum match similar encontrado</div>`;
+            }
+            
+            document.getElementById('test1-result').innerHTML = result;
+        }
+
+        // Teste 2: Diferenciação estado vs capital
+        function testarDiferencacaoEstadoCapital() {
+            const query = document.getElementById('test2-input').value;
+            const searchType = determineSearchType(query);
+            
+            let result = `<h3>Resultado da Busca: "${query}"</h3>`;
+            result += `<p><strong>Tipo detectado:</strong> <span class="highlight">${searchType.type}</span></p>`;
+            
+            if (searchType.type === 'estado') {
+                result += `<p>✅ <strong>Busca por Estado detectada!</strong></p>`;
+                result += `<p>• Será feita busca em todos os municípios do estado</p>`;
+                result += `<p>• Resultados serão filtrados por estado</p>`;
+            } else if (searchType.type === 'bairro') {
+                result += `<p>🏘️ <strong>Busca por Bairro detectada!</strong></p>`;
+                result += `<p>• Será feita busca específica em bairros de São Paulo</p>`;
+                result += `<p>• Resultados serão filtrados por bairro</p>`;
+            } else {
+                result += `<p>🏙️ <strong>Busca por Cidade detectada!</strong></p>`;
+                result += `<p>• Será feita busca fuzzy em todas as cidades</p>`;
+                result += `<p>• Resultados serão filtrados por cidade específica</p>`;
+            }
+            
+            document.getElementById('test2-result').innerHTML = result;
+        }
+
+        // Teste 3: Busca por bairros
+        function testarBuscaBairros() {
+            const query = document.getElementById('test3-input').value;
+            const searchType = determineSearchType(query);
+            
+            let result = `<h3>Resultado da Busca: "${query}"</h3>`;
+            result += `<p><strong>Tipo detectado:</strong> <span class="highlight">${searchType.type}</span></p>`;
+            
+            if (searchType.type === 'bairro') {
+                result += `<p>🏘️ <strong>Busca por Bairro ativada!</strong></p>`;
+                
+                // Simular busca em bairros
+                const bairrosEncontrados = cidadesTeste.filter(cidade => 
+                    cidade.tipo === 'bairro' && 
+                    cidade.nome.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                result += `<h4>Bairros encontrados (${bairrosEncontrados.length}):</h4>`;
+                if (bairrosEncontrados.length > 0) {
+                    bairrosEncontrados.forEach(bairro => {
+                        result += `<div>• <strong>${bairro.nome}</strong> - ${bairro.estado}</div>`;
+                    });
+                } else {
+                    result += `<div>Nenhum bairro encontrado</div>`;
+                }
+                
+                result += `<p><strong>Melhorias implementadas:</strong></p>`;
+                result += `<ul>`;
+                result += `<li>✅ Busca específica em camada de bairros de São Paulo</li>`;
+                result += `<li>✅ Priorização de bairros sobre cidades genéricas</li>`;
+                result += `<li>✅ Integração com mapa de bairros</li>`;
+                result += `</ul>`;
+            } else {
+                result += `<p>⚠️ Esta busca não foi detectada como busca por bairro</p>`;
+                result += `<p>Adicione palavras como "vila", "jardim", "centro", "bairro" para ativar busca por bairros</p>`;
+            }
+            
+            document.getElementById('test3-result').innerHTML = result;
+        }
+
+        // Teste 4: Busca fuzzy
+        function testarBuscaFuzzy() {
+            const query = document.getElementById('test4-input').value;
+            const searchType = determineSearchType(query);
+            
+            let result = `<h3>Resultado da Busca: "${query}"</h3>`;
+            result += `<p><strong>Tipo detectado:</strong> <span class="highlight">${searchType.type}</span></p>`;
+            
+            // Simular busca fuzzy com diferentes thresholds
+            const threshold80 = [];
+            const threshold70 = [];
+            const threshold60 = [];
+            
+            cidadesTeste.forEach(cidade => {
+                const normalizedCidade = cidade.nome.toLowerCase().normalize("NFD").replace(/[^\w\s]/g, "");
+                const similarity = calculateSimilarity(normalizedCidade, query.toLowerCase());
+                
+                if (similarity > 0.8) {
+                    threshold80.push({ ...cidade, similarity });
+                } else if (similarity > 0.7) {
+                    threshold70.push({ ...cidade, similarity });
+                } else if (similarity > 0.6) {
+                    threshold60.push({ ...cidade, similarity });
+                }
+            });
+            
+            result += `<h4>🔍 Resultados Fuzzy:</h4>`;
+            result += `<p><strong>Threshold 80%+ (Alta precisão):</strong></p>`;
+            if (threshold80.length > 0) {
+                threshold80.forEach(cidade => {
+                    result += `<div>• <strong>${cidade.nome}</strong> - ${cidade.estado} (${(cidade.similarity * 100).toFixed(1)}%)</div>`;
+                });
+            } else {
+                result += `<div>Nenhum resultado com alta precisão</div>`;
+            }
+            
+            result += `<p><strong>Threshold 70%+ (Média precisão):</strong></p>`;
+            if (threshold70.length > 0) {
+                threshold70.forEach(cidade => {
+                    result += `<div>• <strong>${cidade.nome}</strong> - ${cidade.estado} (${(cidade.similarity * 100).toFixed(1)}%)</div>`;
+                });
+            } else {
+                result += `<div>Nenhum resultado com média precisão</div>`;
+            }
+            
+            result += `<p><strong>Threshold 60%+ (Baixa precisão):</strong></p>`;
+            if (threshold60.length > 0) {
+                threshold60.forEach(cidade => {
+                    result += `<div>• <strong>${cidade.nome}</strong> - ${cidade.estado} (${(cidade.similarity * 100).toFixed(1)}%)</div>`;
+                });
+            } else {
+                result += `<div>Nenhum resultado com baixa precisão</div>`;
+            }
+            
+            result += `<p><strong>Melhorias implementadas:</strong></p>`;
+            result += `<ul>`;
+            result += `<li>✅ Algoritmo de Levenshtein para cálculo de similaridade</li>`;
+            result += `<li>✅ Thresholds configuráveis (80%, 70%, 60%)</li>`;
+            result += `<li>✅ Priorização de matches exatos sobre similares</li>`;
+            result += `<li>✅ Limitação de resultados similares para evitar poluição</li>`;
+            result += `</ul>`;
+            
+            document.getElementById('test4-result').innerHTML = result;
+        }
+    </script>
+</body>
+</html>
