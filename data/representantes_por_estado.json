@@ -1612,7 +1612,43 @@
           "cidades": [],
           "total_cidades": 13,
           "mesorregioes": [],
-          "total_mesorregioes": 0
+          "total_mesorregioes": 0,
+          "bairros": [
+            "CID TIRADENTES",
+            "MOOCA",
+            "PENHA",
+            "BRAS",
+            "PARI",
+            "BELEM",
+            "TATUAPE",
+            "AGUA RASA",
+            "VILA PRUDENTE",
+            "SAO LUCAS",
+            "SAPOPEMBA",
+            "ARICANDUVA",
+            "VILA MATILDE",
+            "CANGAIBA",
+            "ERMELINO MATARAZZO",
+            "VILA JACUI",
+            "SAO MIGUEL",
+            "JD HELENA",
+            "VILA CURUCA",
+            "ITAIM PAULISTA",
+            "PONTE RASA",
+            "ARTUR ALVIM",
+            "CID LIDER",
+            "CARRAO",
+            "VILA FORMOSA",
+            "PARQUE DO CARMO",
+            "SAO MATEUS",
+            "SAO RAFAEL",
+            "IGUATEMI",
+            "LAJEADO",
+            "GUAIANASES",
+            "JOSE BONIFACIO",
+            "ITAQUERA"
+          ],
+          "total_bairros": 2
         }
       }
     },
@@ -3009,7 +3045,29 @@
           ],
           "total_cidades": 14,
           "mesorregioes": [],
-          "total_mesorregioes": 0
+          "total_mesorregioes": 0,
+          "bairros": [
+            "MARSILAC",
+            "PARELHEIROS",
+            "GRAJAU",
+            "JD ANGELA",
+            "CID DUTRA",
+            "PEDREIRA",
+            "JD SAO LUIS",
+            "CAPAO REDONDO",
+            "CAMPO LIMPO",
+            "CAMPO GRANDE",
+            "SANTO AMARO",
+            "VILA ANDRADE",
+            "VILA SONIA",
+            "RAPOSO TAVARES",
+            "RIO PEQUENO",
+            "JAGUARE",
+            "BUTANTA",
+            "MORUMBI",
+            "SOCORRO"
+          ],
+          "total_bairros": 2
         }
       }
     },
@@ -10767,7 +10825,23 @@
           ],
           "total_mesorregioes": 1,
           "bairros": [
-            
+            "LAPA",
+            "ALTO DE PINHEIROS",
+            "VILA LEOPOLDINA",
+            "PERDIZES",
+            "BARRA FUNDA",
+            "SANTA CECILIA",
+            "CONSOLACAO",
+            "BOM RETIRO",
+            "REPUBLICA",
+            "SE",
+            "BELA VISTA",
+            "LIBERDADE",
+            "LAMBUCI",
+            "CAMBUCI",
+            "PARI",
+            "BRAS",
+            "JAGUARA"
           ],
           "total_bairros": 2
         }
@@ -11171,7 +11245,22 @@
           ],
           "total_cidades": 14,
           "mesorregioes": [],
-          "total_mesorregioes": 0
+          "total_mesorregioes": 0,
+          "bairros": [
+            "VILA MARIANA",
+            "PINHEIROS",
+            "JD PAULISTA",
+            "MOEMA",
+            "SAUDE",
+            "CURSINO",
+            "SACOMA",
+            "ITAIM BIBI",
+            "CAMPO BELO",
+            "JABAQUARA",
+            "CID ADEMAR",
+            "IPIRANGA"
+          ],
+          "total_bairros": 2
         }
       }
     },
@@ -11201,7 +11290,28 @@
           "mesorregioes": [
             "OESTE DE MINAS"
           ],
-          "total_mesorregioes": 1
+          "total_mesorregioes": 1,
+          "bairros": [
+            "JARAGUA",
+            "SAO DOMINGOS",
+            "PIRITUBA",
+            "FREGUESIA DO O",
+            "BRASILANDIA",
+            "CACHOEIRINHA",
+            "MANDAQUI",
+            "TREMEMBE",
+            "JACANA",
+            "VILA MEDEIROS",
+            "VILA MARIA",
+            "VILA GUILHERME",
+            "SANTANA",
+            "CASA VERDE",
+            "TUCURUVI",
+            "ANHANGUERA",
+            "PERUS",
+            "LIMAO"
+          ],
+          "total_bairros": 2
         }
       }
     },

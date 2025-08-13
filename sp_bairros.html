@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bairros de São Paulo</title>
+
+    <!-- Dependências do Mapa (Leaflet.js) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Estilização com Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        body, html {
+            height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .map-container {
+            flex: 1;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1rem;
+            position: relative;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 0.5rem;
+            background-color: #fff;
+        }
+
+        .legend {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem;
+            max-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .tooltip {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            max-width: 300px;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Botão de Maximizar Mapa */
+        .maximize-map-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .maximize-map-btn:hover {
+            background: #f4f4f4;
+            border-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .maximize-map-btn svg {
+            width: 18px;
+            height: 18px;
+            color: #333;
+        }
+
+        /* Modo tela cheia real */
+        .map-fullscreen {
+            overflow: hidden !important;
+        }
+
+        .map-fullscreen .container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+        }
+
+        .map-fullscreen .map-container {
+            height: 100vh !important;
+            min-height: 100vh !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+        }
+
+        .map-fullscreen #map {
+            height: 100vh !important;
+            min-height: 100vh !important;
+            border-radius: 0 !important;
+        }
+
+        .map-fullscreen .maximize-map-btn {
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            z-index: 10000 !important;
+        }
+
+        .map-fullscreen .header,
+        .map-fullscreen .search-container,
+        .map-fullscreen .stats {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Bairros de São Paulo</h1>
+            <p class="text-gray-600">Visualização dos bairros e distritos da cidade de São Paulo no mapa interativo</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search-bairro" class="search-input" placeholder="🔍 Pesquisar bairro ou distrito...">
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-bairros">-</div>
+                <div class="stat-label">Total de Bairros</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-distritos">-</div>
+                <div class="stat-label">Distritos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="bairro-maior">-</div>
+                <div class="stat-label">Maior Bairro</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="bairro-menor">-</div>
+                <div class="stat-label">Menor Bairro</div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <div class="legend">
+                <h3 class="font-semibold text-gray-900 mb-3">Distritos</h3>
+                <div id="legend-content"></div>
+            </div>
+
+            <!-- Botão de Maximizar Mapa -->
+            <button id="maximize-map-btn" class="maximize-map-btn" title="Maximizar mapa">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Cores para os distritos
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2',
+            '#F39C12', '#E74C3C', '#9B59B6', '#3498DB', '#1ABC9C',
+            '#2ECC71', '#F1C40F', '#E67E22', '#95A5A6', '#34495E'
+        ];
+
+        // Inicializar mapa
+        const map = L.map('map').setView([-23.5505, -46.6333], 11); // Centro em SP com zoom mais próximo
+
+        // Adicionar tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Variáveis globais
+        let bairros = [];
+        let distritos = [];
+        let bairrosLayer = null;
+
+        // Função para carregar os dados
+        async function carregarDados() {
+            try {
+                const response = await fetch('data/bairros.geojson');
+                const geojson = await response.json();
+                
+                // Processar dados
+                processarDados(geojson);
+                
+                // Atualizar estatísticas
+                atualizarEstatisticas();
+                
+                // Criar legendas
+                criarLegendas();
+                
+                // Renderizar no mapa
+                renderizarMapa(geojson);
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                document.getElementById('map').innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">⚠️</div>
+                            <h3 class="text-xl font-semibold mb-2">Erro ao carregar dados</h3>
+                            <p class="text-sm">Não foi possível carregar o arquivo bairros.geojson.</p>
+                            <p class="text-sm mt-2">Verifique se o arquivo existe na pasta data/.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Processar dados dos bairros
+        function processarDados(geojson) {
+            bairros = [];
+            distritos = new Set();
+            
+            if (geojson.features && Array.isArray(geojson.features)) {
+                geojson.features.forEach((feature, index) => {
+                    try {
+                        if (feature && feature.properties && feature.geometry) {
+                            const properties = feature.properties;
+                            const distrito = properties.NOME_DIST || 'Sem distrito';
+                            const codigoDistrito = properties.COD_DIST || '00';
+                            
+                            // Adicionar distrito à lista
+                            distritos.add(distrito);
+                            
+                            // Calcular área aproximada (simplificado)
+                            const area = calcularAreaAproximada(feature.geometry);
+                            
+                            bairros.push({
+                                nome: properties.NOME_DIST || `Bairro ${index + 1}`,
+                                distrito: distrito,
+                                codigo: codigoDistrito,
+                                area: area,
+                                feature: feature,
+                                cor: colors[parseInt(codigoDistrito) % colors.length]
+                            });
+                        }
+                    } catch (error) {
+                        console.warn(`Erro ao processar feature ${index}:`, error);
+                    }
+                });
+            }
+            
+            // Converter Set para Array
+            distritos = Array.from(distritos);
+        }
+
+        // Função para calcular área aproximada
+        function calcularAreaAproximada(geometry) {
+            try {
+                if (geometry.type === 'MultiPolygon') {
+                    let areaTotal = 0;
+                    if (geometry.coordinates && Array.isArray(geometry.coordinates)) {
+                        geometry.coordinates.forEach(polygon => {
+                            if (polygon && polygon[0] && Array.isArray(polygon[0])) {
+                                areaTotal += calcularAreaPoligono(polygon[0]);
+                            }
+                        });
+                    }
+                    return areaTotal;
+                } else if (geometry.type === 'Polygon') {
+                    if (geometry.coordinates && geometry.coordinates[0] && Array.isArray(geometry.coordinates[0])) {
+                        return calcularAreaPoligono(geometry.coordinates[0]);
+                    }
+                }
+                return 0;
+            } catch (error) {
+                console.warn('Erro ao calcular área:', error);
+                return 0;
+            }
+        }
+
+        // Função para calcular área de um polígono (fórmula do shoelace)
+        function calcularAreaPoligono(coordinates) {
+            let area = 0;
+            for (let i = 0; i < coordinates.length; i++) {
+                const j = (i + 1) % coordinates.length;
+                area += coordinates[i][0] * coordinates[j][1];
+                area -= coordinates[j][0] * coordinates[i][1];
+            }
+            return Math.abs(area) / 2;
+        }
+
+        // Função para obter coordenadas formatadas de forma segura
+        function obterCoordenadasFormatadas(geometry) {
+            try {
+                if (geometry.type === 'MultiPolygon') {
+                    if (geometry.coordinates && geometry.coordinates[0] && geometry.coordinates[0][0] && geometry.coordinates[0][0][0]) {
+                        const coords = geometry.coordinates[0][0][0];
+                        return `Lat: ${coords[1].toFixed(6)}<br>Lon: ${coords[0].toFixed(6)}`;
+                    }
+                } else if (geometry.type === 'Polygon') {
+                    if (geometry.coordinates && geometry.coordinates[0] && geometry.coordinates[0][0]) {
+                        const coords = geometry.coordinates[0][0];
+                        return `Lat: ${coords[1].toFixed(6)}<br>Lon: ${coords[0].toFixed(6)}`;
+                    }
+                }
+                return 'Coordenadas não disponíveis';
+            } catch (error) {
+                return 'Coordenadas não disponíveis';
+            }
+        }
+
+        // Atualizar estatísticas
+        function atualizarEstatisticas() {
+            document.getElementById('total-bairros').textContent = bairros.length;
+            document.getElementById('total-distritos').textContent = distritos.length;
+            
+            if (bairros.length > 0) {
+                const maiorBairro = bairros.reduce((max, atual) => 
+                    atual.area > max.area ? atual : max
+                );
+                const menorBairro = bairros.reduce((min, atual) => 
+                    atual.area < min.area ? atual : min
+                );
+                
+                document.getElementById('bairro-maior').textContent = maiorBairro.nome;
+                document.getElementById('bairro-menor').textContent = menorBairro.nome;
+            }
+        }
+
+        // Criar legendas
+        function criarLegendas() {
+            const legendContent = document.getElementById('legend-content');
+            legendContent.innerHTML = '';
+            
+            distritos.forEach((distrito, index) => {
+                const bairrosDoDistrito = bairros.filter(b => b.distrito === distrito);
+                const cor = colors[index % colors.length];
+                
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${cor}"></div>
+                    <div>
+                        <div class="font-medium">${distrito}</div>
+                        <div class="text-xs text-gray-500">${bairrosDoDistrito.length} bairros</div>
+                    </div>
+                `;
+                legendContent.appendChild(legendItem);
+            });
+        }
+
+        // Renderizar no mapa
+        function renderizarMapa(geojson) {
+            try {
+                // Limpar camada anterior se existir
+                if (bairrosLayer) {
+                    map.removeLayer(bairrosLayer);
+                }
+                
+                // Verificar se o geojson é válido
+                if (!geojson || !geojson.features || !Array.isArray(geojson.features)) {
+                    throw new Error('GeoJSON inválido ou sem features');
+                }
+                
+                // Criar nova camada
+                bairrosLayer = L.geoJSON(geojson, {
+                    style: function(feature) {
+                        try {
+                            const distrito = feature.properties?.NOME_DIST || 'Sem distrito';
+                            const codigoDistrito = feature.properties?.COD_DIST || '00';
+                            const cor = colors[parseInt(codigoDistrito) % colors.length];
+                            
+                            return {
+                                fillColor: cor,
+                                weight: 1,
+                                opacity: 1,
+                                color: 'white',
+                                fillOpacity: 0.6
+                            };
+                        } catch (error) {
+                            console.warn('Erro ao estilizar feature:', error);
+                            return {
+                                fillColor: '#999',
+                                weight: 1,
+                                opacity: 1,
+                                color: 'white',
+                                fillOpacity: 0.6
+                            };
+                        }
+                    },
+                    onEachFeature: function(feature, layer) {
+                        try {
+                            const properties = feature.properties || {};
+                            const distrito = properties.NOME_DIST || 'Sem distrito';
+                            const codigoDistrito = properties.COD_DIST || '00';
+                            const dataCriacao = properties.DATA_CRIAC || 'N/A';
+                            
+                            // Tooltip com informações do bairro
+                            const tooltipContent = `
+                                <div class="tooltip">
+                                    <strong>${distrito}</strong><br>
+                                    Código: ${codigoDistrito}<br>
+                                    <small>Clique para ver detalhes</small>
+                                </div>
+                            `;
+                            
+                            layer.bindTooltip(tooltipContent, {
+                                permanent: false,
+                                direction: 'top',
+                                className: 'tooltip'
+                            });
+                            
+                            // Popup com informações detalhadas
+                            const popupContent = `
+                                <div style="max-width: 300px;">
+                                    <h3 style="margin: 0 0 10px 0; color: #1f2937;">${distrito}</h3>
+                                    <p style="margin: 0 0 10px 0; color: #6b7280;">
+                                        <strong>Código do Distrito:</strong> ${codigoDistrito}<br>
+                                        <strong>Data de Criação:</strong> ${dataCriacao}<br>
+                                        <strong>Sigla:</strong> ${properties.SIGLA_DIST || 'N/A'}
+                                    </p>
+                                    <div style="font-size: 0.875rem; color: #6b7280;">
+                                        <strong>Coordenadas:</strong><br>
+                                        ${obterCoordenadasFormatadas(feature.geometry)}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            layer.bindPopup(popupContent);
+                        } catch (error) {
+                            console.warn('Erro ao configurar feature:', error);
+                        }
+                    }
+                });
+                
+                // Adicionar camada ao mapa
+                bairrosLayer.addTo(map);
+                
+                // Ajustar zoom para mostrar todos os bairros
+                if (geojson.features.length > 0) {
+                    try {
+                        const bounds = bairrosLayer.getBounds();
+                        map.fitBounds(bounds, { padding: [20, 20] });
+                    } catch (error) {
+                        console.warn('Erro ao ajustar bounds:', error);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Erro ao renderizar mapa:', error);
+                document.getElementById('map').innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">⚠️</div>
+                            <h3 class="text-xl font-semibold mb-2">Erro ao renderizar mapa</h3>
+                            <p class="text-sm">${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Função de pesquisa
+        function pesquisarBairro(termo) {
+            if (!bairrosLayer) return;
+            
+            const termoLower = termo.toLowerCase();
+            const features = bairrosLayer.getLayers();
+            
+            features.forEach(layer => {
+                const nome = layer.feature.properties.NOME_DIST || '';
+                if (nome.toLowerCase().includes(termoLower)) {
+                    layer.setStyle({ fillOpacity: 0.9, weight: 3 });
+                    if (termo) {
+                        map.setView(layer.getBounds().getCenter(), 15);
+                    }
+                } else {
+                    layer.setStyle({ fillOpacity: 0.6, weight: 1 });
+                }
+            });
+        }
+
+        // Event listener para pesquisa
+        document.getElementById('search-bairro').addEventListener('input', function(e) {
+            pesquisarBairro(e.target.value);
+        });
+
+        // Função para alternar entre modo normal e maximizado do mapa
+        function toggleMapMaximize() {
+            const container = document.querySelector('.container');
+            const maximizeBtn = document.getElementById('maximize-map-btn');
+            const isFullscreen = document.body.classList.contains('map-fullscreen');
+
+            if (isFullscreen) {
+                // Restaurar modo normal
+                document.body.classList.remove('map-fullscreen');
+                maximizeBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                    </svg>
+                `;
+                maximizeBtn.title = 'Maximizar mapa';
+            } else {
+                // Maximizar mapa em tela cheia
+                document.body.classList.add('map-fullscreen');
+                maximizeBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                `;
+                maximizeBtn.title = 'Restaurar mapa';
+            }
+
+            // Forçar redimensionamento do mapa
+            setTimeout(() => {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 100);
+        }
+
+        // Carregar dados quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarDados();
+            
+            // Adicionar event listener para o botão de maximizar
+            const maximizeBtn = document.getElementById('maximize-map-btn');
+            if (maximizeBtn) {
+                maximizeBtn.addEventListener('click', toggleMapMaximize);
+            }
+        });
+
+        // Função para exportar dados
+        function exportarDados() {
+            const dados = {
+                bairros: bairros.map(b => ({
+                    nome: b.nome,
+                    distrito: b.distrito,
+                    codigo: b.codigo,
+                    area: b.area
+                })),
+                total_bairros: bairros.length,
+                total_distritos: distritos.length,
+                data_geracao: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sp_bairros_relatorio.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Adicionar botão de exportação
+        const header = document.querySelector('.header');
+        const exportButton = document.createElement('button');
+        exportButton.className = 'mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors';
+        exportButton.innerHTML = '📊 Exportar Dados';
+        exportButton.onclick = exportarDados;
+        header.appendChild(exportButton);
+    </script>
+</body>
+
+</html>
