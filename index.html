@@ -520,11 +520,12 @@
                     ;
 
                 // Mapa específico de cores para representantes especiais
-                const specialRepresentativeColors = {
-                    'schioppa': '#3b82f6',  // Azul padrão para SCHIOPPA
-                    'rg representacoes ltda': '#dc2626',  // Vermelho para RG REPRESENTAÇÕES (código 42)
-                    '3l representacoes comerciais ltda me': '#FF0000'  // Vermelho para 3L REPRESENTAÇÕES
-                };
+                // COMENTADO: Não é mais necessário, cores estão em representativeColors
+                // const specialRepresentativeColors = {
+                //     'schioppa': '#3b82f6',  // Azul padrão para SCHIOPPA
+                //     'rg representacoes ltda': '#dc2626',  // Vermelho para RG REPRESENTAÇÕES (código 42)
+                //     '3l representacoes comerciais ltda me': '#FF0000'  // Vermelho para 3L REPRESENTAÇÕES
+                // };
 
                 const searchInput = document.getElementById('search-input');
                 const resultsContainer = document.getElementById('results-container');
@@ -600,18 +601,19 @@
 
                         // Atribuir cor ao representante
                         if (!representativeColorMap.has(representante.id)) {
+                            // COMENTADO: Lógica de cores especiais removida, usar apenas cores gerais
                             // Verificar se é um representante especial com cor específica
-                            const nomeNormalizado = nomeEmpresa.toLowerCase();
-                            console.log(`🎨 Verificando cor para: ${nomeNormalizado} (${nomeEmpresa})`);
+                            // const nomeNormalizado = nomeEmpresa.toLowerCase();
+                            // console.log(`🎨 Verificando cor para: ${nomeNormalizado} (${nomeEmpresa})`);
                             
-                            if (specialRepresentativeColors[nomeNormalizado]) {
-                                representativeColorMap.set(representante.id, specialRepresentativeColors[nomeNormalizado]);
-                                console.log(`✅ Cor especial atribuída: ${representante.NomeRepresentante} -> ${specialRepresentativeColors[nomeNormalizado]}`);
-                            } else {
+                            // if (specialRepresentativeColors[nomeNormalizado]) {
+                            //     representativeColorMap.set(representante.id, specialRepresentativeColors[nomeNormalizado]);
+                            //     console.log(`✅ Cor especial atribuída: ${representante.NomeRepresentante} -> ${specialRepresentativeColors[nomeNormalizado]}`);
+                            // } else {
                                 representativeColorMap.set(representante.id, representativeColors[colorIndex % representativeColors.length]);
-                                console.log(`🎨 Cor padrão atribuída: ${representante.NomeRepresentante} -> ${representativeColors[colorIndex % representativeColors.length]}`);
+                                // console.log(`🎨 Cor padrão atribuída: ${representante.NomeRepresentante} -> ${representativeColors[colorIndex % representativeColors.length]}`);
                                 colorIndex++;
-                            }
+                            // }
                         }
 
                         // Indexar por estado
@@ -695,8 +697,9 @@
                     }
 
                     console.log('Mapeando SCHIOPPA para todos os municípios dos estados:', estadosSchioppa);
-                    console.log('SCHIOPPA encontrada:', schioppaRep.NomeRepresentante, 'ID:', schioppaRep.id);
-                    console.log('Cor da SCHIOPPA:', representativeColorMap.get(schioppaRep.id));
+                    // COMENTADO: Logs de debug removidos
+                    // console.log('SCHIOPPA encontrada:', schioppaRep.NomeRepresentante, 'ID:', schioppaRep.id);
+                    // console.log('Cor da SCHIOPPA:', representativeColorMap.get(schioppaRep.id));
 
                     // Percorrer todos os municípios e mapear os dos estados da SCHIOPPA
                     if (municipiosData && municipiosData.features) {
