@@ -493,6 +493,9 @@
 
             // URL do GeoJSON dos estados do Brasil
             const brazilStatesGeoJsonUrl = './data/uf.json';
+            
+            // URL do GeoJSON dos bairros de São Paulo
+            const bairrosGeoJsonUrl = './data/bairros.geojson';
 
             // --- VARIÁVEIS GLOBAIS ---
             let representativesData = [];
@@ -501,6 +504,7 @@
             let map;
             let geoJsonLayer;
             let municipiosLayer = null;
+            let bairrosLayer = null;
             let selectedStateLayer = null;
             let selectedMunicipioLayer = null;
             let currentState = null;
@@ -819,6 +823,44 @@
                 
                 // Configurar a layer dos estados para ter prioridade
                 geoJsonLayer.setZIndex(10);
+
+                // Carregar e adicionar camada dos bairros de São Paulo
+                try {
+                    const bairrosResponse = await fetch(bairrosGeoJsonUrl);
+                    const bairrosGeoJson = await bairrosResponse.json();
+                    
+                    bairrosLayer = L.geoJson(bairrosGeoJson, {
+                        style: {
+                            color: '#666',
+                            weight: 1,
+                            opacity: 0.6,
+                            fillColor: '#999',
+                            fillOpacity: 0.2
+                        },
+                        onEachFeature: function(feature, layer) {
+                            // Adicionar popup com informações do bairro
+                            if (feature.properties && feature.properties.NOME_DIST) {
+                                layer.bindPopup(`<b>Bairro:</b> ${feature.properties.NOME_DIST}`);
+                            }
+                        },
+                        interactive: true
+                    }).addTo(map);
+                    
+                    // Configurar a layer dos bairros para ter prioridade menor que os estados
+                    bairrosLayer.setZIndex(5);
+                    
+                    // Adicionar controle de camadas para ligar/desligar os bairros
+                    const layerControl = L.control.layers(null, {
+                        'Bairros de São Paulo': bairrosLayer
+                    }, {
+                        position: 'topright',
+                        collapsed: false
+                    }).addTo(map);
+                    
+                    console.log('✅ Camada dos bairros de São Paulo carregada com sucesso');
+                } catch (error) {
+                    console.warn('⚠️ Não foi possível carregar a camada dos bairros:', error);
+                }
 
                 // Adicionar listener global no mapa para interceptar cliques
                 map.on('click', handleGlobalMapClick);
