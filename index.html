@@ -3122,6 +3122,12 @@
                     if (representante.EstadosDetalhados) {
                         // Nova estrutura: percorrer estados e suas cidades
                         Object.entries(representante.EstadosDetalhados).forEach(([estado, dadosEstado]) => {
+                            // FILTRO: Se estivermos visualizando um estado específico, mostrar apenas municípios deste estado
+                            if (viewMode === 'municipios' && currentState && currentState.code && 
+                                estado !== currentState.code && normalize(estado) !== normalize(currentState.code)) {
+                                return; // Pular este estado se não for o estado atual
+                            }
+
                             if (dadosEstado.cidades && Array.isArray(dadosEstado.cidades)) {
                                 dadosEstado.cidades.forEach(cidade => {
                                     const normalizedCidade = normalize(cidade);
@@ -3154,34 +3160,42 @@
                         });
                     } else {
                         // Estrutura antiga: usar CidadesAtendidas
-                        const cidadesAtendidas = representante.CidadesAtendidas || [];
-                        cidadesAtendidas.forEach(cidade => {
-                            const normalizedCidade = normalize(cidade);
+                        // FILTRO: Se estivermos visualizando um estado específico, mostrar apenas municípios deste estado
+                        if (viewMode === 'municipios' && currentState && currentState.code && 
+                            representante.SiglaEstado !== currentState.code && 
+                            normalize(representante.SiglaEstado) !== normalize(currentState.code)) {
+                            // Não destacar municípios de outros estados quando estiver focado em um estado específico
+                            console.log(`Pulando representante ${representante.NomeRepresentante} do estado ${representante.SiglaEstado} pois estamos focados no estado ${currentState.code}`);
+                        } else {
+                            const cidadesAtendidas = representante.CidadesAtendidas || [];
+                            cidadesAtendidas.forEach(cidade => {
+                                const normalizedCidade = normalize(cidade);
 
-                            // IMPORTANTE: Buscar município considerando o estado para evitar conflitos
-                            const municipioFeature = municipiosData.features.find(feature => {
-                                const props = feature.properties;
-                                const municipioName = props.name || props.nome || props.municipio || props.description;
-                                const municipioState = props.uf || props.estado || props.sigla_uf || props.UF || props.ESTADO || props.cd_geocuf;
+                                // IMPORTANTE: Buscar município considerando o estado para evitar conflitos
+                                const municipioFeature = municipiosData.features.find(feature => {
+                                    const props = feature.properties;
+                                    const municipioName = props.name || props.nome || props.municipio || props.description;
+                                    const municipioState = props.uf || props.estado || props.sigla_uf || props.UF || props.ESTADO || props.cd_geocuf;
 
-                                // Para geojs-100-mun-v2.json, extrair UF do campo uf_municipio
-                                let extractedState = municipioState;
-                                if (!extractedState && props.uf_municipio) {
-                                    const match = props.uf_municipio.match(/^([A-Z]{2})\s*-/);
-                                    if (match) {
-                                        extractedState = match[1];
+                                    // Para geojs-100-mun-v2.json, extrair UF do campo uf_municipio
+                                    let extractedState = municipioState;
+                                    if (!extractedState && props.uf_municipio) {
+                                        const match = props.uf_municipio.match(/^([A-Z]{2})\s*-/);
+                                        if (match) {
+                                            extractedState = match[1];
+                                        }
                                     }
+
+                                    // Verificar se o município e estado correspondem
+                                    return normalize(municipioName) === normalizedCidade &&
+                                        (extractedState === representante.SiglaEstado || normalize(extractedState) === normalize(representante.SiglaEstado));
+                                });
+
+                                if (municipioFeature) {
+                                    municipiosDestacados.push(municipioFeature);
                                 }
-
-                                // Verificar se o município e estado correspondem
-                                return normalize(municipioName) === normalizedCidade &&
-                                    (extractedState === representante.SiglaEstado || normalize(extractedState) === normalize(representante.SiglaEstado));
                             });
-
-                            if (municipioFeature) {
-                                municipiosDestacados.push(municipioFeature);
-                            }
-                        });
+                        }
                     }
 
                     if (municipiosDestacados.length === 0) {
