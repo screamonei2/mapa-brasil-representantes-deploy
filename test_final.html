@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Rio de Janeiro</title>
+</head>
+<body>
+    <h1>Teste da Correção do Rio de Janeiro</h1>
+    <p>Agora o servidor está rodando em <a href="http://localhost:8000" target="_blank">http://localhost:8000</a></p>
+    <h2>Como testar:</h2>
+    <ol>
+        <li>Abra o link acima</li>
+        <li>Clique diretamente na cidade do Rio de Janeiro no mapa (sem selecionar o estado RJ primeiro)</li>
+        <li>Verificar se:</li>
+        <ul>
+            <li>O estado RJ é carregado automaticamente</li>
+            <li>O representante "MRB COMERCIO E REPRESENTAÇÃO LTDA" aparece nos resultados</li>
+            <li>Os logs no console mostram o processo funcionando</li>
+        </ul>
+    </ol>
+    
+    <h2>Logs esperados no console:</h2>
+    <pre>
+🔍 Verificando municípios primeiro (dados de municípios disponíveis)
+✅ Clique interceptado em MUNICÍPIO: Rio de Janeiro
+📍 Estado atual: null
+📍 ViewMode: states
+📍 Estado do município: RJ
+🔄 Carregando estado para visualizar município...
+🔄 Carregando estado: RJ
+🎯 Estado selecionado: Rio de Janeiro RJ
+🎯 Filtrando município após carregar estado: Rio de Janeiro
+🔍 Buscando representantes para o município: Rio de Janeiro
+📍 Estado do município determinado: Rio de Janeiro -> RJ
+📍 Buscando por cidade+estado (estado determinado): rio de janeiro-rj
+✅ MRB COMERCIO E REPRESENTAÇÃO LTDA atende Rio de Janeiro
+    </pre>
+</body>
+</html>

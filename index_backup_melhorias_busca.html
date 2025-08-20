@@ -396,47 +396,20 @@
 
         /* Estilos para busca melhorada */
         .search-filter.active {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: #ffffff;
-            border-color: #2563eb;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4), 0 2px 4px rgba(37, 99, 235, 0.3);
-            font-weight: 500;
-        }
-
-        .search-filter.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
-            border-radius: inherit;
-            pointer-events: none;
-        }
-
-        .search-filter.active i,
-        .search-filter.active span {
-            position: relative;
-            z-index: 1;
-            color: #ffffff !important;
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
         }
 
         .search-filter {
-            background-color: #f8fafc;
-            color: #64748b;
-            border-color: #e2e8f0;
-            font-weight: 400;
+            background-color: white;
+            color: #6b7280;
+            border-color: #d1d5db;
         }
 
-        .search-filter:hover:not(.active) {
-            background-color: #f1f5f9;
-            border-color: #cbd5e1;
-            color: #475569;
-        }
-
-        .search-filter:hover:not(.active) i {
-            color: #475569 !important;
+        .search-filter:hover {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
         }
 
         .suggestion-item {
@@ -500,22 +473,17 @@
         }
 
         .search-filter {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease-out;
             transform: scale(1);
-            position: relative;
-            overflow: hidden;
         }
 
         .search-filter:hover {
-            transform: scale(1.02) translateY(-1px);
+            transform: scale(1.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .search-filter.active {
-            transform: scale(1.02) translateY(-1px);
-        }
-
-        .search-filter:active {
-            transform: scale(0.98) translateY(0px);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
         .recent-search-item {
@@ -558,78 +526,6 @@
 
         #search-input.no-results {
             border-color: #ef4444;
-        }
-
-        #search-input.has-suggestions {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        #search-input.has-suggestions::placeholder {
-            color: #3b82f6;
-            opacity: 0.7;
-        }
-
-        /* Estilos para telefones nos cards */
-        .phone-pill {
-            display: inline-flex;
-            align-items: center;
-            background-color: #eff6ff;
-            color: #2563eb;
-            padding: 4px 8px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .phone-pill:hover {
-            background-color: #dbeafe;
-            border-color: #93c5fd;
-            text-decoration: none;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-        }
-
-        .phone-expand-btn {
-            background-color: #f3f4f6;
-            color: #6b7280;
-            border: 1px solid #d1d5db;
-            transition: all 0.2s ease;
-        }
-
-        .phone-expand-btn:hover {
-            background-color: #e5e7eb;
-            border-color: #9ca3af;
-            transform: translateY(-1px);
-        }
-
-        /* Estilos para bairros de São Paulo */
-        .bairro-with-rep {
-            /* filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8)) 
-                    drop-shadow(0 0 6px rgba(255, 255, 255, 0.6)); */
-        }
-
-        .bairro-without-rep {
-            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) 
-                    drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
-        }
-
-        /* Alternativa usando outline para SVG paths */
-        .leaflet-interactive.bairro-with-rep {
-            stroke-dasharray: 1,10 !important;
-            stroke: #ffffff !important;
-            stroke-width: 3px !important;
-            /* filter: drop-shadow(0 0 10px white); */
-        }
-
-        .leaflet-interactive.bairro-without-rep {
-            stroke-dasharray: 6,4 !important;
-            stroke: #DC2626 !important;
-            stroke-width: 2 !important;
-            opacity: 0.6 !important;
-            filter: drop-shadow(0 0 2px white);
         }
     </style>
 
@@ -1486,19 +1382,8 @@
                         suggestionsList.appendChild(item);
                     });
                     
-                    // Adicionar instrução sutil no final das sugestões
-                    if (suggestions.length > 0) {
-                        const instructionItem = document.createElement('div');
-                        instructionItem.className = 'suggestion-instruction text-xs text-gray-500 p-2 border-t border-gray-100 text-center';
-                        instructionItem.innerHTML = 'Clique em uma sugestão ou pressione Enter para buscar';
-                        suggestionsList.appendChild(instructionItem);
-                    }
-                    
                     searchSuggestions = suggestions;
                     suggestionsContainer.classList.remove('hidden');
-                    
-                    // Adicionar classe para indicar que há sugestões
-                    searchInput.classList.add('has-suggestions');
                     
                     // Inicializar ícones Lucide para as novas sugestões
                     if (typeof lucide !== 'undefined') {
@@ -1510,7 +1395,6 @@
                 function hideSuggestions() {
                     suggestionsContainer.classList.add('hidden');
                     selectedSuggestionIndex = -1;
-                    searchInput.classList.remove('has-suggestions');
                 }
 
                 // Selecionar sugestão
@@ -1806,27 +1690,22 @@
                                         const color = representativeColorMap.get(firstRep.id) || '#9CA3AF';
 
                                         return {
-                                            color: '#DC2626',        // Vermelho para o contorno
-                                            weight: 3,
+                                            color: 'white',
+                                            weight: 2,
                                             opacity: 1,
-                                            dashArray: '8,6',        // Pontilhado/dashed
                                             fillColor: color,
-                                            fillOpacity: 0.7,
-                                            // Stroke branco por fora será aplicado via CSS
-                                            className: 'bairro-with-rep'
+                                            fillOpacity: 0.7
                                         };
                                     }
                                 }
 
                                 // Estilo padrão para bairros sem representantes
                                 return {
-                                    color: '#DC2626',        // Vermelho para o contorno
-                                    weight: 2,
-                                    opacity: 0.6,
-                                    dashArray: '6,4',        // Pontilhado mais sutil
+                                    color: 'white',
+                                    weight: 1,
+                                    opacity: 1,
                                     fillColor: '#999',
-                                    fillOpacity: 0.2,
-                                    className: 'bairro-without-rep'
+                                    fillOpacity: 0.2
                                 };
                             },
                             onEachFeature: function (feature, layer) {
@@ -2125,8 +2004,9 @@
                             hideSuggestions();
                         }
                         
-                        // Remover busca automática - só buscar quando usuário clicar ou pressionar Enter
+                        // Busca com debounce maior
                         clearTimeout(debounceTimeout);
+                        debounceTimeout = setTimeout(handleSearch, 300);
                     });
                     
                     // Navegação por teclado nas sugestões
@@ -2148,15 +2028,13 @@
                                 e.preventDefault();
                                 if (selectedSuggestionIndex >= 0) {
                                     selectSuggestion(searchSuggestions[selectedSuggestionIndex]);
-                                } else if (searchSuggestions.length === 0 || suggestionsContainer.classList.contains('hidden')) {
-                                    // Só executa busca se não há sugestões visíveis
+                                } else {
                                     hideSuggestions();
                                     handleSearch();
                                     if (this.value.trim()) {
                                         addToRecentSearches(this.value.trim());
                                     }
                                 }
-                                // Se há sugestões visíveis, não faz nada - usuário deve escolher uma sugestão
                                 break;
                             case 'Escape':
                                 hideSuggestions();
@@ -2201,16 +2079,11 @@
                         });
                     });
                     
-                    // Clique fora das sugestões para esconder (com delay para dar tempo de clicar)
+                    // Clique fora das sugestões para esconder
                     document.addEventListener('click', function(e) {
                         if (!suggestionsContainer.contains(e.target) && e.target !== searchInput) {
-                            // Pequeno delay para permitir cliques nas sugestões
-                            setTimeout(() => {
-                                if (!suggestionsContainer.contains(document.activeElement)) {
-                                    hideSuggestions();
-                                    recentSearches.classList.add('hidden');
-                                }
-                            }, 100);
+                            hideSuggestions();
+                            recentSearches.classList.add('hidden');
                         }
                     });
 
@@ -2909,6 +2782,150 @@
                     }, 200); // Delay de 200ms para mostrar loading
                 }
 
+                function renderResults(results, location = null) {
+                    console.log(`🎨 Renderizando ${results.length} resultados para: ${location}`);
+                    console.log('📋 Resultados:', results);
+
+                    if (!results.length) {
+                        console.log('❌ Nenhum resultado para renderizar');
+                        resultsContainer.innerHTML = `<div class="text-center text-gray-500 py-8">Nenhum representante encontrado${location ? ' para "' + location + '"' : ''}.</div>`;
+                        return;
+                    }
+
+                    resultsContainer.innerHTML = results.map((item, index) => {
+                        // Preparar informações dos estados
+                        let estadosInfo = '';
+                        if (item.EstadosDetalhados) {
+                            const estadosArray = Object.entries(item.EstadosDetalhados).map(([estado, dados]) => {
+                                const cidadesCount = dados.cidades ? dados.cidades.length : 0;
+                                return `${estado} (${cidadesCount} cidades)`;
+                            });
+                            estadosInfo = estadosArray.join(', ');
+                        } else {
+                            estadosInfo = `${item.Estado} (${item.SiglaEstado})`;
+                        }
+
+                            // Mostrar municípios
+                            showMunicipios(foundState.code, foundState.name, stateFeature);
+                            return;
+                        }
+                    }
+
+                    // 2. Verificar se é busca por município específico
+                    // IMPORTANTE: Buscar por cidade+estado para evitar conflitos
+                    let foundMunicipio = null;
+                    let municipioState = null;
+
+                    // Primeiro, tentar encontrar um estado selecionado para contexto
+                    let contextState = null;
+                    if (currentState && currentState.code) {
+                        contextState = currentState.code;
+                    }
+
+                    // Buscar em todas as cidades atendidas de todos os representantes
+                    for (const rep of results) {
+                        // Se temos contexto de estado, priorizar busca por cidade+estado
+                        if (contextState && rep.EstadosDetalhados && rep.EstadosDetalhados[contextState]) {
+                            const cidadesEstado = rep.EstadosDetalhados[contextState].cidades || [];
+                            const exactMatch = cidadesEstado.find(cidade =>
+                                normalize(cidade) === normalizedQuery
+                            );
+
+                            if (exactMatch) {
+                                foundMunicipio = exactMatch;
+                                municipioState = contextState;
+                                break;
+                            }
+                        }
+
+                        // Fallback: buscar em todas as cidades do representante
+                        if (rep.CidadesAtendidas) {
+                            const exactMatch = rep.CidadesAtendidas.find(cidade =>
+                                normalize(cidade) === normalizedQuery
+                            );
+
+                            if (exactMatch) {
+                                foundMunicipio = exactMatch;
+                                municipioState = rep.Estado;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Se não encontrou match exato, buscar por match parcial
+                    if (!foundMunicipio) {
+                        for (const rep of results) {
+                            // Se temos contexto de estado, priorizar busca por cidade+estado
+                            if (contextState && rep.EstadosDetalhados && rep.EstadosDetalhados[contextState]) {
+                                const cidadesEstado = rep.EstadosDetalhados[contextState].cidades || [];
+                                const partialMatch = cidadesEstado.find(cidade =>
+                                    normalize(cidade).includes(normalizedQuery) &&
+                                    normalize(cidade).startsWith(normalizedQuery)
+                                );
+
+                                if (partialMatch) {
+                                    foundMunicipio = partialMatch;
+                                    municipioState = contextState;
+                                    break;
+                                }
+                            }
+
+                            // Fallback: buscar em todas as cidades do representante
+                            if (rep.CidadesAtendidas) {
+                                const partialMatch = rep.CidadesAtendidas.find(cidade =>
+                                    normalize(cidade).includes(normalizedQuery) &&
+                                    normalize(cidade).startsWith(normalizedQuery)
+                                );
+
+                                if (partialMatch) {
+                                    foundMunicipio = partialMatch;
+                                    municipioState = rep.Estado;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (foundMunicipio && municipioState) {
+                        // É uma busca por município específico
+                        const success = zoomToMunicipio(foundMunicipio, municipioState);
+                        if (success) {
+                            // Filtrar resultados para mostrar apenas representantes deste município
+                            filterByMunicipio(foundMunicipio);
+                            return;
+                        }
+                    }
+
+                    // 3. Fallback - zoom no primeiro estado dos resultados
+                    const firstResult = results[0];
+                    if (!firstResult) return;
+                    
+                    const fallbackState = { code: firstResult.SiglaEstado, name: firstResult.Estado };
+                    const stateFeature = geoJsonLayer.getLayers().find(layer => {
+                        const props = layer.feature.properties;
+                        const stateCode = getStateCode(props);
+
+                        return stateCode === fallbackState.code;
+                    });
+
+                    if (stateFeature) {
+                        if (selectedStateLayer) {
+                            geoJsonLayer.resetStyle(selectedStateLayer);
+                        }
+                        if (municipiosLayer) {
+                            map.removeLayer(municipiosLayer);
+                            municipiosLayer = null;
+                        }
+
+                        selectedStateLayer = stateFeature;
+                        selectedStateLayer.setStyle(selectedMapStyle);
+                        currentState = fallbackState;
+                        currentState.layer = stateFeature;
+
+                        showMunicipios(fallbackState.code, fallbackState.name, stateFeature);
+                    }
+                }
+
                 function filterByState(stateCode) {
                     // Não mostrar cards de representantes ao clicar no estado
                     // Apenas mostrar os municípios coloridos
@@ -2917,6 +2934,21 @@
                     backButton.classList.remove('hidden');
                     viewMode = 'municipios';
                 }
+
+                function zoomToLocation(estado, cidade) {
+                    if (cidade && estado) {
+                        fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cidade)}&state=${encodeURIComponent(estado)}&country=Brasil&format=json&limit=1`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.length > 0) {
+                                    map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
+                                }
+                            })
+                            .catch(err => console.log('Erro ao buscar coordenadas:', err));
+                    }
+                }
+
+
 
                 function renderResults(results, location = null) {
                     console.log(`🎨 Renderizando ${results.length} resultados para: ${location}`);
@@ -2946,36 +2978,9 @@
                         if (item.celular) {
                             const telefones = item.celular.split(/[\/\s]+/).filter(tel => tel.trim() && tel.trim() !== 'nan');
                             if (telefones.length > 0) {
-                                if (telefones.length === 1) {
-                                    // Um telefone: layout inline simples
-                                    telefonesHtml = `<a href="tel:${telefones[0].trim()}" class="text-blue-600 underline" onclick="event.stopPropagation()">${telefones[0].trim()}</a>`;
-                                } else if (telefones.length <= 3) {
-                                    // 2-3 telefones: layout inline com separador
-                                    telefonesHtml = `<div class="flex flex-wrap gap-1 items-center">
-                                        ${telefones.map(tel => 
-                                            `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
-                                        ).join('')}
-                                    </div>`;
-                                } else {
-                                    // Muitos telefones: layout compacto com expansão
-                                    const primeiros = telefones.slice(0, 2);
-                                    const restantes = telefones.slice(2);
-                                    telefonesHtml = `<div class="flex flex-wrap gap-1 items-center">
-                                        ${primeiros.map(tel => 
-                                            `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
-                                        ).join('')}
-                                        <button class="phone-expand-btn text-xs px-2 py-1 rounded-full" 
-                                                onclick="event.stopPropagation(); this.style.display='none'; this.nextElementSibling.style.display='flex';" 
-                                                title="Ver mais ${restantes.length} telefones">
-                                            +${restantes.length}
-                                        </button>
-                                        <div class="hidden flex-wrap gap-1 items-center">
-                                            ${restantes.map(tel => 
-                                                `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
-                                            ).join('')}
-                                        </div>
-                                    </div>`;
-                                }
+                                telefonesHtml = telefones.map(tel =>
+                                    `<a href="tel:${tel.trim()}" class="text-blue-600 underline block" onclick="event.stopPropagation()">${tel.trim()}</a>`
+                                ).join('');
                             }
                         }
 
@@ -2987,7 +2992,7 @@
                     ${item.CodigoRepresentante ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="id-card-lanyard" class="w-4 h-4"></i> ${item.CodigoRepresentante}</div>` : ''}
                     ${item.Contato ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> ${item.Contato}</div>` : ''}
                     ${item.email ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> <a href="mailto:${item.email}" class="text-blue-600 underline" onclick="event.stopPropagation()">${item.email}</a></div>` : ''}
-                    ${telefonesHtml ? `<div class="text-gray-700 text-sm mb-1"><div class="flex items-start gap-2"><i data-lucide="phone" class="w-4 h-4 mt-0.5 flex-shrink-0"></i> <div class="flex-1">${telefonesHtml}</div></div></div>` : ''}
+                    ${telefonesHtml ? `<div class="text-gray-700 text-sm mb-1 flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> ${telefonesHtml}</div>` : ''}
                 </div>
             `;
                     }).join('');

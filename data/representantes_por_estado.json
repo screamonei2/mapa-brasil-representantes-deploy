@@ -1,7 +1,7 @@
 {
   "representantes": {
     "3l representacoes comerciais ltda me": {
-      "codigo": "30.0",
+      "codigo": "30",
       "nome": "3L REPRESENTACOES COMERCIAIS LTDA ME",
       "contato": {
         "nome_contato": "Cristian",
@@ -226,7 +226,7 @@
       }
     },
     "a.gouveia representacoes  de equips ltda": {
-      "codigo": "17.0",
+      "codigo": "17",
       "nome": "A.GOUVEIA REPRESENTACOES  DE EQUIPS LTDA",
       "contato": {
         "nome_contato": "Amaro",
@@ -439,7 +439,7 @@
       }
     },
     "a3 consultoria, repres e servicos eireli": {
-      "codigo": "51.0",
+      "codigo": "51",
       "nome": "A3 CONSULTORIA, REPRES E SERVIÇOS EIRELI",
       "contato": {
         "nome_contato": "Jose Lima",
@@ -844,6 +844,7 @@
             "TAPEROA",
             "TAPIRAMUTA",
             "TEIXEIRA DE FREITAS",
+            "TEODORO SAMPAIO",
             "TEOFILANDIA",
             "TEOLANDIA",
             "TERRA NOVA",
@@ -865,6 +866,7 @@
             "VARZEA DO POCO",
             "VARZEA NOVA",
             "VARZEDO",
+            "VERA CRUZ",
             "VEREDA",
             "VITORIA DA CONQUISTA",
             "WAGNER",
@@ -883,7 +885,7 @@
       }
     },
     "alr consultoria empresarial industrial a": {
-      "codigo": "19.0",
+      "codigo": "19",
       "nome": "ALR CONSULTORIA EMPRESARIAL INDUSTRIAL A",
       "contato": {
         "nome_contato": "Leonardo",
@@ -1191,7 +1193,7 @@
       }
     },
     "bemac representacoes ltda": {
-      "codigo": "44.0",
+      "codigo": "44",
       "nome": "BEMAC REPRESENTAÇÕES LTDA",
       "contato": {
         "nome_contato": "Bernardo",
@@ -1256,6 +1258,7 @@
             "MARECHAL FLORIANO",
             "MARILANDIA",
             "MIMOSO DO SUL",
+            "MONTANHA",
             "MUCURICI",
             "MUNIZ FREIRE",
             "MUQUI",
@@ -1319,7 +1322,7 @@
       }
     },
     "central representacoes ltda": {
-      "codigo": "32.0",
+      "codigo": "32",
       "nome": "CENTRAL REPRESENTAÇÕES LTDA",
       "contato": {
         "nome_contato": "Washington",
@@ -1653,7 +1656,7 @@
       }
     },
     "fernando guerrera junior - me": {
-      "codigo": "25.0",
+      "codigo": "25",
       "nome": "FERNANDO GUERRERA JUNIOR - ME",
       "contato": {
         "nome_contato": "Fernando",
@@ -1985,7 +1988,7 @@
       }
     },
     "gentil e gentil representacoes ltda-me": {
-      "codigo": "24.0",
+      "codigo": "24",
       "nome": "GENTIL E GENTIL REPRESENTAÇÕES LTDA-ME",
       "contato": {
         "nome_contato": "Claudio",
@@ -2025,7 +2028,7 @@
       }
     },
     "gil-angio intermediacao de servicos ltda": {
-      "codigo": "3.0",
+      "codigo": "3",
       "nome": "GIL-ANGIO INTERMEDIAÇÃO DE SERVIÇOS LTDA",
       "contato": {
         "nome_contato": "Gilberto",
@@ -2053,7 +2056,7 @@
       }
     },
     "gilberto raimundo braga e cia ltda": {
-      "codigo": "45.0",
+      "codigo": "45",
       "nome": "GILBERTO RAIMUNDO BRAGA E CIA LTDA",
       "contato": {
         "nome_contato": "Gilberto",
@@ -2228,7 +2231,7 @@
       }
     },
     "gl - representacao comercial ltda": {
-      "codigo": "4.0",
+      "codigo": "4",
       "nome": "GL - REPRESENTAÇÃO COMERCIAL LTDA",
       "contato": {
         "nome_contato": "Ideraldo",
@@ -2262,7 +2265,7 @@
       }
     },
     "gtr representacoes ltda": {
-      "codigo": "48.0",
+      "codigo": "48",
       "nome": "GTR REPRESENTAÇÕES LTDA",
       "contato": {
         "nome_contato": "Guilherme",
@@ -2776,12 +2779,12 @@
       }
     },
     "izafer representacao ltda": {
-      "codigo": "37.0",
-      "nome": "IZAFER REPRESENTAÇÃO LTDA",
+      "codigo": "37",
+      "nome": "IZAFER REPRESENTAÇÃO LTDA - REVENDA",
       "contato": {
-        "nome_contato": "nan",
+        "nome_contato": "Isaias",
         "email": "izafer.repres@gmail.com",
-        "celular": "nan"
+        "celular": "47-3207-0213 / 47-98829-7798"
       },
       "observacoes": "Será enviado para pesquisa no mapa",
       "total_cidades": 33,
@@ -2851,7 +2854,7 @@
       }
     },
     "jumper com. servicos e repres.ltda-epp": {
-      "codigo": "82.0",
+      "codigo": "82",
       "nome": "JUMPER COM. SERVIÇOS E REPRES.LTDA-EPP",
       "contato": {
         "nome_contato": "Edson Pereira",
@@ -3495,7 +3498,7 @@
       }
     },
     "mrb comercio e representacao ltda": {
-      "codigo": "52.0",
+      "codigo": "52",
       "nome": "MRB COMERCIO E REPRESENTAÇÃO LTDA",
       "contato": {
         "nome_contato": "Guilherme",
@@ -3521,7 +3524,7 @@
       }
     },
     "myralp comercio e representacoes ltda": {
-      "codigo": "28.0",
+      "codigo": "28",
       "nome": "MYRALP COMERCIO E REPRESENTAÇÕES LTDA",
       "contato": {
         "nome_contato": "Paulo",
@@ -3602,6 +3605,7 @@
             "CAMAQUA",
             "CAMARGO",
             "CAMBARA DO SUL",
+            "CAMPESTRE DA SERRA",
             "CAMPINA DAS MISSOES",
             "CAMPINAS DO SUL",
             "CAMPO NOVO",
@@ -3985,6 +3989,7 @@
             "VALE VERDE",
             "VANINI",
             "VENANCIO AIRES",
+            "VERA CRUZ",
             "VERANOPOLIS",
             "VESPASIANO CORREA",
             "VIADUTOS",
@@ -4179,7 +4184,7 @@
       }
     },
     "roberto da fonseca reis&reis rep.ltda": {
-      "codigo": "26.0",
+      "codigo": "26",
       "nome": "ROBERTO DA FONSECA REIS&REIS REP.LTDA",
       "contato": {
         "nome_contato": "Roberto",
@@ -4370,7 +4375,7 @@
       }
     },
     "rod lon representacoes ltda": {
-      "codigo": "43.0",
+      "codigo": "43",
       "nome": "ROD LON REPRESENTAÇÕES LTDA",
       "contato": {
         "nome_contato": "Odilon",
@@ -4579,7 +4584,7 @@
       }
     },
     "rodifer representacoes ltda": {
-      "codigo": "38.0",
+      "codigo": "38",
       "nome": "RODIFER REPRESENTAÇÕES LTDA",
       "contato": {
         "nome_contato": "Orides",
@@ -4768,6 +4773,7 @@
             "MANOEL RIBAS",
             "MARIALVA",
             "MARILANDIA DO SUL",
+            "MARILENA",
             "MARILUZ",
             "MARINGA",
             "MARIPA",
@@ -4793,6 +4799,7 @@
             "OURIZONA",
             "OURO VERDE DO OESTE",
             "PAICANDU",
+            "PALMITAL",
             "PARAISO DO NORTE",
             "PARANACITY",
             "PARANAPOEMA",
@@ -4834,6 +4841,7 @@
             "SANTA MONICA",
             "SANTO ANTONIO DA PLATINA",
             "SANTO ANTONIO DO CAIUA",
+            "SANTO ANTONIO DO PARAISO",
             "SANTO ANTONIO DO PARANA",
             "SANTO INACIO",
             "SAO CARLOS DO IVAI",
@@ -4932,7 +4940,7 @@
       }
     },
     "rpgn representacoes de mad e ferr ltda": {
-      "codigo": "12.0",
+      "codigo": "12",
       "nome": "RPGN REPRESENTAÇÕES DE MAD E FERR LTDA",
       "contato": {
         "nome_contato": "Ricardo",
@@ -5014,7 +5022,7 @@
       }
     },
     "sa & pessoa representacao comercial ltda": {
-      "codigo": "34.0",
+      "codigo": "34",
       "nome": "SA & PESSOA REPRESENTACAO COMERCIAL LTDA",
       "contato": {
         "nome_contato": "Linaldo/Waldir",
@@ -10653,7 +10661,7 @@
       }
     },
     "ts sasse representacoes comerciais ltda": {
-      "codigo": "39.0",
+      "codigo": "39",
       "nome": "TS SASSE REPRESENTAÇÕES COMERCIAIS LTDA",
       "contato": {
         "nome_contato": "Tiago",
@@ -10802,7 +10810,7 @@
       }
     },
     "v&b representacao comercial s/c ltda": {
-      "codigo": "5.0",
+      "codigo": "5",
       "nome": "V&B REPRESENTAÇÃO COMERCIAL S/C LTDA",
       "contato": {
         "nome_contato": "Ricardo",
@@ -10848,7 +10856,7 @@
       }
     },
     "zier representacoes ltda.": {
-      "codigo": "35",
+      "codigo": "35.01",
       "nome": "ZIER REPRESENTAÇÕES LTDA.",
       "contato": {
         "nome_contato": "Maiko",
@@ -10889,6 +10897,7 @@
             "BALNEARIO GAIVOTA",
             "BALNEARIO PICARRAS",
             "BANDEIRANTE",
+            "BARRA BONITA",
             "BELA VISTA DO TOLDO",
             "BELMONTE",
             "BIGUACU",
@@ -10897,7 +10906,6 @@
             "BOM JESUS",
             "BOM JESUS DO OESTE",
             "BOM RETIRO",
-            "BOTUVERA",
             "BRACO DO NORTE",
             "BRACO DO TROMBUDO",
             "BRUNOPOLIS",
@@ -11002,6 +11010,7 @@
             "MODELO",
             "MONDAI",
             "MONTE CARLO",
+            "MONTE CASTELO",
             "MORRO DA FUMACA",
             "MORRO GRANDE",
             "NOVA ERECHIM",
@@ -11011,6 +11020,7 @@
             "ORLEANS",
             "OTACILIO COSTA",
             "OURO",
+            "OURO VERDE",
             "PAIAL",
             "PAINEL",
             "PALHOCA",
@@ -11025,6 +11035,7 @@
             "PEDRAS GRANDES",
             "PERITIBA",
             "PETROLANDIA",
+            "PINHALZINHO",
             "PINHEIRO PRETO",
             "PIRATUBA",
             "PLANALTO ALEGRE",
@@ -11135,7 +11146,7 @@
     },
     "zier representacoes ltda. industrializador": {
       "codigo": "35.01",
-      "nome": "ZIER REPRESENTAÇÕES LTDA. - INDUSTRIALIZADOR E REVENDA",
+      "nome": "ZIER REPRESENTAÇÕES LTDA. - INDUSTRIALIZADOR E CONSUMIDOR",
       "contato": {
         "nome_contato": "Maiko",
         "email": "mega@megajoi.com.br",
@@ -11146,7 +11157,7 @@
       "estados_atendidos": [
         "SC   "
       ],
-      "resumo_atividades": "Industrializador e Revenda",
+      "resumo_atividades": "Industrializador e Consumidor",
       "performance": {},
       "estados": {
         "SC": {
@@ -11209,7 +11220,7 @@
       }
     },
     "dayane assessoria e representacoes ltda": {
-      "codigo": "20.0",
+      "codigo": "20",
       "nome": "DAYANE ASSESSORIA E REPRESENTACOES LTDA",
       "contato": {
         "nome_contato": "Dayane",
@@ -11316,7 +11327,7 @@
       }
     },
     "rg representacoes ltda": {
-      "codigo": "42.0",
+      "codigo": "42",
       "nome": "RG REPRESENTAÇÕES LTDA",
       "contato": {
         "nome_contato": "Rogerio",

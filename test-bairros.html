@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Busca Bairros</title>
+</head>
+<body>
+    <h1>Teste de Busca por Bairros</h1>
+    <p>Para testar, abra o console do navegador e digite alguns bairros de São Paulo:</p>
+    <ul>
+        <li><strong>mooca</strong> - deve encontrar representantes</li>
+        <li><strong>penha</strong> - deve encontrar representantes</li>
+        <li><strong>bras</strong> - deve encontrar representantes</li>
+        <li><strong>tatuape</strong> - deve encontrar representantes</li>
+        <li><strong>centro</strong> - pode não encontrar (dependendo dos dados)</li>
+    </ul>
+    
+    <input type="text" id="test-input" placeholder="Digite um bairro para testar">
+    <button onclick="testSearch()">Testar Busca</button>
+    <div id="results"></div>
+
+    <script>
+        async function testSearch() {
+            const query = document.getElementById('test-input').value;
+            if (!query) {
+                alert('Digite um bairro para testar');
+                return;
+            }
+            
+            try {
+                // Carregar dados
+                const response = await fetch('./data/representantes_por_estado.json');
+                const data = await response.json();
+                
+                console.log('🔍 Testando busca por bairro:', query);
+                
+                // Função normalize (copiada do arquivo original)
+                function normalize(str) {
+                    return (str || "")
+                        .toString()
+                        .normalize("NFD")
+                        .replace(/[̀-ͯ]/g, "")
+                        .replace(/[^\w\s]/gi, "")
+                        .replace(/\s+/g, " ")
+                        .trim()
+                        .toLowerCase();
+                }
+                
+                const normalizedQuery = normalize(query);
+                console.log('Query normalizada:', normalizedQuery);
+                
+                // Buscar bairros nos dados
+                const results = [];
+                Object.entries(data.representantes).forEach(([nomeEmpresa, dadosEmpresa]) => {
+                    if (dadosEmpresa.estados && dadosEmpresa.estados.SP && dadosEmpresa.estados.SP.bairros) {
+                        const bairros = dadosEmpresa.estados.SP.bairros;
+                        bairros.forEach(bairro => {
+                            const normalizedBairro = normalize(bairro);
+                            if (normalizedBairro.includes(normalizedQuery) || normalizedQuery.includes(normalizedBairro)) {
+                                results.push({
+                                    representante: dadosEmpresa.nome,
+                                    bairro: bairro,
+                                    empresa: nomeEmpresa
+                                });
+                                console.log(`✅ Match encontrado: "${bairro}" para representante "${dadosEmpresa.nome}"`);
+                            }
+                        });
+                    }
+                });
+                
+                // Mostrar resultados
+                const resultsDiv = document.getElementById('results');
+                if (results.length > 0) {
+                    resultsDiv.innerHTML = `
+                        <h3>Resultados encontrados (${results.length}):</h3>
+                        <ul>
+                            ${results.map(r => `<li><strong>${r.representante}</strong> - Bairro: ${r.bairro}</li>`).join('')}
+                        </ul>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = '<p style="color: red;">Nenhum resultado encontrado</p>';
+                }
+                
+            } catch (error) {
+                console.error('Erro ao testar busca:', error);
+                document.getElementById('results').innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
+            }
+        }
+
+        // Permitir busca com Enter
+        document.getElementById('test-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testSearch();
+            }
+        });
+    </script>
+</body>
+</html>
