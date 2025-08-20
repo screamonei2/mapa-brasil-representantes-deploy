@@ -1798,7 +1798,20 @@
                                 const bairroName = feature.properties.NOME_DIST;
                                 if (bairroName) {
                                     const normalizedBairroName = normalize(bairroName);
-                                    const representatives = municipioRepresentativeMap.get(normalizedBairroName) || [];
+                                    
+                                    // IMPORTANTE: Buscar representantes considerando o estado atual (SP para bairros)
+                                    let representatives = [];
+                                    if (viewMode === 'municipios' && currentState && currentState.code === 'SP') {
+                                        // Para bairros de SP, usar a chave cidade+estado
+                                        const cidadeEstadoKey = `${normalizedBairroName}-SP`;
+                                        representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
+                                        
+                                        // Se não encontrar com chave composta, tentar só o nome (compatibilidade)
+                                        if (representatives.length === 0) {
+                                            representatives = municipioRepresentativeMap.get(normalizedBairroName) || [];
+                                        }
+                                    }
+                                    // Se não estivermos em SP ou no modo correto, não colorir bairros
 
                                     if (representatives.length > 0) {
                                         // Se há representantes, usar a cor do primeiro representante
@@ -2247,6 +2260,7 @@
                         const normalizedEstado = normalize(currentState.code);
                         const cidadeEstadoKey = `${normalizedName}-${normalizedEstado}`;
                         representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
+                        
                     } else {
                         // IMPORTANTE: Não fazer busca apenas por cidade para evitar conflitos
                         // Se não temos estado específico, não podemos determinar qual cidade específica
@@ -2254,7 +2268,7 @@
                     }
 
                     if (representatives.length === 0) {
-                        // Município sem representante - cor cinza
+                        // Município sem representante - cor azul padrão
                         return {
                             fillColor: "#3b82f6",
                             weight: 1,
@@ -2509,6 +2523,8 @@
                     // Se for São Paulo, mostrar os bairros
                     if (stateCode === 'SP' || stateName === 'SAO PAULO') {
                         if (bairrosLayer) {
+                            // Atualizar estilos dos bairros baseado no estado atual
+                            updateBairrosStyles();
                             map.addLayer(bairrosLayer);
                             console.log('🏘️ Bairros de São Paulo adicionados ao mapa');
                         }
@@ -2521,6 +2537,58 @@
                     }
 
                     console.log(`🎯 Modo municípios ativado para ${stateName}. Municípios carregados: ${estadoMunicipios.length}`);
+                }
+
+                // Função para atualizar estilos da camada de bairros baseado no estado atual
+                function updateBairrosStyles() {
+                    if (!bairrosLayer) return;
+                    
+                    bairrosLayer.eachLayer(function(layer) {
+                        const feature = layer.feature;
+                        const bairroName = feature.properties.NOME_DIST;
+                        
+                        if (bairroName) {
+                            const normalizedBairroName = normalize(bairroName);
+                            
+                            // IMPORTANTE: Buscar representantes considerando o estado atual (SP para bairros)
+                            let representatives = [];
+                            if (viewMode === 'municipios' && currentState && currentState.code === 'SP') {
+                                // Para bairros de SP, usar a chave cidade+estado
+                                const cidadeEstadoKey = `${normalizedBairroName}-SP`;
+                                representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
+                                
+                                // Se não encontrar com chave composta, tentar só o nome (compatibilidade)
+                                if (representatives.length === 0) {
+                                    representatives = municipioRepresentativeMap.get(normalizedBairroName) || [];
+                                }
+                            }
+                            
+                            if (representatives.length > 0) {
+                                // Se há representantes, usar a cor do primeiro representante
+                                const firstRep = representatives[0];
+                                const color = representativeColorMap.get(firstRep.id) || '#9CA3AF';
+
+                                layer.setStyle({
+                                    color: '#DC2626',        // Vermelho para o contorno
+                                    weight: 3,
+                                    opacity: 1,
+                                    dashArray: '8,6',        // Pontilhado/dashed
+                                    fillColor: color,
+                                    fillOpacity: 0.7,
+                                });
+                            } else {
+                                // Estilo padrão para bairros sem representantes
+                                layer.setStyle({
+                                    color: '#DC2626',        // Vermelho para o contorno
+                                    weight: 2,
+                                    opacity: 0.6,
+                                    dashArray: '12,8',       // Mais pontilhado
+                                    fillColor: '#f3f4f6',   // Cinza claro
+                                    fillOpacity: 0.3,
+                                });
+                            }
+                        }
+                    });
                 }
 
                 function zoomToMunicipio(municipioName, stateName) {
