@@ -410,7 +410,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
             border-radius: inherit;
             pointer-events: none;
         }
@@ -449,7 +449,8 @@
             align-items: center;
         }
 
-        .suggestion-item:hover, .suggestion-item.highlighted {
+        .suggestion-item:hover,
+        .suggestion-item.highlighted {
             background-color: #f3f4f6;
         }
 
@@ -543,8 +544,13 @@
         }
 
         @keyframes spin {
-            0% { transform: translateY(-50%) rotate(0deg); }
-            100% { transform: translateY(-50%) rotate(360deg); }
+            0% {
+                transform: translateY(-50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-50%) rotate(360deg);
+            }
         }
 
         /* Estados do input */
@@ -612,24 +618,29 @@
         }
 
         .bairro-without-rep {
-            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) 
-                    drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
         }
 
         /* Alternativa usando outline para SVG paths */
         .leaflet-interactive.bairro-with-rep {
-            stroke-dasharray: 1,10 !important;
+            stroke-dasharray: 1, 10 !important;
             stroke: #ffffff !important;
             stroke-width: 3px !important;
             /* filter: drop-shadow(0 0 10px white); */
         }
 
         .leaflet-interactive.bairro-without-rep {
-            stroke-dasharray: 6,4 !important;
             stroke: #DC2626 !important;
-            stroke-width: 2 !important;
+            /* vermelho */
+            stroke-width: 1px !important;
+            /* traço principal */
+            stroke-dasharray: 1, 3 !important;
+            /* tracejado */
             opacity: 0.6 !important;
-            filter: drop-shadow(0 0 2px white);
+
+            /* truque da borda */
+            paint-order: stroke;
+            filter: drop-shadow(0 0 1px white);
         }
     </style>
 
@@ -682,47 +693,61 @@
                         <div class="mb-4 relative">
                             <!-- Campo de busca principal -->
                             <div class="relative">
-                                <input type="text" id="search-input" placeholder="Ex: São Paulo, SCHIOPPA em SP, Santos..."
+                                <input type="text" id="search-input"
+                                    placeholder="Ex: São Paulo, SCHIOPPA em SP, Santos..."
                                     class="w-full px-10 py-2 sm:px-12 sm:py-3 border border-gray-300 rounded-lg outline-none transition text-sm sm:text-base focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                     autocomplete="off">
                                 <!-- Ícone de busca -->
-                                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
-                                
+                                <i data-lucide="search"
+                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+
                                 <!-- Botão para limpar busca -->
-                                <button id="clear-search" class="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-600 hidden">
+                                <button id="clear-search"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-600 hidden">
                                     <i data-lucide="x" class="h-4 w-4"></i>
                                 </button>
                             </div>
-                            
+
                             <!-- Dropdown de sugestões -->
-                            <div id="suggestions-container" class="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-64 overflow-y-auto hidden">
+                            <div id="suggestions-container"
+                                class="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-64 overflow-y-auto hidden">
                                 <div id="suggestions-list"></div>
                             </div>
-                            
+
                             <!-- Filtros rápidos -->
                             <div class="flex flex-wrap gap-2 mt-3">
-                                <button class="search-filter active px-3 py-1 text-xs rounded-full border transition flex items-center gap-1" data-filter="all">
+                                <button
+                                    class="search-filter active px-3 py-1 text-xs rounded-full border transition flex items-center gap-1"
+                                    data-filter="all">
                                     <i data-lucide="globe" class="h-3 w-3"></i>
                                     Todos
                                 </button>
-                                <button class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1" data-filter="estados">
+                                <button
+                                    class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1"
+                                    data-filter="estados">
                                     <i data-lucide="map" class="h-3 w-3"></i>
                                     Estados
                                 </button>
-                                <button class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1" data-filter="cidades">
+                                <button
+                                    class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1"
+                                    data-filter="cidades">
                                     <i data-lucide="map-pin" class="h-3 w-3"></i>
                                     Cidades
                                 </button>
-                                <button class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1" data-filter="bairros">
+                                <button
+                                    class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1"
+                                    data-filter="bairros">
                                     <i data-lucide="home" class="h-3 w-3"></i>
                                     Bairros (SP)
                                 </button>
-                                <button class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1" data-filter="representantes">
+                                <button
+                                    class="search-filter px-3 py-1 text-xs rounded-full border transition flex items-center gap-1"
+                                    data-filter="representantes">
                                     <i data-lucide="users" class="h-3 w-3"></i>
                                     Representantes
                                 </button>
                             </div>
-                            
+
                             <!-- Histórico de buscas recentes -->
                             <div id="recent-searches" class="mt-3 hidden">
                                 <h4 class="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
@@ -823,7 +848,7 @@
                 const defaultMessage = document.getElementById('default-message');
                 const backButton = document.getElementById('back-to-brazil');
                 const mainTitle = document.getElementById('main-title');
-                
+
                 // Novos elementos para busca melhorada
                 const clearSearchButton = document.getElementById('clear-search');
                 const suggestionsContainer = document.getElementById('suggestions-container');
@@ -831,7 +856,7 @@
                 const recentSearches = document.getElementById('recent-searches');
                 const recentSearchesList = document.getElementById('recent-searches-list');
                 const searchFilters = document.querySelectorAll('.search-filter');
-                
+
                 // Variáveis para controle da busca
                 let currentSearchFilter = 'all';
                 let searchSuggestions = [];
@@ -908,14 +933,14 @@
                             // Verificar se é um representante especial com cor específica
                             // const nomeNormalizado = nomeEmpresa.toLowerCase();
                             // console.log(`🎨 Verificando cor para: ${nomeNormalizado} (${nomeEmpresa})`);
-                            
+
                             // if (specialRepresentativeColors[nomeNormalizado]) {
                             //     representativeColorMap.set(representante.id, specialRepresentativeColors[nomeNormalizado]);
                             //     console.log(`✅ Cor especial atribuída: ${representante.NomeRepresentante} -> ${specialRepresentativeColors[nomeNormalizado]}`);
                             // } else {
-                                representativeColorMap.set(representante.id, representativeColors[colorIndex % representativeColors.length]);
-                                // console.log(`🎨 Cor padrão atribuída: ${representante.NomeRepresentante} -> ${representativeColors[colorIndex % representativeColors.length]}`);
-                                colorIndex++;
+                            representativeColorMap.set(representante.id, representativeColors[colorIndex % representativeColors.length]);
+                            // console.log(`🎨 Cor padrão atribuída: ${representante.NomeRepresentante} -> ${representativeColors[colorIndex % representativeColors.length]}`);
+                            colorIndex++;
                             // }
                         }
 
@@ -972,7 +997,7 @@
                                     // CORREÇÃO: Também mapear bairro no locationMap para busca geral
                                     if (!locationMap.has(bairro)) locationMap.set(bairro, new Set());
                                     locationMap.get(bairro).add(representante.id);
-                                    
+
                                     // Mapear versão normalizada também
                                     if (!locationMap.has(normalizedBairro)) locationMap.set(normalizedBairro, new Set());
                                     locationMap.get(normalizedBairro).add(representante.id);
@@ -1084,9 +1109,9 @@
                 function calculateSimilarity(str1, str2) {
                     const longer = str1.length > str2.length ? str1 : str2;
                     const shorter = str1.length > str2.length ? str2 : str1;
-                    
+
                     if (longer.length === 0) return 1.0;
-                    
+
                     const distance = levenshteinDistance(longer, shorter);
                     return (longer.length - distance) / longer.length;
                 }
@@ -1094,15 +1119,15 @@
                 // Implementação do algoritmo de Levenshtein
                 function levenshteinDistance(str1, str2) {
                     const matrix = [];
-                    
+
                     for (let i = 0; i <= str2.length; i++) {
                         matrix[i] = [i];
                     }
-                    
+
                     for (let j = 0; j <= str1.length; j++) {
                         matrix[0][j] = j;
                     }
-                    
+
                     for (let i = 1; i <= str2.length; i++) {
                         for (let j = 1; j <= str1.length; j++) {
                             if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
@@ -1116,29 +1141,29 @@
                             }
                         }
                     }
-                    
+
                     return matrix[str2.length][str1.length];
                 }
 
                 // Função para determinar o tipo de busca
                 function determineSearchType(query) {
                     const normalizedQuery = normalize(query);
-                    
+
                     // 1. Verificar se é busca por estado (sigla ou nome completo)
                     const statePatterns = [
                         /^(sp|rj|mg|ba|pr|rs|pe|ce|pa|sc|go|ma|pb|am|es|mt|al|pi|df|ms|se|rn|ro|ac|ap|rr|to)$/i,
                         /^(são paulo|rio de janeiro|minas gerais|bahia|paraná|rio grande do sul|pernambuco|ceará|pará|santa catarina|goiás|maranhão|paraíba|amazonas|espírito santo|mato grosso|alagoas|piauí|distrito federal|mato grosso do sul|sergipe|rio grande do norte|rondônia|acre|amapá|roraima|tocantins)$/i
                     ];
-                    
+
                     for (const pattern of statePatterns) {
                         if (pattern.test(normalizedQuery)) {
                             return { type: 'estado', query: normalizedQuery };
                         }
                     }
-                    
+
                     // 2. Verificar se é busca por bairro de São Paulo
-                    if (normalizedQuery.includes('vila') || 
-                        normalizedQuery.includes('jardim') || 
+                    if (normalizedQuery.includes('vila') ||
+                        normalizedQuery.includes('jardim') ||
                         normalizedQuery.includes('jd') ||
                         normalizedQuery.includes('centro') ||
                         normalizedQuery.includes('bairro') ||
@@ -1170,7 +1195,7 @@
                         normalizedQuery.includes('bonifacio')) {
                         return { type: 'bairro', query: normalizedQuery };
                     }
-                    
+
                     // 3. Verificar se é busca por cidade específica
                     return { type: 'cidade', query: normalizedQuery };
                 }
@@ -1205,20 +1230,20 @@
                     if (isMultiCriteria) {
                         // Busca com múltiplos critérios - combinar resultados
                         const [criterion1, criterion2] = searchCriteria;
-                        
+
                         // Buscar representantes que atendem o primeiro critério
                         const reps1 = searchSingleCriterion(criterion1);
                         const reps2 = searchSingleCriterion(criterion2);
-                        
+
                         // Se um critério é um nome de representante e outro é localização
                         const rep1Names = new Set(reps1.map(r => normalize(r.NomeRepresentante)));
                         const rep2Names = new Set(reps2.map(r => normalize(r.NomeRepresentante)));
-                        
+
                         // Intersecção: representantes que atendem ambos os critérios
                         reps1.forEach(rep => {
                             const repName = normalize(rep.NomeRepresentante);
                             // Verificar se este representante também atende o segundo critério
-                            if (reps2.some(r => r.id === rep.id) || 
+                            if (reps2.some(r => r.id === rep.id) ||
                                 checkRepresentativeLocation(rep, criterion2)) {
                                 foundRepresentativeIds.add(rep.id);
                             }
@@ -1261,7 +1286,7 @@
                             // Busca por bairro - sempre buscar, independente da bairrosLayer estar carregada
                             const bairroResults = searchInBairros(normalizedQuery);
                             bairroResults.forEach(id => foundRepresentativeIds.add(id));
-                            
+
                             // Fallback para busca geral
                             for (const [location, repIds] of representativesByLocation.entries()) {
                                 if (normalize(location).includes(normalizedQuery)) {
@@ -1292,14 +1317,14 @@
                 // Função auxiliar para verificar se um representante atende uma localização
                 function checkRepresentativeLocation(representative, locationQuery) {
                     const normalizedLocation = normalize(locationQuery);
-                    
+
                     // Verificar nos estados atendidos
                     if (representative.EstadosDetalhados) {
                         for (const [estado, dadosEstado] of Object.entries(representative.EstadosDetalhados)) {
                             if (normalize(estado).includes(normalizedLocation)) {
                                 return true;
                             }
-                            
+
                             // Verificar nas cidades
                             if (dadosEstado.cidades) {
                                 for (const cidade of dadosEstado.cidades) {
@@ -1308,7 +1333,7 @@
                                     }
                                 }
                             }
-                            
+
                             // Verificar nos bairros (para SP)
                             if (dadosEstado.bairros) {
                                 for (const bairro of dadosEstado.bairros) {
@@ -1319,7 +1344,7 @@
                             }
                         }
                     }
-                    
+
                     return false;
                 }
 
@@ -1328,19 +1353,19 @@
                 // Gerar sugestões inteligentes
                 function generateSuggestions(query) {
                     if (!query || query.length < 2) return [];
-                    
+
                     const suggestions = [];
                     const normalizedQuery = normalize(query);
                     const maxSuggestions = 8;
-                    
+
                     // 1. Estados
                     if (currentSearchFilter === 'all' || currentSearchFilter === 'estados') {
-                        const estados = ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Paraná', 'Rio Grande do Sul', 
-                                       'Pernambuco', 'Ceará', 'Pará', 'Santa Catarina', 'Goiás', 'Maranhão', 'Paraíba', 
-                                       'Amazonas', 'Espírito Santo', 'Mato Grosso', 'Alagoas', 'Piauí', 'Distrito Federal', 
-                                       'Mato Grosso do Sul', 'Sergipe', 'Rio Grande do Norte', 'Rondônia', 'Acre', 'Amapá', 
-                                       'Roraima', 'Tocantins'];
-                        
+                        const estados = ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Paraná', 'Rio Grande do Sul',
+                            'Pernambuco', 'Ceará', 'Pará', 'Santa Catarina', 'Goiás', 'Maranhão', 'Paraíba',
+                            'Amazonas', 'Espírito Santo', 'Mato Grosso', 'Alagoas', 'Piauí', 'Distrito Federal',
+                            'Mato Grosso do Sul', 'Sergipe', 'Rio Grande do Norte', 'Rondônia', 'Acre', 'Amapá',
+                            'Roraima', 'Tocantins'];
+
                         estados.forEach(estado => {
                             const normalizedEstado = normalize(estado);
                             if (normalizedEstado.includes(normalizedQuery) && suggestions.length < maxSuggestions) {
@@ -1354,7 +1379,7 @@
                             }
                         });
                     }
-                    
+
                     // 2. Cidades (baseado nos dados dos representantes)
                     if (currentSearchFilter === 'all' || currentSearchFilter === 'cidades') {
                         const cidadesSet = new Set();
@@ -1380,7 +1405,7 @@
                             }
                         });
                     }
-                    
+
                     // 3. Bairros de São Paulo
                     if (currentSearchFilter === 'all' || currentSearchFilter === 'bairros') {
                         const bairrosSet = new Set();
@@ -1403,7 +1428,7 @@
                             }
                         });
                     }
-                    
+
                     // 4. Representantes
                     if (currentSearchFilter === 'all' || currentSearchFilter === 'representantes') {
                         representativesData.forEach(rep => {
@@ -1419,7 +1444,7 @@
                             }
                         });
                     }
-                    
+
                     // 5. Sugestões combinadas (apenas se há texto suficiente)
                     if (query.length >= 4 && suggestions.length < maxSuggestions - 2) {
                         // Sugerir combinações populares
@@ -1430,7 +1455,7 @@
                             'Santos, SP',
                             'Campinas, SP'
                         ];
-                        
+
                         popularCombinations.forEach(combo => {
                             if (normalize(combo).includes(normalizedQuery) && suggestions.length < maxSuggestions) {
                                 suggestions.push({
@@ -1442,7 +1467,7 @@
                             }
                         });
                     }
-                    
+
                     // Ordenar por prioridade e similaridade
                     return suggestions
                         .sort((a, b) => {
@@ -1458,24 +1483,24 @@
                         hideSuggestions();
                         return;
                     }
-                    
+
                     suggestionsList.innerHTML = '';
                     selectedSuggestionIndex = -1;
-                    
+
                     suggestions.forEach((suggestion, index) => {
                         const item = document.createElement('div');
                         item.className = 'suggestion-item';
-                        
+
                         // Ícone baseado no tipo
                         let icon = 'search';
-                        switch(suggestion.type) {
+                        switch (suggestion.type) {
                             case 'estado': icon = 'map'; break;
                             case 'cidade': icon = 'map-pin'; break;
                             case 'bairro': icon = 'home'; break;
                             case 'representante': icon = 'user'; break;
                             case 'combinado': icon = 'link'; break;
                         }
-                        
+
                         item.innerHTML = `
                             <div class="flex items-center gap-2">
                                 <i data-lucide="${icon}" class="h-3 w-3 text-gray-400"></i>
@@ -1483,14 +1508,14 @@
                             </div>
                             <span class="suggestion-type">${suggestion.type}</span>
                         `;
-                        
+
                         item.addEventListener('click', () => {
                             selectSuggestion(suggestion);
                         });
-                        
+
                         suggestionsList.appendChild(item);
                     });
-                    
+
                     // Adicionar instrução sutil no final das sugestões
                     if (suggestions.length > 0) {
                         const instructionItem = document.createElement('div');
@@ -1498,13 +1523,13 @@
                         instructionItem.innerHTML = 'Clique em uma sugestão ou pressione Enter para buscar';
                         suggestionsList.appendChild(instructionItem);
                     }
-                    
+
                     searchSuggestions = suggestions;
                     suggestionsContainer.classList.remove('hidden');
-                    
+
                     // Adicionar classe para indicar que há sugestões
                     searchInput.classList.add('has-suggestions');
-                    
+
                     // Inicializar ícones Lucide para as novas sugestões
                     if (typeof lucide !== 'undefined') {
                         lucide.createIcons();
@@ -1530,17 +1555,17 @@
                 // Adicionar ao histórico de buscas recentes
                 function addToRecentSearches(searchTerm) {
                     if (!searchTerm.trim()) return;
-                    
+
                     // Remove duplicatas e adiciona no início
                     recentSearchesData = recentSearchesData.filter(item => item !== searchTerm);
                     recentSearchesData.unshift(searchTerm);
-                    
+
                     // Limita a 5 itens
                     recentSearchesData = recentSearchesData.slice(0, 5);
-                    
+
                     // Salva no localStorage
                     localStorage.setItem('recentSearches', JSON.stringify(recentSearchesData));
-                    
+
                     updateRecentSearchesDisplay();
                 }
 
@@ -1550,7 +1575,7 @@
                         recentSearches.classList.add('hidden');
                         return;
                     }
-                    
+
                     recentSearchesList.innerHTML = '';
                     recentSearchesData.forEach(searchTerm => {
                         const item = document.createElement('span');
@@ -1562,7 +1587,7 @@
                         });
                         recentSearchesList.appendChild(item);
                     });
-                    
+
                     recentSearches.classList.remove('hidden');
                 }
 
@@ -1582,9 +1607,9 @@
                 function searchInBairros(query) {
                     const foundIds = new Set();
                     const normalizedQuery = normalize(query);
-                    
+
                     console.log(`🔍 Buscando bairros para: "${query}" (normalizado: "${normalizedQuery}")`);
-                    
+
                     // MÉTODO 1: Busca direta no municipioRepresentativeMap usando chave bairro+estado
                     const bairroEstadoKey = `${normalizedQuery}-SP`;
                     const directMatch = municipioRepresentativeMap.get(bairroEstadoKey);
@@ -1594,29 +1619,29 @@
                             foundIds.add(rep.id);
                         });
                     }
-                    
+
                     // MÉTODO 2: Buscar em todos os representantes que têm bairros mapeados
                     representativesData.forEach(rep => {
                         if (rep.EstadosDetalhados && rep.EstadosDetalhados.SP && rep.EstadosDetalhados.SP.bairros) {
                             const bairros = rep.EstadosDetalhados.SP.bairros;
-                            
+
                             bairros.forEach(bairro => {
                                 const normalizedBairro = normalize(bairro);
-                                
+
                                 // Busca exata primeiro
                                 if (normalizedBairro === normalizedQuery) {
                                     console.log(`✅ Match exato encontrado: "${bairro}" para representante "${rep.NomeRepresentante}"`);
                                     foundIds.add(rep.id);
                                     return;
                                 }
-                                
+
                                 // Busca por contém (para bairros que começam com a query)
                                 if (normalizedBairro.includes(normalizedQuery) && normalizedQuery.length >= 3) {
                                     console.log(`🔍 Match por contém encontrado: "${bairro}" para representante "${rep.NomeRepresentante}"`);
                                     foundIds.add(rep.id);
                                     return;
                                 }
-                                
+
                                 // Busca por similaridade (Levenshtein)
                                 const similarity = calculateSimilarity(normalizedBairro, normalizedQuery);
                                 if (similarity > 0.7) { // Threshold de 70% de similaridade
@@ -1626,7 +1651,7 @@
                             });
                         }
                     });
-                    
+
                     console.log(`📊 Total de representantes encontrados para bairros: ${foundIds.size}`);
                     return foundIds;
                 }
@@ -1637,10 +1662,10 @@
                     const exactMatches = [];
                     const partialMatches = [];
                     const similarMatches = [];
-                    
+
                     // Coletar todas as cidades únicas com seus estados
                     const cidadesUnicas = new Map(); // cidade -> [estados]
-                    
+
                     representativesData.forEach(rep => {
                         if (rep.EstadosDetalhados) {
                             Object.entries(rep.EstadosDetalhados).forEach(([estado, dadosEstado]) => {
@@ -1658,7 +1683,7 @@
                             });
                         }
                     });
-                    
+
                     // Classificar as cidades por tipo de match
                     for (const [cidade, estados] of cidadesUnicas.entries()) {
                         // 1. Match exato
@@ -1677,16 +1702,16 @@
                             }
                         }
                     }
-                    
+
                     // Ordenar matches similares por similaridade
                     similarMatches.sort((a, b) => b.similarity - a.similarity);
-                    
+
                     // Processar matches exatos primeiro
                     exactMatches.forEach(({ cidade, estados }) => {
                         const representatives = getRepresentativesByCidade(cidade, estados);
                         representatives.forEach(rep => foundIds.add(rep.id));
                     });
-                    
+
                     // Se não há matches exatos, processar parciais
                     if (exactMatches.length === 0 && partialMatches.length > 0) {
                         partialMatches.forEach(({ cidade, estados }) => {
@@ -1694,7 +1719,7 @@
                             representatives.forEach(rep => foundIds.add(rep.id));
                         });
                     }
-                    
+
                     // Se ainda não há resultados, processar similares
                     if (foundIds.size === 0 && similarMatches.length > 0) {
                         // Limitar a 3 matches similares para evitar poluição
@@ -1703,14 +1728,14 @@
                             representatives.forEach(rep => foundIds.add(rep.id));
                         });
                     }
-                    
+
                     return foundIds;
                 }
 
                 // Função para obter representantes por cidade e estados
                 function getRepresentativesByCidade(cidade, estados) {
                     const representatives = [];
-                    
+
                     representativesData.forEach(rep => {
                         if (rep.EstadosDetalhados) {
                             Object.entries(rep.EstadosDetalhados).forEach(([estado, dadosEstado]) => {
@@ -1722,7 +1747,7 @@
                             });
                         }
                     });
-                    
+
                     return representatives;
                 }
 
@@ -1739,7 +1764,7 @@
                         // Carregar dados dos representantes
                         const rawRepData = await fetchJsonData(jsonFileUrl);
                         representativesData = transformRepresentativesData(rawRepData);
-                        
+
                         // Tentar carregar dados dos municípios com fallback
                         let rawMunicipiosData;
                         try {
@@ -1756,7 +1781,7 @@
                                 throw new Error('Não foi possível carregar dados dos municípios');
                             }
                         }
-                        
+
                         municipiosData = rawMunicipiosData;
 
                         // Mapear SCHIOPPA para todos os municípios dos seus estados
@@ -1771,15 +1796,15 @@
 
                         await setupMap();
                         setupEventListeners();
-                        
+
                         // Inicializar funcionalidades de busca melhorada
                         updateRecentSearchesDisplay();
-                        
+
                         // Inicializar ícones Lucide
                         if (typeof lucide !== 'undefined') {
                             lucide.createIcons();
                         }
-                        
+
                         loadingIndicator.classList.add('hidden');
                         defaultMessage.classList.remove('hidden');
                     } catch (error) {
@@ -1819,7 +1844,7 @@
                                 const bairroName = feature.properties.NOME_DIST;
                                 if (bairroName) {
                                     const normalizedBairroName = normalize(bairroName);
-                                    
+
                                     // IMPORTANTE: Buscar representantes considerando o estado atual (SP para bairros)
                                     // Apenas aplicar cores se estivermos visualizando especificamente o estado de SP
                                     let representatives = [];
@@ -1888,9 +1913,28 @@
                                         className: 'bairro-tooltip'
                                     });
 
-                                    // Adicionar evento de clique para zoom na capital de São Paulo
+                                    // Adicionar evento de clique para mostrar representantes do bairro
                                     layer.on('click', function (e) {
-                                        // Coordenadas aproximadas da capital de São Paulo
+                                        e.originalEvent.stopPropagation(); // Evitar propagação para o clique global
+
+                                        console.log('🏘️ Clique no bairro:', bairroName);
+
+                                        // Destacar o bairro clicado
+                                        if (selectedMunicipioLayer) {
+                                            municipiosLayer.resetStyle(selectedMunicipioLayer);
+                                        }
+
+                                        // Aplicar estilo de destaque ao bairro
+                                        layer.setStyle({
+                                            color: '#f59e0b',
+                                            weight: 4,
+                                            opacity: 1,
+                                            dashArray: '8,6',
+                                            fillColor: '#fbbf24',
+                                            fillOpacity: 0.9
+                                        });
+
+                                        // Aplicar zoom na capital de São Paulo
                                         const capitalBounds = L.latLngBounds(
                                             [-23.8, -46.8],  // Sudoeste
                                             [-23.4, -46.4]   // Nordeste
@@ -1901,6 +1945,12 @@
                                             maxZoom: 10  // Zoom para mostrar toda a capital
                                         });
                                         console.log('🏙️ Zoom aplicado na capital de São Paulo');
+
+                                        // Mostrar os representantes do bairro
+                                        filterByBairro(bairroName);
+
+                                        // Scroll para os resultados
+                                        document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
                                     });
                                 }
                             },
@@ -1970,7 +2020,7 @@
                                     lat: coords.reduce((sum, coord) => sum + coord[1], 0) / coords.length,
                                     lng: coords.reduce((sum, coord) => sum + coord[0], 0) / coords.length
                                 };
-                                
+
                                 const distance = calculateDistance(point, center);
                                 if (distance < minDistance) {
                                     minDistance = distance;
@@ -1983,7 +2033,7 @@
                                         lat: coords.reduce((sum, coord) => sum + coord[1], 0) / coords.length,
                                         lng: coords.reduce((sum, coord) => sum + coord[0], 0) / coords.length
                                     };
-                                    
+
                                     const distance = calculateDistance(point, center);
                                     if (distance < minDistance) {
                                         minDistance = distance;
@@ -1996,12 +2046,79 @@
                         return { municipio: nearestMunicipio, distance: minDistance };
                     }
 
+                    // Verificar bairros PRIMEIRO se a camada estiver disponível e visível
+                    if (bairrosLayer && map.hasLayer(bairrosLayer)) {
+                        console.log('🏘️ Verificando bairros primeiro (camada de bairros visível)');
+                        let clickedBairro = null;
+
+                        bairrosLayer.eachLayer(layer => {
+                            if (layer.getBounds().contains(latlng)) {
+                                const feature = layer.feature;
+                                if (feature.geometry.type === 'Polygon') {
+                                    const coords = feature.geometry.coordinates[0].map(coord => ({ lat: coord[1], lng: coord[0] }));
+                                    if (pointInPolygon(latlng, coords)) {
+                                        clickedBairro = { layer, feature, isVisual: true };
+                                    }
+                                } else if (feature.geometry.type === 'MultiPolygon') {
+                                    for (let polygon of feature.geometry.coordinates) {
+                                        const coords = polygon[0].map(coord => ({ lat: coord[1], lng: coord[0] }));
+                                        if (pointInPolygon(latlng, coords)) {
+                                            clickedBairro = { layer, feature, isVisual: true };
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        if (clickedBairro) {
+                            const bairroName = clickedBairro.feature.properties.NOME_DIST;
+                            if (bairroName) {
+                                console.log('✅ Clique interceptado em BAIRRO:', bairroName);
+
+                                // Destacar o bairro clicado
+                                if (selectedMunicipioLayer) {
+                                    municipiosLayer.resetStyle(selectedMunicipioLayer);
+                                }
+
+                                // Aplicar estilo de destaque ao bairro
+                                clickedBairro.layer.setStyle({
+                                    color: '#f59e0b',
+                                    weight: 4,
+                                    opacity: 1,
+                                    dashArray: '8,6',
+                                    fillColor: '#fbbf24',
+                                    fillOpacity: 0.9
+                                });
+
+                                // Aplicar zoom na capital de São Paulo
+                                const capitalBounds = L.latLngBounds(
+                                    [-23.8, -46.8],  // Sudoeste
+                                    [-23.4, -46.4]   // Nordeste
+                                );
+
+                                map.fitBounds(capitalBounds, {
+                                    padding: [30, 30],
+                                    maxZoom: 10  // Zoom para mostrar toda a capital
+                                });
+                                console.log('🏙️ Zoom aplicado na capital de São Paulo');
+
+                                // Mostrar os representantes do bairro
+                                filterByBairro(bairroName);
+
+                                // Scroll para os resultados
+                                document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+                                return; // Parar aqui, não processar município ou estado
+                            }
+                        }
+                    }
+
                     // Verificar municípios PRIMEIRO se a camada estiver disponível OU se temos dados de municípios
                     // (mesmo no modo 'states' se os dados estiverem carregados)
                     if (municipiosLayer || municipiosData) {
                         console.log('🔍 Verificando municípios primeiro (dados de municípios disponíveis)');
                         let clickedMunicipio = null;
-                        
+
                         // Se temos a camada de municípios, usar ela para detecção visual
                         if (municipiosLayer) {
                             municipiosLayer.eachLayer(layer => {
@@ -2024,26 +2141,26 @@
                                 }
                             });
                         }
-                        
+
                         // Se não encontrou município visualmente, tentar buscar nos dados brutos
                         if (!clickedMunicipio && municipiosData && municipiosData.features) {
                             console.log('🔍 Buscando município nos dados brutos...');
                             console.log('🔍 Total de features:', municipiosData.features.length);
                             console.log('🔍 Coordenadas do clique:', latlng);
-                            
+
                             let municipiosTestados = 0;
                             let municipiosEncontrados = []; // Coletar TODOS os municípios que contêm o ponto
-                            
+
                             for (const feature of municipiosData.features) {
                                 municipiosTestados++;
-                                
+
                                 // Log a cada 1000 municípios para não sobrecarregar o console
                                 if (municipiosTestados % 1000 === 0) {
                                     console.log(`🔍 Testados ${municipiosTestados} municípios...`);
                                 }
-                                
+
                                 let municipioContemPonto = false;
-                                
+
                                 if (feature.geometry.type === 'Polygon') {
                                     // Verificar todos os anéis do polígono
                                     for (let ring of feature.geometry.coordinates) {
@@ -2065,15 +2182,15 @@
                                         if (municipioContemPonto) break;
                                     }
                                 }
-                                
+
                                 if (municipioContemPonto) {
                                     municipiosEncontrados.push({ feature, isVisual: false });
                                 }
                             }
-                            
+
                             console.log(`🔍 Busca concluída. Total testado: ${municipiosTestados}`);
                             console.log(`📊 Municípios encontrados: ${municipiosEncontrados.length}`);
-                            
+
                             if (municipiosEncontrados.length > 0) {
                                 // Se há múltiplos municípios, priorizar baseado no contexto
                                 if (municipiosEncontrados.length > 1) {
@@ -2084,7 +2201,7 @@
                                         const uf = props.uf_municipio;
                                         console.log(`  ${index + 1}. ${name} (${uf})`);
                                     });
-                                    
+
                                     // Priorizar município do estado selecionado se houver
                                     if (viewMode === 'municipios' && currentState && currentState.code) {
                                         const municipioDoEstado = municipiosEncontrados.find(mun => {
@@ -2106,7 +2223,7 @@
                                             }
                                             return false;
                                         });
-                                        
+
                                         if (municipioDoEstado) {
                                             console.log('🎯 Priorizando município do estado selecionado');
                                             clickedMunicipio = municipioDoEstado;
@@ -2122,7 +2239,7 @@
                                     // Apenas um município encontrado
                                     clickedMunicipio = municipiosEncontrados[0];
                                 }
-                                
+
                                 console.log('✅ Município selecionado:', clickedMunicipio.feature.properties.name || clickedMunicipio.feature.properties.nome);
                             }
                         }
@@ -2142,7 +2259,7 @@
 
                                 // Se estamos no modo 'states' e não temos estado selecionado,
                                 // ou se o município pertence a um estado diferente do atual
-                                if ((viewMode === 'states' && !currentState) || 
+                                if ((viewMode === 'states' && !currentState) ||
                                     (currentState && municipioState && municipioState !== currentState.code)) {
                                     console.log('🔄 Carregando estado para visualizar município...');
 
@@ -2150,19 +2267,19 @@
                                     const targetStateLayer = findStateLayerByCode(municipioState);
                                     if (targetStateLayer) {
                                         console.log('🔄 Carregando estado:', municipioState);
-                                        
+
                                         // Armazenar o nome do município para filtrar após carregar o estado
                                         const targetMunicipio = municipioName;
-                                        
+
                                         const fakeEvent = {
                                             target: targetStateLayer,
                                             latlng: latlng,
                                             originalEvent: e.originalEvent
                                         };
-                                        
+
                                         // Carregar o estado e depois filtrar o município específico
                                         handleStateClick(fakeEvent);
-                                        
+
                                         // Aguardar o carregamento do estado e depois filtrar pelo município
                                         setTimeout(() => {
                                             console.log('🎯 Filtrando município após carregar estado:', targetMunicipio);
@@ -2199,27 +2316,27 @@
                             }
                         } else {
                             console.log('❌ Nenhum município encontrado no clique - tentando fallback de município mais próximo...');
-                            
+
                             // FALLBACK: Se não encontrou município exato, buscar o mais próximo
                             const nearestResult = findNearestMunicipio(latlng, municipiosData);
                             if (nearestResult.municipio && nearestResult.distance < 0.5) { // Threshold aumentado para 0.5 graus (~55km)
                                 console.log(`🔍 Município mais próximo encontrado: ${nearestResult.municipio.properties.name || nearestResult.municipio.properties.nome || nearestResult.municipio.properties.municipio || nearestResult.municipio.properties.description}`);
                                 console.log(`📍 Distância: ${(nearestResult.distance * 111).toFixed(2)} km`);
-                                
+
                                 // Usar o município mais próximo como se fosse um clique direto
                                 const props = nearestResult.municipio.properties;
                                 const municipioName = props.name || props.nome || props.municipio || props.description;
-                                
+
                                 if (municipioName) {
                                     console.log('✅ Usando município mais próximo como fallback:', municipioName);
-                                    
+
                                     // Verificar a qual estado o município pertence
                                     const municipioState = getMunicipioState(props);
                                     console.log('📍 Estado do município:', municipioState);
 
                                     // Se estamos no modo 'states' e não temos estado selecionado,
                                     // ou se o município pertence a um estado diferente do atual
-                                    if ((viewMode === 'states' && !currentState) || 
+                                    if ((viewMode === 'states' && !currentState) ||
                                         (currentState && municipioState && municipioState !== currentState.code)) {
                                         console.log('🔄 Carregando estado para visualizar município...');
 
@@ -2227,19 +2344,19 @@
                                         const targetStateLayer = findStateLayerByCode(municipioState);
                                         if (targetStateLayer) {
                                             console.log('🔄 Carregando estado:', municipioState);
-                                            
+
                                             // Armazenar o nome do município para filtrar após carregar o estado
                                             const targetMunicipio = municipioName;
-                                            
+
                                             const fakeEvent = {
                                                 target: targetStateLayer,
                                                 latlng: latlng,
                                                 originalEvent: e.originalEvent
                                             };
-                                            
+
                                             // Carregar o estado e depois filtrar o município específico
                                             handleStateClick(fakeEvent);
-                                            
+
                                             // Aguardar o carregamento do estado e depois filtrar pelo município
                                             setTimeout(() => {
                                                 console.log('🎯 Filtrando município após carregar estado:', targetMunicipio);
@@ -2258,11 +2375,11 @@
                                 }
                             } else {
                                 console.log('❌ Nenhum município próximo encontrado - clique pode estar em área marítima ou internacional');
-                                
+
                                 // Informar ao usuário que clicou em área inválida
                                 const distanceKm = (nearestResult.distance * 111).toFixed(1);
                                 const nearestName = nearestResult.municipio.properties.name || nearestResult.municipio.properties.nome || nearestResult.municipio.properties.municipio || nearestResult.municipio.properties.description;
-                                
+
                                 // Mostrar mensagem temporária
                                 const tempMessage = document.createElement('div');
                                 tempMessage.className = 'fixed top-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded shadow-lg z-50';
@@ -2276,12 +2393,12 @@
                                     </div>
                                 `;
                                 document.body.appendChild(tempMessage);
-                                
+
                                 // Inicializar ícone
                                 if (typeof lucide !== 'undefined') {
                                     lucide.createIcons();
                                 }
-                                
+
                                 // Remover após 4 segundos
                                 setTimeout(() => {
                                     if (tempMessage.parentNode) {
@@ -2392,11 +2509,11 @@
                 function setupEventListeners() {
                     let debounceTimeout;
                     let suggestionTimeout;
-                    
+
                     // Input da busca com sugestões
                     searchInput.addEventListener('input', function () {
                         const query = this.value.trim();
-                        
+
                         // Mostrar/esconder botão de limpar
                         if (query) {
                             clearSearchButton.classList.remove('hidden');
@@ -2404,7 +2521,7 @@
                             clearSearchButton.classList.add('hidden');
                             hideSuggestions();
                         }
-                        
+
                         // Gerar sugestões com debounce menor
                         clearTimeout(suggestionTimeout);
                         if (query.length >= 2) {
@@ -2415,16 +2532,16 @@
                         } else {
                             hideSuggestions();
                         }
-                        
+
                         // Remover busca automática - só buscar quando usuário clicar ou pressionar Enter
                         clearTimeout(debounceTimeout);
                     });
-                    
+
                     // Navegação por teclado nas sugestões
-                    searchInput.addEventListener('keydown', function(e) {
+                    searchInput.addEventListener('keydown', function (e) {
                         if (searchSuggestions.length === 0) return;
-                        
-                        switch(e.key) {
+
+                        switch (e.key) {
                             case 'ArrowDown':
                                 e.preventDefault();
                                 selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, searchSuggestions.length - 1);
@@ -2454,46 +2571,46 @@
                                 break;
                         }
                     });
-                    
+
                     // Focus no input para mostrar histórico
-                    searchInput.addEventListener('focus', function() {
+                    searchInput.addEventListener('focus', function () {
                         if (!this.value && recentSearchesData.length > 0) {
                             updateRecentSearchesDisplay();
                         }
                     });
-                    
+
                     // Botão de limpar busca
-                    clearSearchButton.addEventListener('click', function() {
+                    clearSearchButton.addEventListener('click', function () {
                         searchInput.value = '';
                         clearSearchButton.classList.add('hidden');
                         hideSuggestions();
                         resetView(true);
                         searchInput.focus();
                     });
-                    
+
                     // Filtros de busca
                     searchFilters.forEach(filter => {
-                        filter.addEventListener('click', function() {
+                        filter.addEventListener('click', function () {
                             // Atualizar filtro ativo
                             searchFilters.forEach(f => f.classList.remove('active'));
                             this.classList.add('active');
                             currentSearchFilter = this.dataset.filter;
-                            
+
                             // Regenerar sugestões se há texto
                             if (searchInput.value.trim().length >= 2) {
                                 const suggestions = generateSuggestions(searchInput.value.trim());
                                 showSuggestions(suggestions);
                             }
-                            
+
                             // Re-executar busca se há resultados
                             if (searchInput.value.trim()) {
                                 handleSearch();
                             }
                         });
                     });
-                    
+
                     // Clique fora das sugestões para esconder (com delay para dar tempo de clicar)
-                    document.addEventListener('click', function(e) {
+                    document.addEventListener('click', function (e) {
                         if (!suggestionsContainer.contains(e.target) && e.target !== searchInput) {
                             // Pequeno delay para permitir cliques nas sugestões
                             setTimeout(() => {
@@ -2546,7 +2663,7 @@
                     // Verificar se o município pertence ao estado atualmente selecionado
                     // Se municipioState for fornecido, usar ele; senão, assumir que é do estado atual
                     const estadoMunicipio = municipioState || currentState.code;
-                    
+
                     // Se o município não pertence ao estado selecionado, usar cor azul padrão
                     if (normalize(estadoMunicipio) !== normalize(currentState.code)) {
                         return {
@@ -2599,7 +2716,7 @@
 
                     // Verificar se o município pertence ao estado atualmente selecionado
                     const estadoMunicipio = municipioState || currentState.code;
-                    
+
                     // Se o município não pertence ao estado selecionado, usar cor azul padrão
                     if (normalize(estadoMunicipio) !== normalize(currentState.code)) {
                         return { weight: 0, color: '#3b82f6', fillOpacity: 0.8 };
@@ -2833,6 +2950,38 @@
                     // Se for São Paulo, mostrar os bairros
                     if (stateCode === 'SP' || stateName === 'SAO PAULO') {
                         if (bairrosLayer) {
+                            // Resetar destaque de bairros anteriores
+                            bairrosLayer.eachLayer(layer => {
+                                const bairroName = layer.feature.properties.NOME_DIST;
+                                if (bairroName) {
+                                    const normalizedBairroName = normalize(bairroName);
+                                    const bairroEstadoKey = `${normalizedBairroName}-SP`;
+                                    const representatives = municipioRepresentativeMap.get(bairroEstadoKey) || [];
+
+                                    if (representatives.length > 0) {
+                                        const firstRep = representatives[0];
+                                        const color = representativeColorMap.get(firstRep.id) || '#9CA3AF';
+                                        layer.setStyle({
+                                            color: '#DC2626',
+                                            weight: 3,
+                                            opacity: 1,
+                                            dashArray: '8,6',
+                                            fillColor: color,
+                                            fillOpacity: 0.7,
+                                        });
+                                    } else {
+                                        layer.setStyle({
+                                            color: '#DC2626',
+                                            weight: 2,
+                                            opacity: 0.6,
+                                            dashArray: '6,4',
+                                            fillColor: '#999',
+                                            fillOpacity: 0.2,
+                                        });
+                                    }
+                                }
+                            });
+
                             // Atualizar estilos dos bairros baseado no estado atual
                             updateBairrosStyles();
                             map.addLayer(bairrosLayer);
@@ -2852,14 +3001,14 @@
                 // Função para atualizar estilos da camada de bairros baseado no estado atual
                 function updateBairrosStyles() {
                     if (!bairrosLayer) return;
-                    
-                    bairrosLayer.eachLayer(function(layer) {
+
+                    bairrosLayer.eachLayer(function (layer) {
                         const feature = layer.feature;
                         const bairroName = feature.properties.NOME_DIST;
-                        
+
                         if (bairroName) {
                             const normalizedBairroName = normalize(bairroName);
-                            
+
                             // IMPORTANTE: Buscar representantes considerando o estado atual (SP para bairros)
                             // Apenas aplicar cores se estivermos visualizando especificamente o estado de SP
                             let representatives = [];
@@ -2868,7 +3017,7 @@
                                 const bairroEstadoKey = `${normalizedBairroName}-SP`;
                                 representatives = municipioRepresentativeMap.get(bairroEstadoKey) || [];
                             }
-                            
+
                             if (representatives.length > 0) {
                                 // Se há representantes, usar a cor do primeiro representante
                                 const firstRep = representatives[0];
@@ -3144,20 +3293,20 @@
                     // CORREÇÃO: SEMPRE determinar o estado real do município primeiro
                     // Buscar o município nos dados geográficos para determinar seu estado real
                     console.log('🔍 Determinando estado real do município...');
-                    
+
                     if (municipiosData && municipiosData.features) {
                         // CORREÇÃO: Buscar considerando múltiplas cidades com mesmo nome
                         // Primeiro tentar encontrar no estado selecionado, senão buscar por proximidade geográfica
                         let municipioFeature = null;
-                        
+
                         // Se há estado selecionado, tentar buscar nele primeiro
                         if (viewMode === 'municipios' && currentState && currentState.code) {
                             municipioFeature = municipiosData.features.find(feature => {
                                 const props = feature.properties;
                                 const name = props.name || props.nome || props.municipio || props.description;
-                                
+
                                 if (normalize(name) !== normalizedName) return false;
-                                
+
                                 // Verificar se pertence ao estado selecionado
                                 const ufMunicipio = props.uf_municipio;
                                 if (ufMunicipio) {
@@ -3177,7 +3326,7 @@
                                 return false;
                             });
                         }
-                        
+
                         // Se não encontrou no estado selecionado, buscar o primeiro disponível
                         if (!municipioFeature) {
                             municipioFeature = municipiosData.features.find(feature => {
@@ -3202,7 +3351,7 @@
                                     'Sergipe': 'SE', 'Rio Grande do Norte': 'RN', 'Rondônia': 'RO', 'Acre': 'AC',
                                     'Amapá': 'AP', 'Roraima': 'RR', 'Tocantins': 'TO'
                                 };
-                                estadoMunicipio = stateToAbbrev[ufMunicipio] || ufMunicipio;
+                                estadoMunicipio = stateToAbbrev[ufMunicipio] || estadoMunicipio;
                                 console.log(`📍 Estado real do município determinado: ${ufMunicipio} -> ${estadoMunicipio}`);
                             }
                         }
@@ -3216,7 +3365,7 @@
                         console.log('📍 Buscando por cidade+estado (estado real):', cidadeEstadoKey);
                     } else {
                         console.log('⚠️ Não foi possível determinar o estado do município');
-                        
+
                         // Fallback: Se não conseguiu determinar o estado, tentar usar o estado selecionado
                         // apenas se for consistente (clique direto no estado)
                         if (viewMode === 'municipios' && currentState && currentState.code) {
@@ -3238,7 +3387,7 @@
                     // Os representantes já foram filtrados corretamente pelo municipioRepresentativeMap
                     // Não é necessário fazer filtragem adicional
                     const filteredRepresentatives = representatives;
-                    
+
                     // Log para debug
                     filteredRepresentatives.forEach(rep => {
                         console.log(`✅ ${rep.NomeRepresentante} atende ${municipioName}`);
@@ -3251,6 +3400,38 @@
 
                     // Mostrar legenda com os representantes encontrados
                     updateLegend(filteredRepresentatives);
+
+                    document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+                }
+
+                // Função para filtrar representantes por bairro
+                function filterByBairro(bairroName) {
+                    console.log(`🏘️ Buscando representantes para o bairro: ${bairroName}`);
+
+                    // Usar o mapeamento normalizado para buscar representantes
+                    const normalizedName = normalize(bairroName);
+                    console.log(`📍 Nome normalizado: ${normalizedName}`);
+
+                    // IMPORTANTE: Para bairros, sempre usar a chave bairro+estado (SP)
+                    const bairroEstadoKey = `${normalizedName}-SP`;
+                    const representatives = municipioRepresentativeMap.get(bairroEstadoKey) || [];
+
+                    console.log(`📍 Buscando por bairro+estado: ${bairroEstadoKey}`);
+                    console.log(`📊 Representantes encontrados: ${representatives.length}`);
+                    console.log('📋 Representantes:', representatives);
+
+                    // Log para debug
+                    representatives.forEach(rep => {
+                        console.log(`✅ ${rep.NomeRepresentante} atende o bairro ${bairroName}`);
+                    });
+
+                    console.log(`🎯 Representantes finais para o bairro ${bairroName}: ${representatives.length}`);
+
+                    renderResults(representatives, `Bairro ${bairroName} (São Paulo)`);
+                    mainTitle.textContent = `Representantes no Bairro ${bairroName} - São Paulo`;
+
+                    // Mostrar legenda com os representantes encontrados
+                    updateLegend(representatives);
 
                     document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
                 }
@@ -3288,16 +3469,16 @@
                     if (document.activeElement !== searchInput || !suggestionsContainer.classList.contains('hidden')) {
                         addToRecentSearches(query);
                     }
-                    
+
                     hideSuggestions();
 
                     // Simular delay para mostrar loading (pode ser removido em produção)
                     setTimeout(() => {
                         const results = searchRepresentatives(query);
-                        
+
                         // Remover loading e adicionar estado baseado nos resultados
                         searchInput.classList.remove('search-loading');
-                        
+
                         if (results.length === 0) {
                             searchInput.classList.add('no-results');
                             renderResults([], query);
@@ -3351,27 +3532,27 @@
                                 } else if (telefones.length <= 3) {
                                     // 2-3 telefones: layout inline com separador
                                     telefonesHtml = `<div class="flex flex-wrap gap-1 items-center">
-                                        ${telefones.map(tel => 
-                                            `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
-                                        ).join('')}
+                                        ${telefones.map(tel =>
+                                        `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
+                                    ).join('')}
                                     </div>`;
                                 } else {
                                     // Muitos telefones: layout compacto com expansão
                                     const primeiros = telefones.slice(0, 2);
                                     const restantes = telefones.slice(2);
                                     telefonesHtml = `<div class="flex flex-wrap gap-1 items-center">
-                                        ${primeiros.map(tel => 
-                                            `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
-                                        ).join('')}
+                                        ${primeiros.map(tel =>
+                                        `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
+                                    ).join('')}
                                         <button class="phone-expand-btn text-xs px-2 py-1 rounded-full" 
                                                 onclick="event.stopPropagation(); this.style.display='none'; this.nextElementSibling.style.display='flex';" 
                                                 title="Ver mais ${restantes.length} telefones">
                                             +${restantes.length}
                                         </button>
                                         <div class="hidden flex-wrap gap-1 items-center">
-                                            ${restantes.map(tel => 
-                                                `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
-                                            ).join('')}
+                                            ${restantes.map(tel =>
+                                        `<a href="tel:${tel.trim()}" class="phone-pill" onclick="event.stopPropagation()">${tel.trim()}</a>`
+                                    ).join('')}
                                         </div>
                                     </div>`;
                                 }
@@ -3522,7 +3703,7 @@
                         // Nova estrutura: percorrer estados e suas cidades
                         Object.entries(representante.EstadosDetalhados).forEach(([estado, dadosEstado]) => {
                             // FILTRO: Se estivermos visualizando um estado específico, mostrar apenas municípios deste estado
-                            if (viewMode === 'municipios' && currentState && currentState.code && 
+                            if (viewMode === 'municipios' && currentState && currentState.code &&
                                 estado !== currentState.code && normalize(estado) !== normalize(currentState.code)) {
                                 return; // Pular este estado se não for o estado atual
                             }
@@ -3560,8 +3741,8 @@
                     } else {
                         // Estrutura antiga: usar CidadesAtendidas
                         // FILTRO: Se estivermos visualizando um estado específico, mostrar apenas municípios deste estado
-                        if (viewMode === 'municipios' && currentState && currentState.code && 
-                            representante.SiglaEstado !== currentState.code && 
+                        if (viewMode === 'municipios' && currentState && currentState.code &&
+                            representante.SiglaEstado !== currentState.code &&
                             normalize(representante.SiglaEstado) !== normalize(currentState.code)) {
                             // Não destacar municípios de outros estados quando estiver focado em um estado específico
                             console.log(`Pulando representante ${representante.NomeRepresentante} do estado ${representante.SiglaEstado} pois estamos focados no estado ${currentState.code}`);
@@ -3682,7 +3863,40 @@
                         console.log('🏘️ Bairros removidos ao voltar para visualização geral');
                     }
 
+                    // Reset dos estilos dos bairros se estiverem visíveis
+                    if (bairrosLayer) {
+                        bairrosLayer.eachLayer(layer => {
+                            // Resetar para o estilo padrão dos bairros
+                            const bairroName = layer.feature.properties.NOME_DIST;
+                            if (bairroName) {
+                                const normalizedBairroName = normalize(bairroName);
+                                const bairroEstadoKey = `${normalizedBairroName}-SP`;
+                                const representatives = municipioRepresentativeMap.get(bairroEstadoKey) || [];
 
+                                if (representatives.length > 0) {
+                                    const firstRep = representatives[0];
+                                    const color = representativeColorMap.get(firstRep.id) || '#9CA3AF';
+                                    layer.setStyle({
+                                        color: '#DC2626',
+                                        weight: 3,
+                                        opacity: 1,
+                                        dashArray: '8,6',
+                                        fillColor: color,
+                                        fillOpacity: 0.7,
+                                    });
+                                } else {
+                                    layer.setStyle({
+                                        color: '#DC2626',
+                                        weight: 2,
+                                        opacity: 0.6,
+                                        dashArray: '6,4',
+                                        fillColor: '#999',
+                                        fillOpacity: 0.2,
+                                    });
+                                }
+                            }
+                        });
+                    }
 
                     currentState = null;
                     viewMode = 'states';
