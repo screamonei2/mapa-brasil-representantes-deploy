@@ -2830,6 +2830,9 @@
                     // Limpar resultados e legenda
                     showInitialMessage();
                     updateLegend([]);
+                    
+                    // Garantir que não há resultados visíveis
+                    resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">Clique em um município ou bairro para ver os representantes.</div>';
 
                     // Seleciona o novo estado
                     selectedStateLayer = e.target;
@@ -3496,6 +3499,12 @@
                     mainTitle.textContent = `Municípios de ${stateCode} - Clique em um município para ver os representantes`;
                     backButton.classList.remove('hidden');
                     viewMode = 'municipios';
+                    
+                    // Garantir que não há resultados visíveis
+                    resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">Clique em um município ou bairro para ver os representantes.</div>';
+                    
+                    // Esconder legenda
+                    updateLegend([]);
                 }
 
                 function renderResults(results, location = null) {
