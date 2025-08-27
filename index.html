@@ -1550,24 +1550,49 @@
                     // 2. Cidades (baseado nos dados dos representantes)
                     if (currentSearchFilter === 'all' || currentSearchFilter === 'cidades') {
                         const cidadesSet = new Set();
+                        const cidadesPorEstado = new Map(); // cidade -> [estados] para evitar duplicatas
+                        
+                        // Primeiro, coletar todas as cidades com seus estados
                         representativesData.forEach(rep => {
                             if (rep.EstadosDetalhados) {
-                                Object.values(rep.EstadosDetalhados).forEach(estadoData => {
+                                Object.entries(rep.EstadosDetalhados).forEach(([estado, estadoData]) => {
                                     if (estadoData.cidades) {
                                         estadoData.cidades.forEach(cidade => {
-                                            const normalizedCidade = normalize(cidade);
-                                            if (normalizedCidade.includes(normalizedQuery) && !cidadesSet.has(cidade) && suggestions.length < maxSuggestions) {
-                                                cidadesSet.add(cidade);
-                                                const similarity = calculateSimilarity(normalizedCidade, normalizedQuery);
-                                                suggestions.push({
-                                                    type: 'cidade',
-                                                    text: cidade,
-                                                    similarity,
-                                                    priority: normalizedCidade.startsWith(normalizedQuery) ? 3 : similarity > 0.8 ? 2 : 1
-                                                });
+                                            if (!cidadesPorEstado.has(cidade)) {
+                                                cidadesPorEstado.set(cidade, []);
+                                            }
+                                            if (!cidadesPorEstado.get(cidade).includes(estado)) {
+                                                cidadesPorEstado.get(cidade).push(estado);
                                             }
                                         });
                                     }
+                                });
+                            }
+                        });
+                        
+                        // Agora gerar sugestões com sigla do estado
+                        cidadesPorEstado.forEach((estados, cidade) => {
+                            const normalizedCidade = normalize(cidade);
+                            if (normalizedCidade.includes(normalizedQuery) && suggestions.length < maxSuggestions) {
+                                const similarity = calculateSimilarity(normalizedCidade, normalizedQuery);
+                                
+                                // CORREÇÃO: Adicionar sigla do estado para cidades
+                                let cidadeText = cidade;
+                                if (estados.length === 1) {
+                                    // Cidade em apenas um estado
+                                    cidadeText = `${cidade} (${estados[0]})`;
+                                } else if (estados.length > 1) {
+                                    // Cidade em múltiplos estados - mostrar o primeiro
+                                    cidadeText = `${cidade} (${estados[0]})`;
+                                }
+                                
+                                suggestions.push({
+                                    type: 'cidade',
+                                    text: cidadeText,
+                                    originalText: cidade,
+                                    estados: estados,
+                                    similarity,
+                                    priority: normalizedCidade.startsWith(normalizedQuery) ? 3 : similarity > 0.8 ? 2 : 1
                                 });
                             }
                         });
@@ -1721,6 +1746,27 @@
                         // Para bairros, invocar diretamente o filtro de bairro para evitar ser tratado como cidade
                         const bairroNome = suggestion.originalText || (suggestion.text || '').replace(/\s*\(SP\)\s*$/i, '');
                         filterByBairro(bairroNome);
+                        addToRecentSearches(textToUse);
+                        return;
+                    }
+
+                    if (suggestion.type === 'cidade') {
+                        // CORREÇÃO: Para cidades, usar o filtro de município diretamente
+                        const cidadeNome = suggestion.originalText || suggestion.text.replace(/\s*\([A-Z]{2}\)\s*$/i, '');
+                        
+                        // Se a cidade tem estados específicos, usar o primeiro para contexto
+                        if (suggestion.estados && suggestion.estados.length > 0) {
+                            const estadoCidade = suggestion.estados[0];
+                            console.log(`🏙️ Selecionada cidade "${cidadeNome}" do estado ${estadoCidade}`);
+                            
+                            // Definir o estado atual para a busca
+                            if (currentState && currentState.code !== estadoCidade) {
+                                console.log(`🔄 Alterando estado atual de ${currentState.code} para ${estadoCidade}`);
+                                // Aqui você pode implementar a lógica para alterar o estado atual se necessário
+                            }
+                        }
+                        
+                        filterByMunicipio(cidadeNome);
                         addToRecentSearches(textToUse);
                         return;
                     }
@@ -1886,11 +1932,53 @@
                 // Função para buscar em cidades com diferenciação inteligente
                 function searchInCidades(query, estadoAtual = null) {
                     const foundIds = new Set();
+                    const normalizedQuery = normalize(query);
+
+                    console.log(`🔍 Buscando cidades para: "${query}" (normalizado: "${normalizedQuery}") no estado: ${estadoAtual || 'todos'}`);
+
+                    // CORREÇÃO: Se estadoAtual é especificado, buscar APENAS nesse estado para evitar conflitos
+                    if (estadoAtual) {
+                        console.log(`🎯 Busca restrita ao estado: ${estadoAtual}`);
+                        
+                        representativesData.forEach(rep => {
+                            if (rep.EstadosDetalhados && rep.EstadosDetalhados[estadoAtual] && rep.EstadosDetalhados[estadoAtual].cidades) {
+                                const cidades = rep.EstadosDetalhados[estadoAtual].cidades;
+                                
+                                cidades.forEach(cidade => {
+                                    const normalizedCidade = normalize(cidade);
+                                    
+                                    // Match exato (prioridade máxima)
+                                    if (normalizedCidade === normalizedQuery) {
+                                        console.log(`✅ Match exato encontrado: "${cidade}" para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
+                                        foundIds.add(rep.id);
+                                        return;
+                                    }
+                                    
+                                    // Match parcial (prioridade média)
+                                    if (normalizedCidade.includes(normalizedQuery) && normalizedQuery.length >= 3) {
+                                        console.log(`🔍 Match parcial encontrado: "${cidade}" para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
+                                        foundIds.add(rep.id);
+                                        return;
+                                    }
+                                    
+                                    // Match por similaridade (prioridade baixa)
+                                    const similarity = calculateSimilarity(normalizedCidade, normalizedQuery);
+                                    if (similarity > 0.7) {
+                                        console.log(`🔍 Match similar encontrado: "${cidade}" (${(similarity * 100).toFixed(1)}%) para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
+                                        foundIds.add(rep.id);
+                                    }
+                                });
+                            }
+                        });
+                        
+                        console.log(`📊 Total de representantes encontrados para cidade "${query}" no estado ${estadoAtual}: ${foundIds.size}`);
+                        return foundIds;
+                    }
+
+                    // Se não há estado especificado, usar a lógica anterior para busca em todos os estados
                     const exactMatches = [];
                     const partialMatches = [];
                     const similarMatches = [];
-
-                    console.log(`🔍 Buscando cidades para: "${query}" no estado: ${estadoAtual || 'todos'}`);
 
                     // Coletar todas as cidades únicas com seus estados
                     const cidadesUnicas = new Map(); // cidade -> [estados]
@@ -1916,16 +2004,16 @@
                     // Classificar as cidades por tipo de match
                     for (const [cidade, estados] of cidadesUnicas.entries()) {
                         // 1. Match exato
-                        if (cidade === query) {
+                        if (cidade === normalizedQuery) {
                             exactMatches.push({ cidade, estados });
                         }
                         // 2. Match parcial (começa com a query)
-                        else if (cidade.startsWith(query) && query.length >= 3) {
+                        else if (cidade.startsWith(normalizedQuery) && normalizedQuery.length >= 3) {
                             partialMatches.push({ cidade, estados });
                         }
                         // 3. Match por similaridade
                         else {
-                            const similarity = calculateSimilarity(cidade, query);
+                            const similarity = calculateSimilarity(cidade, normalizedQuery);
                             if (similarity > 0.7) { // Threshold de 70% de similaridade
                                 similarMatches.push({ cidade, estados, similarity });
                             }
@@ -1934,27 +2022,6 @@
 
                     // Ordenar matches similares por similaridade
                     similarMatches.sort((a, b) => b.similarity - a.similarity);
-
-                    // CORREÇÃO: Priorizar matches do estado atual se especificado
-                    if (estadoAtual) {
-                        exactMatches.sort((a, b) => {
-                            const aIsCurrentState = a.estados.includes(estadoAtual);
-                            const bIsCurrentState = b.estados.includes(estadoAtual);
-                            if (aIsCurrentState && !bIsCurrentState) return -1;
-                            if (!aIsCurrentState && bIsCurrentState) return 1;
-                            return 0;
-                        });
-                        
-                        partialMatches.sort((a, b) => {
-                            const aIsCurrentState = a.estados.includes(estadoAtual);
-                            const bIsCurrentState = b.estados.includes(estadoAtual);
-                            if (aIsCurrentState && !bIsCurrentState) return -1;
-                            if (!aIsCurrentState && bIsCurrentState) return 1;
-                            return 0;
-                        });
-                        
-                        console.log(`🎯 Priorizando resultados do estado atual: ${estadoAtual}`);
-                    }
 
                     // Processar matches exatos primeiro
                     exactMatches.forEach(({ cidade, estados }) => {
@@ -1979,6 +2046,7 @@
                         });
                     }
 
+                    console.log(`📊 Total de representantes encontrados para cidades: ${foundIds.size}`);
                     return foundIds;
                 }
 
