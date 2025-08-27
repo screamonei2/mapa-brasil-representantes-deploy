@@ -2155,25 +2155,33 @@
 
                     // CORREÇÃO: Se estadoAtual é especificado, buscar APENAS nesse estado para evitar conflitos
                     if (estadoAtual) {
-                        console.log(`🎯 Busca restrita ao estado: ${estadoAtual}`);
+                        console.log(`🎯 [searchInCidades] Busca restrita ao estado: ${estadoAtual}`);
+                        console.log(`🔍 [searchInCidades] Query normalizada: "${normalizedQuery}"`);
+                        
+                        let totalRepsAnalisados = 0;
+                        let totalCidadesAnalisadas = 0;
                         
                         representativesData.forEach(rep => {
                             if (rep.EstadosDetalhados && rep.EstadosDetalhados[estadoAtual] && rep.EstadosDetalhados[estadoAtual].cidades) {
+                                totalRepsAnalisados++;
                                 const cidades = rep.EstadosDetalhados[estadoAtual].cidades;
+                                totalCidadesAnalisadas += cidades.length;
+                                
+                                console.log(`📍 [searchInCidades] Analisando representante "${rep.NomeRepresentante}" com ${cidades.length} cidades no estado ${estadoAtual}`);
                                 
                                 cidades.forEach(cidade => {
                                     const normalizedCidade = normalize(cidade);
                                     
                                     // Match exato (prioridade máxima)
                                     if (normalizedCidade === normalizedQuery) {
-                                        console.log(`✅ Match exato encontrado: "${cidade}" para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
+                                        console.log(`✅ [searchInCidades] Match exato encontrado: "${cidade}" para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
                                         foundIds.add(rep.id);
                                         return;
                                     }
                                     
                                     // Match parcial (prioridade média)
                                     if (normalizedCidade.includes(normalizedQuery) && normalizedQuery.length >= 3) {
-                                        console.log(`🔍 Match parcial encontrado: "${cidade}" para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
+                                        console.log(`🔍 [searchInCidades] Match parcial encontrado: "${cidade}" para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
                                         foundIds.add(rep.id);
                                         return;
                                     }
@@ -2181,14 +2189,15 @@
                                     // Match por similaridade (prioridade baixa)
                                     const similarity = calculateSimilarity(normalizedCidade, normalizedQuery);
                                     if (similarity > 0.7) {
-                                        console.log(`🔍 Match similar encontrado: "${cidade}" (${(similarity * 100).toFixed(1)}%) para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
+                                        console.log(`🔍 [searchInCidades] Match similar encontrado: "${cidade}" (${(similarity * 100).toFixed(1)}%) para representante "${rep.NomeRepresentante}" no estado ${estadoAtual}`);
                                         foundIds.add(rep.id);
                                     }
                                 });
                             }
                         });
                         
-                        console.log(`📊 Total de representantes encontrados para cidade "${query}" no estado ${estadoAtual}: ${foundIds.size}`);
+                        console.log(`📊 [searchInCidades] Estatísticas: ${totalRepsAnalisados} representantes analisados, ${totalCidadesAnalisadas} cidades verificadas`);
+                        console.log(`📊 [searchInCidades] Total de representantes encontrados para cidade "${query}" no estado ${estadoAtual}: ${foundIds.size}`);
                         return foundIds;
                     }
 
@@ -4125,15 +4134,23 @@
                         
                         // Processar termo combinado diretamente
                         if (termoCombinado.tipo === 'cidade_estado') {
+                            console.log(`🏙️ [handleSearch] Processando cidade combinada: ${termoCombinado.cidade} no estado ${termoCombinado.estado}`);
+                            
                             // Buscar representantes para a cidade no estado específico
                             const cidadeResults = searchInCidades(termoCombinado.cidade, termoCombinado.estado);
+                            console.log(`📊 [handleSearch] Resultados de searchInCidades: ${cidadeResults.size} IDs encontrados`);
+                            
                             const representatives = representativesData.filter(rep => cidadeResults.has(rep.id));
+                            console.log(`📋 [handleSearch] Representantes filtrados: ${representatives.length} encontrados`);
+                            console.log(`📋 [handleSearch] Representantes:`, representatives.map(r => r.NomeRepresentante));
                             
                             if (representatives.length > 0) {
+                                console.log(`✅ [handleSearch] Renderizando ${representatives.length} representantes para ${termoCombinado.cidade} (${termoCombinado.estado})`);
                                 renderResults(representatives, `Cidade: ${termoCombinado.cidade} (${termoCombinado.estado})`);
                                 mainTitle.textContent = `Representantes em ${termoCombinado.cidade} - ${termoCombinado.estado}`;
                                 updateLegend(representatives);
                             } else {
+                                console.log(`❌ [handleSearch] Nenhum representante encontrado para ${termoCombinado.cidade} (${termoCombinado.estado})`);
                                 renderNoResults(`${termoCombinado.cidade} (${termoCombinado.estado})`);
                             }
                             
