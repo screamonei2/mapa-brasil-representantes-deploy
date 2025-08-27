@@ -1571,19 +1571,48 @@
                         });
                         
                         // Agora gerar sugestões com sigla do estado
+                        const cidadesOrdenadas = [];
+                        
                         cidadesPorEstado.forEach((estados, cidade) => {
                             const normalizedCidade = normalize(cidade);
-                            if (normalizedCidade.includes(normalizedQuery) && suggestions.length < maxSuggestions) {
+                            if (normalizedCidade.includes(normalizedQuery)) {
                                 const similarity = calculateSimilarity(normalizedCidade, normalizedQuery);
                                 
+                                // CORREÇÃO: Priorizar cidades do estado atual se disponível
+                                let priority = normalizedCidade.startsWith(normalizedQuery) ? 3 : similarity > 0.8 ? 2 : 1;
+                                
+                                // BONUS de prioridade para cidades do estado atual
+                                if (currentState && currentState.code && estados.includes(currentState.code)) {
+                                    priority += 10; // Prioridade máxima para estado atual
+                                }
+                                
+                                cidadesOrdenadas.push({
+                                    cidade,
+                                    estados,
+                                    similarity,
+                                    priority
+                                });
+                            }
+                        });
+                        
+                        // Ordenar por prioridade (maior primeiro)
+                        cidadesOrdenadas.sort((a, b) => b.priority - a.priority);
+                        
+                        // Adicionar sugestões respeitando o limite máximo
+                        cidadesOrdenadas.forEach(({ cidade, estados, similarity, priority }) => {
+                            if (suggestions.length < maxSuggestions) {
                                 // CORREÇÃO: Adicionar sigla do estado para cidades
                                 let cidadeText = cidade;
                                 if (estados.length === 1) {
                                     // Cidade em apenas um estado
                                     cidadeText = `${cidade} (${estados[0]})`;
                                 } else if (estados.length > 1) {
-                                    // Cidade em múltiplos estados - mostrar o primeiro
-                                    cidadeText = `${cidade} (${estados[0]})`;
+                                    // Cidade em múltiplos estados - priorizar o estado atual se disponível
+                                    if (currentState && currentState.code && estados.includes(currentState.code)) {
+                                        cidadeText = `${cidade} (${currentState.code})`;
+                                    } else {
+                                        cidadeText = `${cidade} (${estados[0]})`;
+                                    }
                                 }
                                 
                                 suggestions.push({
@@ -1592,7 +1621,7 @@
                                     originalText: cidade,
                                     estados: estados,
                                     similarity,
-                                    priority: normalizedCidade.startsWith(normalizedQuery) ? 3 : similarity > 0.8 ? 2 : 1
+                                    priority: priority
                                 });
                             }
                         });
