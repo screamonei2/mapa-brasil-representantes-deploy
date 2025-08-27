@@ -1822,13 +1822,29 @@
                 // Função para verificar se uma cidade existe em um estado
                 function verificarCidadeNoEstado(cidade, estado) {
                     const normalizedCidade = normalize(cidade);
+                    console.log(`🔍 [verificarCidadeNoEstado] Verificando cidade: "${cidade}" (normalizada: "${normalizedCidade}") no estado: ${estado}`);
                     
-                    return representativesData.some(rep => {
+                    let encontrou = false;
+                    let representantesEncontrados = [];
+                    
+                    representativesData.forEach(rep => {
                         if (rep.EstadosDetalhados && rep.EstadosDetalhados[estado] && rep.EstadosDetalhados[estado].cidades) {
-                            return rep.EstadosDetalhados[estado].cidades.some(c => normalize(c) === normalizedCidade);
+                            const cidades = rep.EstadosDetalhados[estado].cidades;
+                            console.log(`📍 [verificarCidadeNoEstado] Representante "${rep.NomeRepresentante}" tem ${cidades.length} cidades no estado ${estado}`);
+                            
+                            cidades.forEach(c => {
+                                const normalizedC = normalize(c);
+                                if (normalizedC === normalizedCidade) {
+                                    encontrou = true;
+                                    representantesEncontrados.push(rep.NomeRepresentante);
+                                    console.log(`✅ [verificarCidadeNoEstado] Match encontrado: "${c}" para representante "${rep.NomeRepresentante}"`);
+                                }
+                            });
                         }
-                        return false;
                     });
+                    
+                    console.log(`📊 [verificarCidadeNoEstado] Resultado: ${encontrou ? 'ENCONTRADO' : 'NÃO ENCONTRADO'} - Representantes: ${representantesEncontrados.join(', ')}`);
+                    return encontrou;
                 }
 
                 // Função para verificar se um representante atende um estado
@@ -4035,13 +4051,21 @@
 
                 // Função para detectar termos combinados na busca
                 function detectarTermoCombinado(normalizedQuery) {
+                    console.log(`🔍 [detectarTermoCombinado] Analisando query: "${normalizedQuery}"`);
+                    
                     // 1. Padrão de cidade + estado (ex: "belém pará", "belém do pará")
                     const padraoCidadeEstado = /^(.+?)\s+(?:do\s+)?([a-z]{2}|pará|são paulo|rio de janeiro|minas gerais|bahia|paraná|rio grande do sul|pernambuco|ceará|santa catarina|goiás|maranhão|paraíba|amazonas|espírito santo|mato grosso|alagoas|piauí|distrito federal|mato grosso do sul|sergipe|rio grande do norte|rondônia|acre|amapá|roraima|tocantins)$/i;
                     
+                    console.log(`🔍 [detectarTermoCombinado] Testando padrão cidade+estado...`);
                     if (padraoCidadeEstado.test(normalizedQuery)) {
+                        console.log(`✅ [detectarTermoCombinado] Padrão cidade+estado MATCH!`);
+                        
                         const match = normalizedQuery.match(padraoCidadeEstado);
                         const cidade = match[1].trim();
                         const estado = match[2].trim();
+                        
+                        console.log(`📍 [detectarTermoCombinado] Cidade extraída: "${cidade}"`);
+                        console.log(`📍 [detectarTermoCombinado] Estado extraído: "${estado}"`);
                         
                         // Converter nome do estado para sigla
                         const stateToAbbrev = {
@@ -4055,19 +4079,28 @@
                         };
                         
                         const siglaEstado = stateToAbbrev[estado] || estado.toUpperCase();
+                        console.log(`📍 [detectarTermoCombinado] Sigla do estado: "${siglaEstado}"`);
                         
                         // Verificar se a cidade existe no estado
+                        console.log(`🔍 [detectarTermoCombinado] Verificando se "${cidade}" existe no estado ${siglaEstado}...`);
                         const cidadeExiste = verificarCidadeNoEstado(cidade, siglaEstado);
+                        
                         if (cidadeExiste) {
+                            console.log(`✅ [detectarTermoCombinado] Cidade encontrada! Retornando objeto...`);
                             return {
                                 tipo: 'cidade_estado',
                                 cidade: cidade.charAt(0).toUpperCase() + cidade.slice(1),
                                 estado: siglaEstado,
                                 original: `${cidade} ${estado}`
                             };
+                        } else {
+                            console.log(`❌ [detectarTermoCombinado] Cidade NÃO encontrada no estado ${siglaEstado}`);
                         }
+                    } else {
+                        console.log(`❌ [detectarTermoCombinado] Padrão cidade+estado NÃO match`);
                     }
                     
+                    console.log(`❌ [detectarTermoCombinado] Nenhum termo combinado detectado`);
                     return null;
                 }
 
