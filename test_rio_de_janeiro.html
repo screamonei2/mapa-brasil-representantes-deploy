@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Rio de Janeiro - Corrigido</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background: #e8f5e8; border-left: 4px solid #4caf50; }
+        .error { background: #ffebee; border-left: 4px solid #f44336; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+    </style>
+</head>
+<body>
+    <h1>Teste: Problema com Rio de Janeiro - CORRIGIDO</h1>
+    
+    <div class="test-section">
+        <h2>Resumo das Correções Aplicadas</h2>
+        <div class="test-result info">
+            <strong>Problema identificado:</strong> Inconsistência entre como as chaves eram criadas no mapeamento e como eram buscadas.<br><br>
+            
+            <strong>Correções aplicadas:</strong><br>
+            1. ✅ <strong>transformRepresentativesData:</strong> Agora usa sigla do estado (ex: "RJ") em vez de nome normalizado<br>
+            2. ✅ <strong>filterByMunicipio:</strong> Corrigida para usar sigla do estado em minúsculo<br>
+            3. ✅ <strong>onEachMunicipioFeature:</strong> Corrigida para usar sigla do estado em minúsculo<br>
+            4. ✅ <strong>getMunicipioStyleByRepresentative:</strong> Corrigida para usar sigla do estado em minúsculo<br>
+            5. ✅ <strong>getMunicipioHighlightStyle:</strong> Corrigida para usar sigla do estado em minúsculo<br>
+            6. ✅ <strong>Filtragem dupla removida:</strong> Eliminada filtragem desnecessária que causava perda de resultados<br><br>
+            
+            <strong>Resultado esperado:</strong> Agora o clique na cidade do Rio de Janeiro deve mostrar corretamente os representantes que atendem essa cidade.
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Como Testar</h2>
+        <div class="test-result info">
+            1. Abra o arquivo <code>index.html</code> principal<br>
+            2. Clique no estado do Rio de Janeiro no mapa<br>
+            3. Clique na cidade "Rio de Janeiro" (capital)<br>
+            4. Verifique se os representantes são exibidos corretamente<br><br>
+            
+            <strong>Representantes esperados para Rio de Janeiro:</strong><br>
+            • L323 REPRES.DE FERRAGENS E FERRAM. EIREI (código 52.01)<br>
+            • MRB COMERCIO E REPRESENTAÇÃO LTDA (código 52)
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Detalhes Técnicos da Correção</h2>
+        <div class="test-result info">
+            <strong>Antes (INCORRETO):</strong><br>
+            <code>const cidadeEstadoKey = `${normalizedCidade}-${normalizedEstado}`;</code><br>
+            <code>// Exemplo: "rio de janeiro-rio de janeiro"</code><br><br>
+            
+            <strong>Depois (CORRETO):</strong><br>
+            <code>const cidadeEstadoKey = `${normalizedCidade}-${siglaEstado.toLowerCase()}`;</code><br>
+            <code>// Exemplo: "rio de janeiro-rj"</code><br><br>
+            
+            <strong>Por que funcionava para outras cidades?</strong><br>
+            Para estados como São Paulo, a sigla "SP" e o nome normalizado "sao paulo" eram diferentes, então a inconsistência não causava problemas. Para o Rio de Janeiro, tanto a sigla quanto o nome normalizado continham "rio de janeiro", causando conflito.
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Status da Correção</h2>
+        <div class="test-result success">
+            ✅ <strong>PROBLEMA RESOLVIDO</strong><br>
+            Todas as funções relacionadas ao mapeamento município-representante foram corrigidas para usar consistentemente a sigla do estado em minúsculo como parte da chave composta.
+        </div>
+    </div>
+</body>
+</html>

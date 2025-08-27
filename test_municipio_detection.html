@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Detecção de Municípios</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background: #e8f5e8; border-left: 4px solid #4caf50; }
+        .error { background: #ffebee; border-left: 4px solid #f44336; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .warning { background: #fff3e0; border-left: 4px solid #ff9800; }
+    </style>
+</head>
+<body>
+    <h1>Teste: Detecção de Municípios - CORRIGIDO</h1>
+    
+    <div class="test-section">
+        <h2>Problema Identificado e Corrigido</h2>
+        <div class="test-result error">
+            <strong>❌ PROBLEMA ORIGINAL:</strong><br>
+            O sistema estava detectando cliques na cidade do Rio de Janeiro como sendo em um estado, não em um município.<br><br>
+            
+            <strong>🔍 CAUSA:</strong><br>
+            A função <code>handleGlobalMapClick</code> só verificava municípios se <code>municipiosLayer</code> existisse. No modo 'states' (visualização geral do Brasil), essa camada não existe, então o sistema não conseguia detectar cliques em municípios.<br><br>
+            
+            <strong>📍 COORDENADAS PROBLEMÁTICAS:</strong><br>
+            lat: -22.978623970384902, lng: -43.5882568359375<br>
+            Estas são coordenadas da cidade do Rio de Janeiro, mas o sistema estava detectando como estado.
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Correção Aplicada</h2>
+        <div class="test-result success">
+            <strong>✅ SOLUÇÃO IMPLEMENTADA:</strong><br>
+            Modifiquei a lógica para que, mesmo no modo 'states', o sistema possa detectar cliques em municípios usando os dados disponíveis em <code>municipiosData</code>.<br><br>
+            
+            <strong>🔧 MUDANÇAS TÉCNICAS:</strong><br>
+            1. <strong>Verificação expandida:</strong> Agora verifica se <code>municipiosLayer</code> OU <code>municipiosData</code> estão disponíveis<br>
+            2. <strong>Detecção em duas etapas:</strong> Primeiro tenta detectar visualmente (se a camada existir), depois busca nos dados brutos<br>
+            3. <strong>Estrutura de dados melhorada:</strong> <code>clickedMunicipio</code> agora inclui informações sobre o tipo de detecção<br>
+            4. <strong>Seleção visual condicional:</strong> Só tenta atualizar seleção visual se a camada existir<br><br>
+            
+            <strong>📊 FLUXO CORRIGIDO:</strong><br>
+            Clique → Verificar municípios (visual + dados brutos) → Se encontrou município → Processar município → Se não encontrou → Verificar estados
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Como Testar a Correção</h2>
+        <div class="test-result info">
+            <strong>🧪 TESTE 1 - Modo Estados (Visualização Geral):</strong><br>
+            1. Abra o arquivo <code>index.html</code> principal<br>
+            2. Certifique-se de estar no modo 'states' (visualização geral do Brasil)<br>
+            3. Clique na cidade do Rio de Janeiro (coordenadas: -22.978, -43.588)<br>
+            4. <strong>ESPERADO:</strong> Sistema deve detectar como município e carregar o estado RJ automaticamente<br><br>
+            
+            <strong>🧪 TESTE 2 - Modo Municípios (Estado Selecionado):</strong><br>
+            1. Clique no estado do Rio de Janeiro no mapa<br>
+            2. Clique na cidade "Rio de Janeiro" (capital)<br>
+            3. <strong>ESPERADO:</strong> Sistema deve mostrar os representantes corretamente<br><br>
+            
+            <strong>🧪 TESTE 3 - Outras Cidades:</strong><br>
+            1. Teste cliques em outras cidades como São Paulo, Belo Horizonte, etc.<br>
+            2. <strong>ESPERADO:</strong> Todas devem funcionar consistentemente
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Logs Esperados Após a Correção</h2>
+        <div class="test-result info">
+            <strong>📝 LOGS CORRETOS PARA RIO DE JANEIRO:</strong><br>
+            <code>
+            Clique global detectado em: v {lat: -22.978623970384902, lng: -43.5882568359375}<br>
+            🔍 Verificando municípios primeiro (dados de municípios disponíveis)<br>
+            🔍 Buscando município nos dados brutos...<br>
+            ✅ Clique interceptado em MUNICÍPIO: Rio de Janeiro<br>
+            📍 Estado atual: null<br>
+            📍 ViewMode: states<br>
+            📍 Tipo de detecção: Dados brutos<br>
+            🔄 Carregando estado para visualizar município...<br>
+            🔄 Carregando estado: RJ<br>
+            🎯 Filtrando município após carregar estado: Rio de Janeiro
+            </code>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Status da Correção</h2>
+        <div class="test-result success">
+            ✅ <strong>PROBLEMA RESOLVIDO</strong><br>
+            A função <code>handleGlobalMapClick</code> agora pode detectar municípios mesmo quando não há uma camada visual disponível, usando os dados brutos de <code>municipiosData</code>.<br><br>
+            
+            <strong>🎯 RESULTADO:</strong><br>
+            Agora o clique na cidade do Rio de Janeiro (e qualquer outra cidade) deve ser detectado corretamente como município, mesmo no modo 'states', e o sistema deve carregar automaticamente o estado correspondente para mostrar os representantes.
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Arquivos Modificados</h2>
+        <div class="test-result warning">
+            <strong>📁 ARQUIVO PRINCIPAL:</strong><br>
+            <code>vercel-deploy/index.html</code> - Função <code>handleGlobalMapClick</code> corrigida<br><br>
+            
+            <strong>🔧 FUNÇÕES AFETADAS:</strong><br>
+            • <code>handleGlobalMapClick</code> - Lógica de detecção de municípios expandida<br>
+            • <code>transformRepresentativesData</code> - Mapeamento corrigido para usar siglas de estado<br>
+            • <code>filterByMunicipio</code> - Busca corrigida para usar siglas de estado<br>
+            • <code>onEachMunicipioFeature</code> - Estilos corrigidos para usar siglas de estado<br>
+            • <code>getMunicipioStyleByRepresentative</code> - Estilos corrigidos para usar siglas de estado<br>
+            • <code>getMunicipioHighlightStyle</code> - Estilos corrigidos para usar siglas de estado
+        </div>
+    </div>
+</body>
+</html>

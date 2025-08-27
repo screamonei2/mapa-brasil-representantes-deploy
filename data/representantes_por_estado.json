@@ -1016,6 +1016,7 @@
             "MARCACAO",
             "MARI",
             "MARIZOPOLIS",
+            "MASSARANDUBA",
             "MATARACA",
             "MATINHAS",
             "MATO GROSSO",
@@ -1075,11 +1076,13 @@
             "SANTA TERESINHA",
             "SANTANA DE MANGUEIRA",
             "SANTANA DOS GARROTES",
+            "SANTO ANDRE",
             "SANTAREM",
             "SAO BENTINHO",
             "SAO BENTO",
             "SAO DOMINGOS DE POMBAL",
             "SAO DOMINGOS DO CARIRI",
+            "SAO DOMINGOS",
             "SAO FRANCISCO",
             "SAO JOAO DO CARIRI",
             "SAO JOAO DO RIO DO PEIXE",
@@ -1298,7 +1301,7 @@
       }
     },
     "celso garcia filho solucoes comerciais ltda": {
-      "codigo": "6.02",
+      "codigo": "06.02",
       "nome": "CELSO GARCIA FILHO SOLUÇÕES COMERCIAIS LTDA",
       "contato": {
         "nome_contato": "Celso",
@@ -1410,6 +1413,7 @@
             "CORREGO DO OURO",
             "CORUMBA DE GOIAS",
             "CORUMBAIBA",
+            "COUTO MAGALHAES",
             "CRISTALINA",
             "CRISTIANOPOLIS",
             "CRIXAS",
@@ -1423,6 +1427,7 @@
             "DOVERLANDIA",
             "EDEALINA",
             "EDEIA",
+            "ESTRELA DO NORTE",
             "FAINA",
             "FAZENDA NOVA",
             "FIRMINOPOLIS",
@@ -1543,6 +1548,7 @@
             "SANTA CRUZ DE GOIAS",
             "SANTA FE DE GOIAS",
             "SANTA HELENA DE GOIAS",
+            "SANTA ISABEL",
             "SANTA RITA DO ARAGUAIA",
             "SANTA RITA DO NOVO DESTINO",
             "SANTA ROSA DE GOIAS",
@@ -1596,7 +1602,7 @@
       }
     },
     "dsj representacao comercial ltda": {
-      "codigo": "2.02",
+      "codigo": "02.02",
       "nome": "DSJ REPRESENTACAO COMERCIAL LTDA",
       "contato": {
         "nome_contato": "Dionisio",
@@ -1783,6 +1789,7 @@
             "BERTOLINIA",
             "BETANIA DO PIAUI",
             "BOA HORA",
+            "BOCAINA",
             "BOM JESUS",
             "BOM PRINCIPIO DO PIAUI",
             "BONFIM DO PIAUI",
@@ -2028,7 +2035,7 @@
       }
     },
     "gil-angio intermediacao de servicos ltda": {
-      "codigo": "3",
+      "codigo": "03",
       "nome": "GIL-ANGIO INTERMEDIAÇÃO DE SERVIÇOS LTDA",
       "contato": {
         "nome_contato": "Gilberto",
@@ -2178,7 +2185,7 @@
             "PARAGUACU",
             "PARAISOPOLIS",
             "PASSA QUATRO",
-            "PASSA VINTE",
+            "PASSA-VINTE",
             "PASSOS",
             "PEDRALVA",
             "PIRANGUCU",
@@ -2205,7 +2212,7 @@
             "SAO TOMAS DE AQUINO",
             "SAO THOME DAS LETRAS",
             "SAO VICENTE DE MINAS",
-            "SAPUCAI MIRIM",
+            "SAPUCAI-MIRIM",
             "SENADOR AMARAL",
             "SENADOR JOSE BENTO",
             "SERITINGA",
@@ -2231,7 +2238,7 @@
       }
     },
     "gl - representacao comercial ltda": {
-      "codigo": "4",
+      "codigo": "04",
       "nome": "GL - REPRESENTAÇÃO COMERCIAL LTDA",
       "contato": {
         "nome_contato": "Ideraldo",
@@ -2255,7 +2262,6 @@
             "SUZANO",
             "FERRAZ DE VASCONCELOS",
             "POA",
-            "SAO CAETANO DO SUL",
             "ARUJA"
           ],
           "total_cidades": 32,
@@ -4045,6 +4051,7 @@
             "ARGIRITA",
             "ASTOLFO DUTRA",
             "BARAO DO MONTE ALTO",
+            "BARAO DE MONTE ALTO",
             "BARRA LONGA",
             "BELMIRO BRAGA",
             "BIAS FORTES",
@@ -4123,6 +4130,7 @@
             "PIRAUBA",
             "PONTE NOVA",
             "PORTO FIRME",
+            "PRESIDENTE BERNARDES",
             "ALTO JEQUITIBA",
             "RAUL SOARES",
             "RECREIO",
@@ -4487,7 +4495,7 @@
             "JAGUARIBARA",
             "JAGUARIBE",
             "JAGUARUANA",
-            "JARDIN",
+            "JARDIM",
             "JATI",
             "JIJOCA DE JERICOACOARA",
             "JUAZEIRO DO NORTE",
@@ -8154,6 +8162,7 @@
             "MOITA BONITA",
             "MONTANHAS",
             "MONTE ALEGRE DE SERGIPE",
+            "MONTE ALEGRE",
             "MONTE NEGRO",
             "MONTE DAS GAMELEIRAS",
             "MONTEIROPOLIS",
@@ -8188,6 +8197,7 @@
             "OLHO D'AGUA GRANDE",
             "OLHO D'AGUA DAS CUNHAS",
             "OLHO D'AGUA DAS FLORES",
+            "OLHO-D'AGUA DO BORGES",
             "OLHO D'AGUA DO CASADO",
             "OLINDA NOVA DO MARANHAO",
             "OLIVENCA",
@@ -9816,7 +9826,7 @@
             "AMAPA",
             "AMAPA DO MARANHAO",
             "AMARANTE DO MARANHAO",
-            "AMPARO DO SAO FRANCISCO",
+            "AMPARO DE SAO FRANCISCO",
             "ANADIA",
             "ANAJATUBA",
             "ANAPURUS",
@@ -10810,7 +10820,7 @@
       }
     },
     "v&b representacao comercial s/c ltda": {
-      "codigo": "5",
+      "codigo": "05",
       "nome": "V&B REPRESENTAÇÃO COMERCIAL S/C LTDA",
       "contato": {
         "nome_contato": "Ricardo",
@@ -11332,7 +11342,7 @@
       "contato": {
         "nome_contato": "Rogerio",
         "email": "rogerioriosudia@hotmail.com",
-        "celular": "34-3234-0475 / 34-99888-8034 / 34-9 9222-0732"
+        "celular": "34-3234-0475 / 34-99888-8034 / 34-99222-0732"
       },
       "observacoes": "Será enviado para pesquisa no mapa",
       "total_cidades": 76,
@@ -11349,7 +11359,6 @@
             "ARAGUARI",
             "ARAPORA",
             "ARAXA",
-            "BOTELHOS",
             "BURITIS",
             "CABECEIRA GRANDE",
             "CAMPINA VERDE",

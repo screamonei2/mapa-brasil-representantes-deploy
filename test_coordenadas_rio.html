@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Coordenadas - Rio de Janeiro</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .coordinate-test { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+        .success { background: #e8f5e8; border-left: 4px solid #4caf50; }
+        .error { background: #ffebee; border-left: 4px solid #f44336; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        pre { background: #f8f8f8; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Coordenadas - Rio de Janeiro</h1>
+    
+    <div class="test-section">
+        <h2>1. Carregando dados dos municípios</h2>
+        <div id="loading-status">⏳ Carregando...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Testando coordenadas específicas</h2>
+        <div id="coordinate-tests"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Logs detalhados</div>
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        let municipiosData = null;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `coordinate-test ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            console.log(message);
+        }
+        
+        // Função para verificar se um ponto está dentro de um polígono
+        function pointInPolygon(point, polygon) {
+            const x = point.lat, y = point.lng;
+            let inside = false;
+            
+            log(`🔍 Testando ponto (${x}, ${y}) contra polígono com ${polygon.length} pontos`);
+            
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const xi = polygon[i].lat, yi = polygon[i].lng;
+                const xj = polygon[j].lat, yj = polygon[j].lng;
+                
+                if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+                    inside = !inside;
+                }
+            }
+            
+            log(`📍 Resultado: ${inside ? 'DENTRO' : 'FORA'} do polígono`);
+            return inside;
+        }
+        
+        // Função para calcular distância entre dois pontos
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Raio da Terra em km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        async function testCoordinates() {
+            log('🚀 Iniciando teste de coordenadas...');
+            
+            try {
+                // Carregar dados dos municípios
+                log('📥 Carregando dados dos municípios...');
+                const response = await fetch('./data/municipios_limpo.json');
+                municipiosData = await response.json();
+                log('✅ Dados carregados com sucesso');
+                
+                // Encontrar o Rio de Janeiro
+                const rioFeature = municipiosData.features.find(f => 
+                    f.properties.name === 'Rio de Janeiro' || 
+                    f.properties.description === 'Rio de Janeiro'
+                );
+                
+                if (!rioFeature) {
+                    log('❌ Município do Rio de Janeiro não encontrado!', 'error');
+                    return;
+                }
+                
+                log('✅ Município do Rio de Janeiro encontrado!', 'success');
+                log(`📋 Propriedades: ${JSON.stringify(rioFeature.properties)}`);
+                
+                // Extrair coordenadas do polígono
+                const coords = rioFeature.geometry.coordinates[0].map(coord => ({ 
+                    lat: coord[1], 
+                    lng: coord[0] 
+                }));
+                
+                log(`📍 Coordenadas do polígono do Rio de Janeiro:`);
+                coords.forEach((coord, i) => {
+                    log(`   ${i}: lat=${coord.lat}, lng=${coord.lng}`);
+                });
+                
+                // Calcular centro aproximado do polígono
+                const centerLat = coords.reduce((sum, coord) => sum + coord.lat, 0) / coords.length;
+                const centerLng = coords.reduce((sum, coord) => sum + coord.lng, 0) / coords.length;
+                log(`🎯 Centro aproximado do polígono: lat=${centerLat}, lng=${centerLng}`);
+                
+                // Testar coordenadas específicas
+                const testCoordinates = [
+                    { name: 'Coordenadas do clique (problema)', lat: -22.938159639316396, lng: -43.56628417968751 },
+                    { name: 'Centro do polígono', lat: centerLat, lng: centerLng },
+                    { name: 'Primeira coordenada do polígono', lat: coords[0].lat, lng: coords[0].lng },
+                    { name: 'Coordenada intermediária', lat: coords[Math.floor(coords.length/2)].lat, lng: coords[Math.floor(coords.length/2)].lng }
+                ];
+                
+                const testsDiv = document.getElementById('coordinate-tests');
+                testsDiv.innerHTML = '';
+                
+                testCoordinates.forEach(testCoord => {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = 'coordinate-test';
+                    
+                    // Calcular distância do centro
+                    const distance = calculateDistance(testCoord.lat, testCoord.lng, centerLat, centerLng);
+                    
+                    // Testar se está dentro do polígono
+                    const isInside = pointInPolygon(testCoord, coords);
+                    
+                    testDiv.innerHTML = `
+                        <h3>${testCoord.name}</h3>
+                        <p><strong>Latitude:</strong> ${testCoord.lat}</p>
+                        <p><strong>Longitude:</strong> ${testCoord.lng}</p>
+                        <p><strong>Distância do centro:</strong> ${distance.toFixed(2)} km</p>
+                        <p><strong>Dentro do polígono:</strong> <span style="color: ${isInside ? 'green' : 'red'}">${isInside ? '✅ SIM' : '❌ NÃO'}</span></p>
+                    `;
+                    
+                    testsDiv.appendChild(testDiv);
+                });
+                
+                // Atualizar status de carregamento
+                document.getElementById('loading-status').innerHTML = `
+                    <div class="success">
+                        ✅ Dados carregados com sucesso<br>
+                        📊 Total de municípios: ${municipiosData.features.length}<br>
+                        🎯 Rio de Janeiro encontrado com ${coords.length} pontos de coordenadas
+                    </div>
+                `;
+                
+            } catch (error) {
+                log(`❌ Erro: ${error.message}`, 'error');
+                document.getElementById('loading-status').innerHTML = `
+                    <div class="error">
+                        ❌ Erro ao carregar dados: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Executar teste quando a página carregar
+        window.addEventListener('load', testCoordinates);
+    </script>
+</body>
+</html>
