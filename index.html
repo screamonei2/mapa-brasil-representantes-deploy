@@ -1625,6 +1625,32 @@
                                 });
                             }
                         });
+                        
+                        // CORREÇÃO: Adicionar sugestões combinadas para cidades populares
+                        if (normalizedQuery.includes('bele') && suggestions.length < maxSuggestions) {
+                            // Se a query contém "bele", sugerir "Belém Pará" e "Belém Paraíba"
+                            if (!suggestions.some(s => s.text.includes('Belém (PA)'))) {
+                                suggestions.push({
+                                    type: 'cidade',
+                                    text: 'Belém (PA)',
+                                    originalText: 'Belém Pará',
+                                    estados: ['PA'],
+                                    similarity: 0.9,
+                                    priority: 8
+                                });
+                            }
+                            
+                            if (!suggestions.some(s => s.text.includes('Belém (PB)'))) {
+                                suggestions.push({
+                                    type: 'cidade',
+                                    text: 'Belém (PB)',
+                                    originalText: 'Belém Paraíba',
+                                    estados: ['PB'],
+                                    similarity: 0.9,
+                                    priority: 7
+                                });
+                            }
+                        }
                     }
 
                     // 3. Bairros de São Paulo
@@ -1666,24 +1692,20 @@
                         });
                     }
 
-                    // 5. Sugestões combinadas (apenas se há texto suficiente)
-                    if (query.length >= 4 && suggestions.length < maxSuggestions - 2) {
-                        // Sugerir combinações populares
-                        const popularCombinations = [
-                            'SCHIOPPA em São Paulo',
-                            '3L em Bauru',
-                            'representantes em SP',
-                            'Santos, SP',
-                            'Campinas, SP'
-                        ];
-
-                        popularCombinations.forEach(combo => {
-                            if (normalize(combo).includes(normalizedQuery) && suggestions.length < maxSuggestions) {
+                    // 5. Sugestões combinadas inteligentes (termos combinados)
+                    if (query.length >= 3 && suggestions.length < maxSuggestions - 2) {
+                        // CORREÇÃO: Gerar sugestões combinadas inteligentes baseadas na query
+                        const termosCombinados = generateCombinedSuggestions(normalizedQuery, currentState);
+                        
+                        termosCombinados.forEach(combinacao => {
+                            if (suggestions.length < maxSuggestions) {
                                 suggestions.push({
                                     type: 'combinado',
-                                    text: combo,
-                                    similarity: 0.6,
-                                    priority: 1
+                                    text: combinacao.text,
+                                    originalText: combinacao.originalText,
+                                    estados: combinacao.estados,
+                                    similarity: combinacao.similarity,
+                                    priority: combinacao.priority
                                 });
                             }
                         });
@@ -1696,6 +1718,129 @@
                             return b.similarity - a.similarity;
                         })
                         .slice(0, maxSuggestions);
+                }
+
+                // Função para gerar sugestões combinadas inteligentes
+                function generateCombinedSuggestions(normalizedQuery, currentState) {
+                    const combinacoes = [];
+                    
+                    // 1. Padrões de cidade + estado (ex: "belém pará", "belém do pará")
+                    const padraoCidadeEstado = /^(.+?)\s+(?:do\s+)?([a-z]{2}|pará|são paulo|rio de janeiro|minas gerais|bahia|paraná|rio grande do sul|pernambuco|ceará|santa catarina|goiás|maranhão|paraíba|amazonas|espírito santo|mato grosso|alagoas|piauí|distrito federal|mato grosso do sul|sergipe|rio grande do norte|rondônia|acre|amapá|roraima|tocantins)$/i;
+                    
+                    if (padraoCidadeEstado.test(normalizedQuery)) {
+                        const match = normalizedQuery.match(padraoCidadeEstado);
+                        const cidade = match[1].trim();
+                        const estado = match[2].trim();
+                        
+                        // Converter nome do estado para sigla
+                        const stateToAbbrev = {
+                            'pará': 'PA', 'são paulo': 'SP', 'rio de janeiro': 'RJ', 'minas gerais': 'MG', 
+                            'bahia': 'BA', 'paraná': 'PR', 'rio grande do sul': 'RS', 'pernambuco': 'PE', 
+                            'ceará': 'CE', 'santa catarina': 'SC', 'goiás': 'GO', 'maranhão': 'MA',
+                            'paraíba': 'PB', 'amazonas': 'AM', 'espírito santo': 'ES', 'mato grosso': 'MT',
+                            'alagoas': 'AL', 'piauí': 'PI', 'distrito federal': 'DF', 'mato grosso do sul': 'MS',
+                            'sergipe': 'SE', 'rio grande do norte': 'RN', 'rondônia': 'RO', 'acre': 'AC',
+                            'amapá': 'AP', 'roraima': 'RR', 'tocantins': 'TO'
+                        };
+                        
+                        const siglaEstado = stateToAbbrev[estado] || estado.toUpperCase();
+                        
+                        // Verificar se a cidade existe no estado
+                        const cidadeExiste = verificarCidadeNoEstado(cidade, siglaEstado);
+                        if (cidadeExiste) {
+                            combinacoes.push({
+                                text: `${cidade.charAt(0).toUpperCase() + cidade.slice(1)} (${siglaEstado})`,
+                                originalText: `${cidade} ${estado}`,
+                                estados: [siglaEstado],
+                                similarity: 0.95,
+                                priority: 5
+                            });
+                        }
+                    }
+                    
+                    // 2. Padrões de representante + estado (ex: "schioppa pará", "3l são paulo")
+                    const padraoRepEstado = /^(.+?)\s+(?:em\s+)?([a-z]{2}|pará|são paulo|rio de janeiro|minas gerais|bahia|paraná|rio grande do sul|pernambuco|ceará|santa catarina|goiás|maranhão|paraíba|amazonas|espírito santo|mato grosso|alagoas|piauí|distrito federal|mato grosso do sul|sergipe|rio grande do norte|rondônia|acre|amapá|roraima|tocantins)$/i;
+                    
+                    if (padraoRepEstado.test(normalizedQuery)) {
+                        const match = normalizedQuery.match(padraoRepEstado);
+                        const representante = match[1].trim();
+                        const estado = match[2].trim();
+                        
+                        const stateToAbbrev = {
+                            'pará': 'PA', 'são paulo': 'SP', 'rio de janeiro': 'RJ', 'minas gerais': 'MG', 
+                            'bahia': 'BA', 'paraná': 'PR', 'rio grande do sul': 'RS', 'pernambuco': 'PE', 
+                            'ceará': 'CE', 'santa catarina': 'SC', 'goiás': 'GO', 'maranhão': 'MA',
+                            'paraíba': 'PB', 'amazonas': 'AM', 'espírito santo': 'ES', 'mato grosso': 'MT',
+                            'alagoas': 'AL', 'piauí': 'PI', 'distrito federal': 'DF', 'mato grosso do sul': 'MS',
+                            'sergipe': 'SE', 'rio grande do norte': 'RN', 'rondônia': 'RO', 'acre': 'AC',
+                            'amapá': 'AP', 'roraima': 'RR', 'tocantins': 'TO'
+                        };
+                        
+                        const siglaEstado = stateToAbbrev[estado] || estado.toUpperCase();
+                        
+                        // Verificar se o representante atende o estado
+                        const repAtendeEstado = verificarRepresentanteNoEstado(representante, siglaEstado);
+                        if (repAtendeEstado) {
+                            combinacoes.push({
+                                text: `${representante.charAt(0).toUpperCase() + representante.slice(1)} em ${estado.charAt(0).toUpperCase() + estado.slice(1)}`,
+                                originalText: `${representante} ${estado}`,
+                                estados: [siglaEstado],
+                                similarity: 0.9,
+                                priority: 4
+                            });
+                        }
+                    }
+                    
+                    // 3. Sugestões contextuais baseadas no estado atual
+                    if (currentState && currentState.code) {
+                        // Se o usuário está no Pará, sugerir "Belém Pará"
+                        if (currentState.code === 'PA' && normalizedQuery.includes('bele')) {
+                            combinacoes.push({
+                                text: 'Belém (PA)',
+                                originalText: 'Belém Pará',
+                                estados: ['PA'],
+                                similarity: 0.9,
+                                priority: 6
+                            });
+                        }
+                        
+                        // Se o usuário está na Paraíba, sugerir "Belém Paraíba"
+                        if (currentState.code === 'PB' && normalizedQuery.includes('bele')) {
+                            combinacoes.push({
+                                text: 'Belém (PB)',
+                                originalText: 'Belém Paraíba',
+                                estados: ['PB'],
+                                similarity: 0.9,
+                                priority: 6
+                            });
+                        }
+                    }
+                    
+                    return combinacoes;
+                }
+
+                // Função para verificar se uma cidade existe em um estado
+                function verificarCidadeNoEstado(cidade, estado) {
+                    const normalizedCidade = normalize(cidade);
+                    
+                    return representativesData.some(rep => {
+                        if (rep.EstadosDetalhados && rep.EstadosDetalhados[estado] && rep.EstadosDetalhados[estado].cidades) {
+                            return rep.EstadosDetalhados[estado].cidades.some(c => normalize(c) === normalizedCidade);
+                        }
+                        return false;
+                    });
+                }
+
+                // Função para verificar se um representante atende um estado
+                function verificarRepresentanteNoEstado(representante, estado) {
+                    const normalizedRep = normalize(representante);
+                    
+                    return representativesData.some(rep => {
+                        if (normalize(rep.NomeRepresentante).includes(normalizedRep)) {
+                            return rep.EstadosDetalhados && rep.EstadosDetalhados[estado];
+                        }
+                        return false;
+                    });
                 }
 
                 // Mostrar sugestões
@@ -1796,6 +1941,33 @@
                         }
                         
                         filterByMunicipio(cidadeNome);
+                        addToRecentSearches(textToUse);
+                        return;
+                    }
+
+                    if (suggestion.type === 'combinado') {
+                        // CORREÇÃO: Para sugestões combinadas, processar inteligentemente
+                        console.log(`🔗 Selecionada sugestão combinada: "${suggestion.text}"`);
+                        
+                        if (suggestion.estados && suggestion.estados.length > 0) {
+                            const estadoCombinado = suggestion.estados[0];
+                            console.log(`📍 Estado da sugestão combinada: ${estadoCombinado}`);
+                            
+                            // Se for uma cidade + estado, usar o filtro de município
+                            if (suggestion.originalText && suggestion.originalText.includes(' ')) {
+                                const partes = suggestion.originalText.split(' ');
+                                if (partes.length >= 2) {
+                                    const cidade = partes[0];
+                                    console.log(`🏙️ Processando cidade combinada: ${cidade} no estado ${estadoCombinado}`);
+                                    filterByMunicipio(cidade);
+                                    addToRecentSearches(textToUse);
+                                    return;
+                                }
+                            }
+                        }
+                        
+                        // Fallback: usar busca normal
+                        handleSearch();
                         addToRecentSearches(textToUse);
                         return;
                     }
