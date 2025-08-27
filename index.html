@@ -4033,6 +4033,44 @@
                         .toLowerCase();
                 }
 
+                // Função para detectar termos combinados na busca
+                function detectarTermoCombinado(normalizedQuery) {
+                    // 1. Padrão de cidade + estado (ex: "belém pará", "belém do pará")
+                    const padraoCidadeEstado = /^(.+?)\s+(?:do\s+)?([a-z]{2}|pará|são paulo|rio de janeiro|minas gerais|bahia|paraná|rio grande do sul|pernambuco|ceará|santa catarina|goiás|maranhão|paraíba|amazonas|espírito santo|mato grosso|alagoas|piauí|distrito federal|mato grosso do sul|sergipe|rio grande do norte|rondônia|acre|amapá|roraima|tocantins)$/i;
+                    
+                    if (padraoCidadeEstado.test(normalizedQuery)) {
+                        const match = normalizedQuery.match(padraoCidadeEstado);
+                        const cidade = match[1].trim();
+                        const estado = match[2].trim();
+                        
+                        // Converter nome do estado para sigla
+                        const stateToAbbrev = {
+                            'pará': 'PA', 'são paulo': 'SP', 'rio de janeiro': 'RJ', 'minas gerais': 'MG', 
+                            'bahia': 'BA', 'paraná': 'PR', 'rio grande do sul': 'RS', 'pernambuco': 'PE', 
+                            'ceará': 'CE', 'santa catarina': 'SC', 'goiás': 'GO', 'maranhão': 'MA',
+                            'paraíba': 'PB', 'amazonas': 'AM', 'espírito santo': 'ES', 'mato grosso': 'MT',
+                            'alagoas': 'AL', 'piauí': 'PI', 'distrito federal': 'DF', 'mato grosso do sul': 'MS',
+                            'sergipe': 'SE', 'rio grande do norte': 'RN', 'rondônia': 'RO', 'acre': 'AC',
+                            'amapá': 'AP', 'roraima': 'RR', 'tocantins': 'TO'
+                        };
+                        
+                        const siglaEstado = stateToAbbrev[estado] || estado.toUpperCase();
+                        
+                        // Verificar se a cidade existe no estado
+                        const cidadeExiste = verificarCidadeNoEstado(cidade, siglaEstado);
+                        if (cidadeExiste) {
+                            return {
+                                tipo: 'cidade_estado',
+                                cidade: cidade.charAt(0).toUpperCase() + cidade.slice(1),
+                                estado: siglaEstado,
+                                original: `${cidade} ${estado}`
+                            };
+                        }
+                    }
+                    
+                    return null;
+                }
+
                 function handleSearch() {
                     const query = searchInput.value.trim();
 
@@ -4043,6 +4081,33 @@
                         // Reset input state
                         searchInput.classList.remove('has-results', 'no-results', 'search-loading');
                         return;
+                    }
+
+                    // CORREÇÃO: Verificar se é um termo combinado antes de fazer a busca padrão
+                    const normalizedQuery = normalize(query);
+                    const termoCombinado = detectarTermoCombinado(normalizedQuery);
+                    
+                    if (termoCombinado) {
+                        console.log(`🔗 Termo combinado detectado: ${termoCombinado.tipo} - ${termoCombinado.cidade} no estado ${termoCombinado.estado}`);
+                        
+                        // Processar termo combinado diretamente
+                        if (termoCombinado.tipo === 'cidade_estado') {
+                            // Buscar representantes para a cidade no estado específico
+                            const cidadeResults = searchInCidades(termoCombinado.cidade, termoCombinado.estado);
+                            const representatives = representativesData.filter(rep => cidadeResults.has(rep.id));
+                            
+                            if (representatives.length > 0) {
+                                renderResults(representatives, `Cidade: ${termoCombinado.cidade} (${termoCombinado.estado})`);
+                                mainTitle.textContent = `Representantes em ${termoCombinado.cidade} - ${termoCombinado.estado}`;
+                                updateLegend(representatives);
+                            } else {
+                                renderNoResults(`${termoCombinado.cidade} (${termoCombinado.estado})`);
+                            }
+                            
+                            ensureNonSelectedStatesStayBlue();
+                            document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+                            return;
+                        }
                     }
 
                     // Adicionar estado de loading
