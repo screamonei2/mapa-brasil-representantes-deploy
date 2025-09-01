@@ -2267,21 +2267,78 @@
                     searchInput.classList.remove('has-suggestions');
                 }
 
+                // Função para fazer refresh completo antes de processar nova sugestão
+                function refreshForNewSuggestion() {
+                    console.log('🔄 REFRESH: Limpando estado anterior para nova sugestão');
+                    
+                    // 1. Reset visual completo do mapa
+                    if (selectedStateLayer) {
+                        geoJsonLayer.resetStyle(selectedStateLayer);
+                        selectedStateLayer = null;
+                    }
+                    
+                    if (selectedMunicipioLayer) {
+                        municipiosLayer?.resetStyle(selectedMunicipioLayer);
+                        selectedMunicipioLayer = null;
+                    }
+                    
+                    if (municipiosLayer) {
+                        map.removeLayer(municipiosLayer);
+                        municipiosLayer = null;
+                    }
+                    
+                    if (highlightedMunicipiosLayer) {
+                        map.removeLayer(highlightedMunicipiosLayer);
+                        highlightedMunicipiosLayer = null;
+                    }
+                    
+                    // 2. Reset de bairros
+                    if (bairrosLayer && map.hasLayer(bairrosLayer)) {
+                        map.removeLayer(bairrosLayer);
+                    }
+                    
+                    // 3. Reset de estado e modo
+                    currentState = null;
+                    viewMode = 'states';
+                    
+                    // 4. Reset visual dos estados para azul padrão
+                    geoJsonLayer.eachLayer(layer => {
+                        layer.setStyle(defaultMapStyle);
+                    });
+                    
+                    // 5. Reset do mapa para visualização geral
+                    map.setView([-15.78, -47.92], 4);
+                    
+                    // 6. Limpar resultados e legenda
+                    updateLegend([]);
+                    resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">Processando nova busca...</div>';
+                    
+                    // 7. Reset do título
+                    mainTitle.textContent = 'Escolha sua região para encontrar representantes';
+                    backButton.classList.add('hidden');
+                    
+                    // 8. Pequeno delay para garantir que o reset foi aplicado
+                    return new Promise(resolve => setTimeout(resolve, 100));
+                }
+
                 // Selecionar sugestão
-                function selectSuggestion(suggestion) {
+                async function selectSuggestion(suggestion) {
                     const textToUse = suggestion.originalText || suggestion.text;
                     searchInput.value = textToUse;
                     hideSuggestions();
+
+                    // 🔄 REFRESH COMPLETO: Limpar estado anterior antes de processar nova sugestão
+                    await refreshForNewSuggestion();
 
                     // TRATAMENTO ESPECÍFICO POR TIPO DE SUGESTÃO
                     if (suggestion.type === 'bairro') {
                         // Para bairros, invocar diretamente o filtro de bairro para evitar ser tratado como cidade
                         const bairroNome = suggestion.originalText || (suggestion.text || '').replace(/\s*\(SP\)\s*$/i, '');
                         
-                        // Fazer zoom no bairro (São Paulo)
-                        zoomToBairro(bairroNome);
+                        // Fazer zoom no bairro (São Paulo) - SEM refresh interno
+                        zoomToBairro(bairroNome, false);
                         
-                        filterByBairro(bairroNome);
+                        filterByBairro(bairroNome, true); // skipRefresh = true
                         addToRecentSearches(textToUse);
                         return;
                     }
@@ -2294,19 +2351,19 @@
                         if (suggestion.estados && suggestion.estados.length > 0) {
                             const estadoCidade = suggestion.estados[0];
                             
-                            // Fazer zoom na cidade específica
-                            zoomToCidade(cidadeNome, estadoCidade);
+                            // Fazer zoom na cidade específica - SEM refresh interno
+                            zoomToCidade(cidadeNome, estadoCidade, false);
                             
                             // Definir o estado atual para a busca
                             if (currentState && currentState.code !== estadoCidade) {
                                 // Aqui você pode implementar a lógica para alterar o estado atual se necessário
                             }
                         } else {
-                            // Se não tem estado específico, tentar fazer zoom na cidade
-                            zoomToCidade(cidadeNome);
+                            // Se não tem estado específico, tentar fazer zoom na cidade - SEM refresh interno
+                            zoomToCidade(cidadeNome, null, false);
                         }
                         
-                        filterByMunicipio(cidadeNome);
+                        filterByMunicipio(cidadeNome, true); // skipRefresh = true
                         addToRecentSearches(textToUse);
                         return;
                     }
@@ -2330,7 +2387,7 @@
                         }
                         
                         // Fallback: usar busca normal
-                        handleSearch();
+                        handleSearch(true); // skipRefresh = true
                         addToRecentSearches(textToUse);
                         return;
                     }
@@ -2352,14 +2409,14 @@
                             // Fazer zoom no estado
                             zoomToEstado(code);
                             
-                            renderRepresentativesForState(code, textToUse);
+                            renderRepresentativesForState(code, textToUse, true); // skipRefresh = true
                             addToRecentSearches(textToUse);
                             return;
                         }
                     }
 
                     // Para outros tipos, usar o fluxo normal de busca
-                    handleSearch();
+                    handleSearch(true); // skipRefresh = true
                     addToRecentSearches(textToUse);
                 }
 
@@ -4362,7 +4419,12 @@
                     // SEM HOVER, SEM CINZA - apenas cores diretas dos representantes
                 }
 
-                function filterByMunicipio(municipioName) {
+                async function filterByMunicipio(municipioName, skipRefresh = false) {
+                    // 🔄 REFRESH COMPLETO: Limpar estado anterior antes de filtrar município (apenas se não for skipado)
+                    if (!skipRefresh) {
+                        await refreshForNewSuggestion();
+                    }
+                    
                     // CORREÇÃO CRÍTICA: Usar busca rigorosa e direta no municipioRepresentativeMap
                     const normalizedName = normalize(municipioName);
                     let representatives = [];
@@ -4476,7 +4538,12 @@
                 }
 
                 // Função para filtrar representantes por bairro
-                function filterByBairro(bairroName) {
+                async function filterByBairro(bairroName, skipRefresh = false) {
+                    // 🔄 REFRESH COMPLETO: Limpar estado anterior antes de filtrar bairro (apenas se não for skipado)
+                    if (!skipRefresh) {
+                        await refreshForNewSuggestion();
+                    }
+                    
                     // Usar a função searchInBairros que agora respeita o estado e evita duplicatas
                     const estadoAtual = currentState ? currentState.code : 'SP';
                     const bairroResults = searchInBairros(bairroName, estadoAtual);
@@ -4571,7 +4638,7 @@
                     return null;
                 }
 
-                function handleSearch() {
+                async function handleSearch(skipRefresh = false) {
                     const query = searchInput.value.trim();
 
                     if (!query) {
@@ -4581,6 +4648,11 @@
                         // Reset input state
                         searchInput.classList.remove('has-results', 'no-results', 'search-loading');
                         return;
+                    }
+
+                    // 🔄 REFRESH COMPLETO: Limpar estado anterior antes de nova busca manual (apenas se não for skipado)
+                    if (!skipRefresh) {
+                        await refreshForNewSuggestion();
                     }
 
                     // Adicionar estado de loading
@@ -4748,7 +4820,12 @@
                 }
 
                 // Renderizar representantes de um estado de forma estrita
-                function renderRepresentativesForState(stateCode, stateLabel) {
+                async function renderRepresentativesForState(stateCode, stateLabel, skipRefresh = false) {
+                    // 🔄 REFRESH COMPLETO: Limpar estado anterior antes de renderizar estado (apenas se não for skipado)
+                    if (!skipRefresh) {
+                        await refreshForNewSuggestion();
+                    }
+                    
                     const code = stateCode.toUpperCase();
                     const filtered = representativesData.filter(rep => {
                         if (rep.EstadosDetalhados) {
