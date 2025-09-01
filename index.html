@@ -919,6 +919,47 @@
                     }
                 }
 
+                // --- FUNÇÕES UTILITÁRIAS GLOBAIS ---
+
+                // Função global para busca rigorosa - evita falsos positivos
+                function strictSearch(query, target, options = {}) {
+                    const {
+                        minLength = 4,           // Comprimento mínimo para busca parcial
+                        useStartsWith = true,     // Usar startsWith em vez de includes
+                        maxSimilarity = 0.9,     // Threshold máximo para similaridade
+                        maxLengthDiff = 2        // Diferença máxima de comprimento
+                    } = options;
+                    
+                    const normalizedQuery = normalize(query);
+                    const normalizedTarget = normalize(target);
+                    
+                    // 1. Match exato (prioridade máxima)
+                    if (normalizedQuery === normalizedTarget) {
+                        return { match: true, type: 'exact', score: 100 };
+                    }
+                    
+                    // 2. Match parcial (prioridade média) - apenas se usar startsWith
+                    if (useStartsWith && normalizedQuery.length >= minLength && normalizedTarget.startsWith(normalizedQuery)) {
+                        return { match: true, type: 'partial', score: 80 };
+                    }
+                    
+                    // 3. Match por similaridade (prioridade baixa) - muito restritivo
+                    if (maxSimilarity > 0) {
+                        const similarity = calculateSimilarity(normalizedTarget, normalizedQuery);
+                        if (similarity > maxSimilarity) {
+                            // Verificações adicionais para evitar falsos positivos
+                            const lengthDiff = Math.abs(normalizedTarget.length - normalizedQuery.length);
+                            const noSubstringMatch = !normalizedTarget.includes(normalizedQuery) && !normalizedQuery.includes(normalizedTarget);
+                            
+                            if (lengthDiff <= maxLengthDiff && noSubstringMatch) {
+                                return { match: true, type: 'similar', score: Math.round(similarity * 100) };
+                            }
+                        }
+                    }
+                    
+                    return { match: false, type: 'none', score: 0 };
+                }
+
                 // --- FUNÇÕES DE TRANSFORMAÇÃO DE DADOS ---
 
                 function transformRepresentativesData(rawData) {
@@ -1401,8 +1442,8 @@
                                         return true;
                                     }
                                     // Se não encontrou exato, verificar se é uma correspondência parcial válida
-                                    // Apenas se a cidade pesquisada for menor que a cidade da lista
-                                    if (normalizedCidade.length < normalizedC.length && normalizedC.includes(normalizedCidade)) {
+                                    // Apenas se a cidade pesquisada for menor que a cidade da lista E começar com a query
+                                    if (normalizedCidade.length < normalizedC.length && normalizedC.startsWith(normalizedCidade)) {
                                         // Verificar se não é apenas uma coincidência de caracteres
                                         // A cidade pesquisada deve ser pelo menos 4 caracteres para evitar falsos positivos
                                         return normalizedCidade.length >= 4;
@@ -1422,7 +1463,7 @@
                                             return true;
                                         }
                                         // Se não encontrou exato, verificar se é uma correspondência parcial válida
-                                        if (normalizedCidade.length < normalizedC.length && normalizedC.includes(normalizedCidade)) {
+                                        if (normalizedCidade.length < normalizedC.length && normalizedC.startsWith(normalizedCidade)) {
                                             return normalizedCidade.length >= 4;
                                         }
                                         return false;
@@ -1451,7 +1492,10 @@
                                     return true;
                                 }
                                 // Se não encontrou exato, verificar se é uma correspondência parcial válida
-                                if (normalizedBairro.length < normalizedB.length && normalizedB.includes(normalizedBairro)) {
+                                // Apenas se o bairro pesquisado for menor que o bairro da lista E começar com a query
+                                if (normalizedBairro.length < normalizedB.length && normalizedB.startsWith(normalizedBairro)) {
+                                    // Verificar se não é apenas uma coincidência de caracteres
+                                    // O bairro pesquisado deve ser pelo menos 4 caracteres para evitar falsos positivos
                                     return normalizedBairro.length >= 4;
                                 }
                                 return false;
@@ -1471,8 +1515,8 @@
                     Object.values(representativesData).forEach(rep => {
                         const repName = normalize(rep.nome);
                         
-                        // Verificar se o nome do representante corresponde
-                        if (repName.includes(normalizedRepresentante)) {
+                        // Verificar se o nome do representante corresponde - mais rigoroso
+                        if (repName.startsWith(normalizedRepresentante) || repName === normalizedRepresentante) {
                             // Se estado foi especificado, verificar se atende esse estado
                             if (estado && (!rep.estados || !rep.estados[estado])) {
                                 return; // Não atende o estado especificado
@@ -1489,7 +1533,10 @@
                                         return true;
                                     }
                                     // Se não encontrou exato, verificar se é uma correspondência parcial válida
-                                    if (normalizedCidade.length < normalizedC.length && normalizedC.includes(normalizedCidade)) {
+                                    // Apenas se a cidade pesquisada for menor que a cidade da lista E começar com a query
+                                    if (normalizedCidade.length < normalizedC.length && normalizedC.startsWith(normalizedCidade)) {
+                                        // Verificar se não é apenas uma coincidência de caracteres
+                                        // A cidade pesquisada deve ser pelo menos 4 caracteres para evitar falsos positivos
                                         return normalizedCidade.length >= 4;
                                     }
                                     return false;
@@ -1559,25 +1606,49 @@
                 }
 
                 function findCidadeInfo(query) {
-                    // Buscar cidade em todos os representantes para determinar o estado
+                    // Buscar cidade em todos os representantes para determinar o estado - mais rigoroso
+                    const normalizedQuery = normalize(query);
+                    
+                    // Primeiro, tentar match exato
                     for (const rep of Object.values(representativesData)) {
                         if (rep.estados) {
                             for (const [estado, estadoData] of Object.entries(rep.estados)) {
                                 const cidades = estadoData.cidades || [];
-                                if (cidades.some(c => normalize(c) === normalize(query))) {
+                                if (cidades.some(c => normalize(c) === normalizedQuery)) {
                                     return { estado, cidade: query };
                                 }
                             }
                         }
                     }
+                    
+                    // Se não encontrou match exato, tentar match que comece com a query (mais rigoroso)
+                    if (normalizedQuery.length >= 4) {
+                        for (const rep of Object.values(representativesData)) {
+                            if (rep.estados) {
+                                for (const [estado, estadoData] of Object.entries(rep.estados)) {
+                                    const cidades = estadoData.cidades || [];
+                                    if (cidades.some(c => {
+                                        const normalizedC = normalize(c);
+                                        return normalizedC.startsWith(normalizedQuery);
+                                    })) {
+                                        return { estado, cidade: query };
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                     return null;
                 }
 
                 function isRepresentanteConhecido(query) {
-                    // Verificar se é um nome de representante conhecido
-                    return Object.values(representativesData).some(rep => 
-                        normalize(rep.nome).includes(normalize(query))
-                    );
+                    // Verificar se é um nome de representante conhecido - mais rigoroso
+                    const normalizedQuery = normalize(query);
+                    return Object.values(representativesData).some(rep => {
+                        const normalizedNome = normalize(rep.nome);
+                        // Busca exata ou que comece com a query (mais rigoroso)
+                        return normalizedNome === normalizedQuery || normalizedNome.startsWith(normalizedQuery);
+                    });
                 }
 
                 // Função auxiliar para busca por critério único
@@ -1664,9 +1735,14 @@
                     // Busca adicional por nome/contato/email APENAS quando a intenção é representante
                     if (searchType.type === 'representante') {
                         representativesData.forEach(rep => {
-                            if (normalize(rep.NomeRepresentante).includes(normalizedQuery) ||
-                                normalize(rep.Contato).includes(normalizedQuery) ||
-                                normalize(rep.email).includes(normalizedQuery)) {
+                            const normalizedNome = normalize(rep.NomeRepresentante);
+                            const normalizedContato = normalize(rep.Contato);
+                            const normalizedEmail = normalize(rep.email);
+                            
+                            // Busca mais rigorosa: exata ou que comece com a query
+                            if (normalizedNome === normalizedQuery || normalizedNome.startsWith(normalizedQuery) ||
+                                normalizedContato === normalizedQuery || normalizedContato.startsWith(normalizedQuery) ||
+                                normalizedEmail === normalizedQuery || normalizedEmail.startsWith(normalizedQuery)) {
                                 foundRepresentativeIds.add(rep.id);
                             }
                         });
@@ -1682,14 +1758,17 @@
                     // Verificar nos estados atendidos
                     if (representative.EstadosDetalhados) {
                         for (const [estado, dadosEstado] of Object.entries(representative.EstadosDetalhados)) {
-                            if (normalize(estado).includes(normalizedLocation)) {
+                            const normalizedEstado = normalize(estado);
+                            if (normalizedEstado === normalizedLocation || normalizedEstado.startsWith(normalizedLocation)) {
                                 return true;
                             }
 
                             // Verificar nas cidades
                             if (dadosEstado.cidades) {
                                 for (const cidade of dadosEstado.cidades) {
-                                    if (normalize(cidade).includes(normalizedLocation)) {
+                                    const normalizedCidade = normalize(cidade);
+                                    if (normalizedCidade === normalizedLocation || 
+                                        (normalizedLocation.length >= 4 && normalizedCidade.startsWith(normalizedLocation))) {
                                         return true;
                                     }
                                 }
@@ -1698,7 +1777,9 @@
                             // Verificar nos bairros (para SP)
                             if (dadosEstado.bairros) {
                                 for (const bairro of dadosEstado.bairros) {
-                                    if (normalize(bairro).includes(normalizedLocation)) {
+                                    const normalizedBairro = normalize(bairro);
+                                    if (normalizedBairro === normalizedLocation || 
+                                        (normalizedLocation.length >= 4 && normalizedBairro.startsWith(normalizedLocation))) {
                                         return true;
                                     }
                                 }
@@ -1767,7 +1848,14 @@
                         const cidadesOrdenadas = [];
                         
                         cidadesPorEstado.forEach((estados, cidade) => {
-                            const matchResult = isExactMatch(query, cidade);
+                            // Usar a função global de busca rigorosa para o autocomplete
+                            const matchResult = strictSearch(query, cidade, {
+                                minLength: 4,
+                                useStartsWith: true,
+                                maxSimilarity: 0.9,
+                                maxLengthDiff: 2
+                            });
+                            
                             if (matchResult.match) {
                                 // CORREÇÃO: Priorizar cidades do estado atual se disponível
                                 let priority = matchResult.score;
@@ -1780,6 +1868,16 @@
                                 // BONUS para correspondência exata
                                 if (matchResult.type === 'exact') {
                                     priority += 20;
+                                }
+                                
+                                // BONUS para correspondência parcial rigorosa
+                                if (matchResult.type === 'partial') {
+                                    priority += 10;
+                                }
+                                
+                                // PENALIDADE para correspondência similar (evitar falsos positivos)
+                                if (matchResult.type === 'similar') {
+                                    priority -= 30;
                                 }
                                 
                                 cidadesOrdenadas.push({
@@ -1823,8 +1921,8 @@
                         });
                         
                         // CORREÇÃO: Adicionar sugestões combinadas para cidades populares
-                        if (normalizedQuery.includes('bele') && suggestions.length < maxSuggestions) {
-                            // Se a query contém "bele", sugerir "Belém Pará" e "Belém Paraíba"
+                        if (normalizedQuery.startsWith('bele') && normalizedQuery.length >= 4 && suggestions.length < maxSuggestions) {
+                            // Se a query começa com "bele" e tem pelo menos 4 caracteres, sugerir "Belém Pará" e "Belém Paraíba"
                             if (!suggestions.some(s => s.text.includes('Belém (PA)'))) {
                                 suggestions.push({
                                     type: 'cidade',
@@ -1855,15 +1953,33 @@
                         representativesData.forEach(rep => {
                             if (rep.EstadosDetalhados && rep.EstadosDetalhados.SP && rep.EstadosDetalhados.SP.bairros) {
                                 rep.EstadosDetalhados.SP.bairros.forEach(bairro => {
-                                    const matchResult = isExactMatch(query, bairro);
+                                    // Usar a função global de busca rigorosa para bairros
+                                    const matchResult = strictSearch(query, bairro, {
+                                        minLength: 4,
+                                        useStartsWith: true,
+                                        maxSimilarity: 0.9,
+                                        maxLengthDiff: 2
+                                    });
+                                    
                                     if (matchResult.match && !bairrosSet.has(bairro) && suggestions.length < maxSuggestions) {
                                         bairrosSet.add(bairro);
+                                        
+                                        // Calcular prioridade baseada no tipo de match
+                                        let priority = 5;
+                                        if (matchResult.type === 'exact') {
+                                            priority = 5;
+                                        } else if (matchResult.type === 'partial') {
+                                            priority = 3;
+                                        } else if (matchResult.type === 'similar') {
+                                            priority = 1;
+                                        }
+                                        
                                         suggestions.push({
                                             type: 'bairro',
                                             text: bairro + ' (SP)',
                                             originalText: bairro,
                                             similarity: matchResult.score / 100,
-                                            priority: matchResult.type === 'exact' ? 5 : matchResult.type === 'partial' ? 3 : 1
+                                            priority: priority
                                         });
                                     }
                                 });
@@ -1874,21 +1990,39 @@
                     // 4. Representantes
                     if (currentSearchFilter === 'all' || currentSearchFilter === 'representantes') {
                         representativesData.forEach(rep => {
-                            const matchResult = isExactMatch(query, rep.NomeRepresentante);
+                            // Usar a função global de busca rigorosa para representantes
+                            const matchResult = strictSearch(query, rep.NomeRepresentante, {
+                                minLength: 4,
+                                useStartsWith: true,
+                                maxSimilarity: 0.9,
+                                maxLengthDiff: 2
+                            });
+                            
                             if (matchResult.match && suggestions.length < maxSuggestions) {
+                                // Calcular prioridade baseada no tipo de match
+                                let priority = 5;
+                                if (matchResult.type === 'exact') {
+                                    priority = 5;
+                                } else if (matchResult.type === 'partial') {
+                                    priority = 3;
+                                } else if (matchResult.type === 'similar') {
+                                    priority = 1;
+                                }
+                                
                                 suggestions.push({
                                     type: 'representante',
                                     text: rep.NomeRepresentante,
                                     similarity: matchResult.score / 100,
-                                    priority: matchResult.type === 'exact' ? 5 : matchResult.type === 'partial' ? 3 : 1
+                                    priority: priority
                                 });
                             }
                         });
                     }
 
                     // 5. Sugestões combinadas inteligentes (termos combinados)
-                    if (query.length >= 3 && suggestions.length < maxSuggestions - 2) {
+                    if (query.length >= 4 && suggestions.length < maxSuggestions - 2) {
                         // CORREÇÃO: Gerar sugestões combinadas inteligentes baseadas na query
+                        // Aumentar comprimento mínimo para evitar sugestões muito genéricas
                         const termosCombinados = generateCombinedSuggestions(normalizedQuery, currentState);
                         
                         termosCombinados.forEach(combinacao => {
@@ -1939,14 +2073,22 @@
                         
                         const siglaEstado = stateToAbbrev[estado] || estado.toUpperCase();
                         
-                        // Verificar se a cidade existe no estado
+                        // Verificar se a cidade existe no estado usando busca rigorosa
                         const cidadeExiste = verificarCidadeNoEstado(cidade, siglaEstado);
                         if (cidadeExiste) {
+                            // Usar a função rigorosa para calcular similaridade real
+                            const matchResult = strictSearch(cidade, cidade, {
+                                minLength: 4,
+                                useStartsWith: true,
+                                maxSimilarity: 0.9,
+                                maxLengthDiff: 2
+                            });
+                            
                             combinacoes.push({
                                 text: `${cidade.charAt(0).toUpperCase() + cidade.slice(1)} (${siglaEstado})`,
                                 originalText: `${cidade} ${estado}`,
                                 estados: [siglaEstado],
-                                similarity: 0.95,
+                                similarity: matchResult.score / 100,
                                 priority: 5
                             });
                         }
@@ -1988,7 +2130,7 @@
                     // 3. Sugestões contextuais baseadas no estado atual
                     if (currentState && currentState.code) {
                         // Se o usuário está no Pará, sugerir "Belém Pará"
-                        if (currentState.code === 'PA' && normalizedQuery.includes('bele')) {
+                        if (currentState.code === 'PA' && normalizedQuery.startsWith('bele') && normalizedQuery.length >= 4) {
                             combinacoes.push({
                                 text: 'Belém (PA)',
                                 originalText: 'Belém Pará',
@@ -1999,7 +2141,7 @@
                         }
                         
                         // Se o usuário está na Paraíba, sugerir "Belém Paraíba"
-                        if (currentState.code === 'PB' && normalizedQuery.includes('bele')) {
+                        if (currentState.code === 'PB' && normalizedQuery.startsWith('bele') && normalizedQuery.length >= 4) {
                             combinacoes.push({
                                 text: 'Belém (PB)',
                                 originalText: 'Belém Paraíba',
@@ -2026,6 +2168,7 @@
                             
                             cidades.forEach(c => {
                                 const normalizedC = normalize(c);
+                                // Usar match exato para evitar falsos positivos
                                 if (normalizedC === normalizedCidade) {
                                     encontrou = true;
                                     representantesEncontrados.push(rep.NomeRepresentante);
@@ -2042,7 +2185,16 @@
                     const normalizedRep = normalize(representante);
                     
                     return representativesData.some(rep => {
-                        if (normalize(rep.NomeRepresentante).includes(normalizedRep)) {
+                        const normalizedNome = normalize(rep.NomeRepresentante);
+                        // Usar a função rigorosa para evitar falsos positivos
+                        const matchResult = strictSearch(normalizedRep, normalizedNome, {
+                            minLength: 4,
+                            useStartsWith: true,
+                            maxSimilarity: 0.9,
+                            maxLengthDiff: 2
+                        });
+                        
+                        if (matchResult.match) {
                             return rep.EstadosDetalhados && rep.EstadosDetalhados[estado];
                         }
                         return false;
@@ -2447,16 +2599,21 @@
                                     return;
                                 }
 
-                                // Busca por contém (prioridade média)
-                                if (normalizedBairro.includes(normalizedQuery) && normalizedQuery.length >= 3) {
+                                // Busca por contém (prioridade média) - mais restritivo
+                                if (normalizedBairro.startsWith(normalizedQuery) && normalizedQuery.length >= 4) {
+                                    // Verificar se não é apenas uma coincidência de caracteres
                                     matchesParciais.add(rep.id);
                                     return;
                                 }
 
-                                // Busca por similaridade (prioridade baixa)
+                                // Busca por similaridade (prioridade baixa) - muito mais restritivo
                                 const similarity = calculateSimilarity(normalizedBairro, normalizedQuery);
-                                if (similarity > 0.7) { // Threshold de 70% de similaridade
-                                    matchesSimilares.add(rep.id);
+                                if (similarity > 0.9 && !normalizedBairro.includes(normalizedQuery) && !normalizedQuery.includes(normalizedBairro)) {
+                                    // Verificar se a diferença de comprimento não é muito grande
+                                    const lengthDiff = Math.abs(normalizedBairro.length - normalizedQuery.length);
+                                    if (lengthDiff <= 2) { // Máximo 2 caracteres de diferença
+                                        matchesSimilares.add(rep.id);
+                                    }
                                 }
                             });
                         }
@@ -2471,11 +2628,11 @@
                         matchesParciais.forEach(id => foundIds.add(id));
                     }
                     
-                    // Se ainda não há resultados, adicionar similares (limitado a 2 para evitar poluição)
+                    // Se ainda não há resultados, adicionar similares (limitado a 1 para evitar poluição)
                     if (foundIds.size === 0) {
                         let count = 0;
                         for (const id of matchesSimilares) {
-                            if (count < 2) {
+                            if (count < 1) {
                                 foundIds.add(id);
                                 count++;
                             }
@@ -2510,16 +2667,21 @@
                                         return;
                                     }
                                     
-                                    // Match parcial (prioridade média)
-                                    if (normalizedCidade.includes(normalizedQuery) && normalizedQuery.length >= 3) {
+                                    // Match parcial (prioridade média) - mais restritivo
+                                    if (normalizedCidade.startsWith(normalizedQuery) && normalizedQuery.length >= 4) {
+                                        // Verificar se não é apenas uma coincidência de caracteres
                                         foundIds.add(rep.id);
                                         return;
                                     }
                                     
-                                    // Match por similaridade (prioridade baixa)
+                                    // Match por similaridade (prioridade baixa) - muito mais restritivo
                                     const similarity = calculateSimilarity(normalizedCidade, normalizedQuery);
-                                    if (similarity > 0.7) {
-                                        foundIds.add(rep.id);
+                                    if (similarity > 0.9 && !normalizedCidade.includes(normalizedQuery) && !normalizedQuery.includes(normalizedCidade)) {
+                                        // Verificar se a diferença de comprimento não é muito grande
+                                        const lengthDiff = Math.abs(normalizedCidade.length - normalizedQuery.length);
+                                        if (lengthDiff <= 2) { // Máximo 2 caracteres de diferença
+                                            foundIds.add(rep.id);
+                                        }
                                     }
                                 });
                             }
@@ -2556,19 +2718,26 @@
 
                     // Classificar as cidades por tipo de match
                     for (const [cidade, estados] of cidadesUnicas.entries()) {
-                        // 1. Match exato
+                        // 1. Match exato (prioridade máxima)
                         if (cidade === normalizedQuery) {
                             exactMatches.push({ cidade, estados });
                         }
-                        // 2. Match parcial (começa com a query)
-                        else if (cidade.startsWith(normalizedQuery) && normalizedQuery.length >= 3) {
+                        // 2. Match parcial (começa com a query) - mais restritivo
+                        else if (cidade.startsWith(normalizedQuery) && normalizedQuery.length >= 4) {
+                            // Verificar se não é apenas uma coincidência de caracteres
+                            // A cidade deve começar exatamente com a query para evitar falsos positivos
                             partialMatches.push({ cidade, estados });
                         }
-                        // 3. Match por similaridade
+                        // 3. Match por similaridade - muito mais restritivo
                         else {
                             const similarity = calculateSimilarity(cidade, normalizedQuery);
-                            if (similarity > 0.7) { // Threshold de 70% de similaridade
-                                similarMatches.push({ cidade, estados, similarity });
+                            // Aumentar threshold para 90% e verificar se não é apenas uma coincidência
+                            if (similarity > 0.9 && !cidade.includes(normalizedQuery) && !normalizedQuery.includes(cidade)) {
+                                // Verificar se a diferença de comprimento não é muito grande
+                                const lengthDiff = Math.abs(cidade.length - normalizedQuery.length);
+                                if (lengthDiff <= 2) { // Máximo 2 caracteres de diferença
+                                    similarMatches.push({ cidade, estados, similarity });
+                                }
                             }
                         }
                     }
@@ -2582,18 +2751,19 @@
                         representatives.forEach(rep => foundIds.add(rep.id));
                     });
 
-                    // Se não há matches exatos, processar parciais
+                    // Se não há matches exatos, processar parciais (mais restritivo)
                     if (exactMatches.length === 0 && partialMatches.length > 0) {
-                        partialMatches.forEach(({ cidade, estados }) => {
+                        // Limitar a apenas 1 match parcial para evitar poluição
+                        partialMatches.slice(0, 1).forEach(({ cidade, estados }) => {
                             const representatives = getRepresentativesByCidade(cidade, estados);
                             representatives.forEach(rep => foundIds.add(rep.id));
                         });
                     }
 
-                    // Se ainda não há resultados, processar similares
+                    // Se ainda não há resultados, processar similares (muito restritivo)
                     if (foundIds.size === 0 && similarMatches.length > 0) {
-                        // Limitar a 3 matches similares para evitar poluição
-                        similarMatches.slice(0, 3).forEach(({ cidade, estados }) => {
+                        // Limitar a apenas 1 match similar para evitar poluição
+                        similarMatches.slice(0, 1).forEach(({ cidade, estados }) => {
                             const representatives = getRepresentativesByCidade(cidade, estados);
                             representatives.forEach(rep => foundIds.add(rep.id));
                         });
@@ -4193,36 +4363,42 @@
                 }
 
                 function filterByMunicipio(municipioName) {
-                    
-
-                    // Usar o mapeamento normalizado para buscar representantes
+                    // CORREÇÃO CRÍTICA: Usar busca rigorosa e direta no municipioRepresentativeMap
                     const normalizedName = normalize(municipioName);
-    
-
-                    // IMPORTANTE: Sempre usar cidade+estado para evitar conflitos
                     let representatives = [];
                     let estadoMunicipio = null;
 
-                    // CORREÇÃO: SEMPRE determinar o estado real do município primeiro
-                    // Buscar o município nos dados geográficos para determinar seu estado real
+                    // 1. PRIORIDADE MÁXIMA: Se estamos visualizando um estado específico, usar APENAS ele
+                    if (viewMode === 'municipios' && currentState && currentState.code) {
+                        estadoMunicipio = currentState.code;
+                        
+                        // Buscar APENAS no estado selecionado usando chave composta
+                        const cidadeEstadoKey = `${normalizedName}-${estadoMunicipio.toLowerCase()}`;
+                        const repsNoEstado = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
+                        
+                        if (repsNoEstado.length > 0) {
+                            representatives = repsNoEstado;
+                        } else {
+                            // Se não encontrou, pode ser que a cidade não tenha representantes neste estado
+                            representatives = [];
+                        }
+                    } else {
+                        // 2. FALLBACK: Tentar determinar o estado do município
+                        if (municipiosData && municipiosData.features) {
+                            let municipioFeature = null;
 
-                    if (municipiosData && municipiosData.features) {
-                        // CORREÇÃO: Buscar considerando múltiplas cidades com mesmo nome
-                        // Primeiro tentar encontrar no estado selecionado, senão buscar por proximidade geográfica
-                        let municipioFeature = null;
-
-                        // Se há estado selecionado, tentar buscar nele primeiro
-                        if (viewMode === 'municipios' && currentState && currentState.code) {
+                            // Buscar o município nos dados geográficos
                             municipioFeature = municipiosData.features.find(feature => {
                                 const props = feature.properties;
                                 const name = props.name || props.nome || props.municipio || props.description;
+                                return normalize(name) === normalizedName;
+                            });
 
-                                if (normalize(name) !== normalizedName) return false;
-
-                                // Verificar se pertence ao estado selecionado
-                                const ufMunicipio = props.uf_municipio;
-                                if (ufMunicipio) {
-                                    const estadoMunicipio = ufMunicipio.split(' - ')[0];
+                            if (municipioFeature) {
+                                const props = municipioFeature.properties;
+                                // Extrair estado do uf_municipio (formato: "Estado - Cidade")
+                                if (props.uf_municipio) {
+                                    const ufMunicipio = props.uf_municipio.split(' - ')[0];
                                     const stateToAbbrev = {
                                         'São Paulo': 'SP', 'Rio de Janeiro': 'RJ', 'Minas Gerais': 'MG', 'Bahia': 'BA',
                                         'Paraná': 'PR', 'Rio Grande do Sul': 'RS', 'Pernambuco': 'PE', 'Ceará': 'CE',
@@ -4232,67 +4408,58 @@
                                         'Sergipe': 'SE', 'Rio Grande do Norte': 'RN', 'Rondônia': 'RO', 'Acre': 'AC',
                                         'Amapá': 'AP', 'Roraima': 'RR', 'Tocantins': 'TO'
                                     };
-                                    const siglaEstado = stateToAbbrev[estadoMunicipio] || estadoMunicipio;
-                                    return siglaEstado === currentState.code;
+                                    estadoMunicipio = stateToAbbrev[ufMunicipio] || estadoMunicipio;
+
+                                    // Buscar representantes APENAS neste estado específico
+                                    const cidadeEstadoKey = `${normalizedName}-${estadoMunicipio.toLowerCase()}`;
+                                    const repsNoEstado = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
+                                    representatives = repsNoEstado;
                                 }
-                                return false;
-                            });
-                        }
-
-                        // Se não encontrou no estado selecionado, buscar o primeiro disponível
-                        if (!municipioFeature) {
-                            municipioFeature = municipiosData.features.find(feature => {
-                                const props = feature.properties;
-                                const name = props.name || props.nome || props.municipio || props.description;
-                                return normalize(name) === normalizedName;
-                            });
-                        }
-
-                        if (municipioFeature) {
-                            const props = municipioFeature.properties;
-                            // Extrair estado do uf_municipio (formato: "Estado - Cidade")
-                            if (props.uf_municipio) {
-                                const ufMunicipio = props.uf_municipio.split(' - ')[0];
-                                // Converter nome do estado para sigla
-                                const stateToAbbrev = {
-                                    'São Paulo': 'SP', 'Rio de Janeiro': 'RJ', 'Minas Gerais': 'MG', 'Bahia': 'BA',
-                                    'Paraná': 'PR', 'Rio Grande do Sul': 'RS', 'Pernambuco': 'PE', 'Ceará': 'CE',
-                                    'Pará': 'PA', 'Santa Catarina': 'SC', 'Goiás': 'GO', 'Maranhão': 'MA',
-                                    'Paraíba': 'PB', 'Amazonas': 'AM', 'Espírito Santo': 'ES', 'Mato Grosso': 'MT',
-                                    'Alagoas': 'AL', 'Piauí': 'PI', 'Distrito Federal': 'DF', 'Mato Grosso do Sul': 'MS',
-                                    'Sergipe': 'SE', 'Rio Grande do Norte': 'RN', 'Rondônia': 'RO', 'Acre': 'AC',
-                                    'Amapá': 'AP', 'Roraima': 'RR', 'Tocantins': 'TO'
-                                };
-                                estadoMunicipio = stateToAbbrev[ufMunicipio] || estadoMunicipio;
-
                             }
                         }
-                    }
 
-                    // Usar a função searchInCidades que agora respeita o estado
-                    if (estadoMunicipio) {
-
-                        const cidadeResults = searchInCidades(normalizedName, estadoMunicipio);
-                        representatives = representativesData.filter(rep => cidadeResults.has(rep.id));
-                    } else {
-                        // Fallback: Se não conseguiu determinar o estado, tentar usar o estado selecionado
-                        // apenas se for consistente (clique direto no estado)
-                        if (viewMode === 'municipios' && currentState && currentState.code) {
-                            estadoMunicipio = currentState.code;
-                            const cidadeResults = searchInCidades(normalizedName, estadoMunicipio);
-                            representatives = representativesData.filter(rep => cidadeResults.has(rep.id));
-                        } else {
-                            // Último recurso: buscar em todos os estados
-                            const cidadeResults = searchInCidades(normalizedName, null);
-                            representatives = representativesData.filter(rep => cidadeResults.has(rep.id));
+                        // 3. ÚLTIMO RECURSO: Se não conseguiu determinar o estado, buscar em todos os estados
+                        // MAS com busca rigorosa para evitar conflitos
+                        if (representatives.length === 0) {
+                            const allCidadeResults = searchInCidades(normalizedName, null);
+                            representatives = representativesData.filter(rep => allCidadeResults.has(rep.id));
                         }
                     }
 
+                    // 4. FILTRAGEM FINAL: Remover representantes duplicados e aplicar regras rigorosas
+                    const filteredRepresentatives = [];
+                    const seenIds = new Set();
 
-
-                    // Os representantes já foram filtrados corretamente pelo municipioRepresentativeMap
-                    // Não é necessário fazer filtragem adicional
-                    const filteredRepresentatives = representatives;
+                    representatives.forEach(rep => {
+                        if (!seenIds.has(rep.id)) {
+                            seenIds.add(rep.id);
+                            
+                            // VERIFICAÇÃO FINAL: Garantir que o representante realmente atende esta cidade
+                            if (rep.EstadosDetalhados) {
+                                let atendeCidade = false;
+                                
+                                Object.entries(rep.EstadosDetalhados).forEach(([estado, dadosEstado]) => {
+                                    if (dadosEstado.cidades && Array.isArray(dadosEstado.cidades)) {
+                                        // Busca EXATA na lista de cidades
+                                        if (dadosEstado.cidades.some(c => normalize(c) === normalizedName)) {
+                                            atendeCidade = true;
+                                        }
+                                    }
+                                });
+                                
+                                if (atendeCidade) {
+                                    filteredRepresentatives.push(rep);
+                                }
+                            } else {
+                                // Estrutura antiga: verificar CidadesAtendidas
+                                if (rep.CidadesAtendidas && Array.isArray(rep.CidadesAtendidas)) {
+                                    if (rep.CidadesAtendidas.some(c => normalize(c) === normalizedName)) {
+                                        filteredRepresentatives.push(rep);
+                                    }
+                                }
+                            }
+                        }
+                    });
 
 
 
@@ -4356,38 +4523,13 @@
 
                 // Função para verificar correspondência exata ou parcial controlada
                 function isExactMatch(query, target) {
-                    const normalizedQuery = normalizeExact(query);
-                    const normalizedTarget = normalizeExact(target);
-                    
-                    // Busca exata primeiro
-                    if (normalizedQuery === normalizedTarget) {
-                        return { match: true, type: 'exact', score: 100 };
-                    }
-                    
-                    // Correspondência parcial controlada
-                    if (normalizedQuery.length >= 4 && normalizedTarget.includes(normalizedQuery)) {
-                        // Verificar se não é apenas uma coincidência de caracteres
-                        const words = normalizedTarget.split(' ');
-                        const queryWords = normalizedQuery.split(' ');
-                        
-                        // Se a query tem múltiplas palavras, verificar se todas estão presentes
-                        if (queryWords.length > 1) {
-                            const allWordsMatch = queryWords.every(qWord => 
-                                words.some(w => w.includes(qWord))
-                            );
-                            if (allWordsMatch) {
-                                return { match: true, type: 'partial', score: 80 };
-                            }
-                        } else {
-                            // Query de uma palavra - verificar se está no início de alguma palavra
-                            const startsWithWord = words.some(w => w.startsWith(normalizedQuery));
-                            if (startsWithWord) {
-                                return { match: true, type: 'partial', score: 90 };
-                            }
-                        }
-                    }
-                    
-                    return { match: false, type: 'none', score: 0 };
+                    // Usar a função global de busca rigorosa
+                    return strictSearch(query, target, {
+                        minLength: 4,
+                        useStartsWith: true,
+                        maxSimilarity: 0.9,
+                        maxLengthDiff: 2
+                    });
                 }
 
                 // Função para detectar termos combinados na busca
