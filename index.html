@@ -3712,6 +3712,7 @@
                     
                     // Se não há estado selecionado, usar azul padrão
                     if (!currentState || !currentState.code) {
+                        console.log(`⚠️ Sem estado selecionado para ${municipioName}, usando AZUL`);
                         return {
                             fillColor: "#3b82f6",
                             weight: 1,
@@ -3723,6 +3724,7 @@
 
                     // Se o município não pertence ao estado selecionado, usar azul padrão
                     if (municipioState && municipioState !== currentState.code) {
+                        console.log(`🚫 Município ${municipioName} (${municipioState}) não pertence ao estado selecionado ${currentState.code}, usando AZUL`);
                         return {
                             fillColor: "#3b82f6",
                             weight: 1,
@@ -3736,10 +3738,11 @@
                     const cidadeEstadoKey = `${normalizedName}-${currentState.code.toLowerCase()}`;
                     const representatives = municipioRepresentativeMap.get(cidadeEstadoKey) || [];
 
-    
+                    console.log(`🔍 Buscando representantes para ${municipioName} no estado ${currentState.code}: ${representatives.length} encontrados`);
 
                     if (representatives.length === 0) {
                         // Município sem representante - cor azul padrão
+                        console.log(`🔵 Município ${municipioName} sem representantes, usando AZUL`);
                         return {
                             fillColor: "#3b82f6",
                             weight: 1,
@@ -3753,7 +3756,7 @@
                     const primaryRepresentative = representatives[0];
                     const color = representativeColorMap.get(primaryRepresentative.id) || '#3b82f6';
 
-    
+                    console.log(`🎨 Aplicando cor ${color} para município ${municipioName} (representante: ${primaryRepresentative.NomeRepresentante})`);
 
                     return {
                         fillColor: color,
@@ -3947,8 +3950,6 @@
                     setTimeout(() => {
                         // Mostra municípios após o zoom
                         showMunicipios(stateCode, stateName, e.target);
-                        // Garantir que estados não selecionados mantenham cor azul
-                        ensureNonSelectedStatesStayBlue();
                     }, 300); // 300ms de delay para garantir
                 }
 
@@ -4109,11 +4110,6 @@
     
                         }
                     }
-
-
-                    
-                    // Garantir que estados não selecionados mantenham cor azul padrão
-                    ensureNonSelectedStatesStayBlue();
                 }
 
                 // Função para atualizar estilos da camada de bairros baseado no estado atual
