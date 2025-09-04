@@ -3038,7 +3038,7 @@
                                             maxZoom: 10  // Zoom para mostrar toda a capital
                                         });
                                         // Mostrar os representantes do bairro
-                                        filterByBairro(bairroName);
+                                        filterByBairro(bairroName, true); // skipRefresh = true para evitar reset
 
                                         // Scroll para os resultados
                                         document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
@@ -3177,18 +3177,14 @@
                                     fillOpacity: 0.9
                                 });
 
-                                // Aplicar zoom na capital de São Paulo
-                                const capitalBounds = L.latLngBounds(
-                                    [-23.8, -46.8],  // Sudoeste
-                                    [-23.4, -46.4]   // Nordeste
-                                );
-
-                                map.fitBounds(capitalBounds, {
-                                    padding: [30, 30],
-                                    maxZoom: 10  // Zoom para mostrar toda a capital
+                                // Aplicar zoom no bairro específico
+                                const bairroBounds = clickedBairro.layer.getBounds();
+                                map.fitBounds(bairroBounds, {
+                                    padding: [20, 20],
+                                    maxZoom: 14  // Zoom mais próximo para mostrar o bairro
                                 });
                                 // Mostrar os representantes do bairro
-                                filterByBairro(bairroName);
+                                filterByBairro(bairroName, true); // skipRefresh = true para evitar reset
 
                                 // Scroll para os resultados
                                 document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
@@ -3364,11 +3360,28 @@
                                     // Selecionar o novo município
                                     selectedMunicipioLayer = clickedMunicipio.layer;
                                     selectedMunicipioLayer.setStyle(municipioSelectedStyle);
+                                    
+                                    // Aplicar zoom no município clicado
+                                    const municipioBounds = clickedMunicipio.layer.getBounds();
+                                    map.fitBounds(municipioBounds, {
+                                        padding: [30, 30],
+                                        maxZoom: 12  // Zoom adequado para mostrar o município
+                                    });
                                 } else {
                                     // Se não temos camada visual, limpar seleção anterior
                                     if (selectedMunicipioLayer) {
                                         municipiosLayer.resetStyle(selectedMunicipioLayer);
                                         selectedMunicipioLayer = null;
+                                    }
+                                    
+                                    // Aplicar zoom no município mesmo sem camada visual
+                                    if (clickedMunicipio.feature && clickedMunicipio.feature.geometry) {
+                                        const municipioGeoJson = L.geoJson(clickedMunicipio.feature);
+                                        const municipioBounds = municipioGeoJson.getBounds();
+                                        map.fitBounds(municipioBounds, {
+                                            padding: [30, 30],
+                                            maxZoom: 12
+                                        });
                                     }
                                 }
 
@@ -3420,6 +3433,16 @@
                                             }, 800); // Delay para garantir que o estado foi carregado
                                             return;
                                         }
+                                    }
+
+                                    // Aplicar zoom no município mais próximo
+                                    if (nearestResult.municipio && nearestResult.municipio.geometry) {
+                                        const municipioGeoJson = L.geoJson(nearestResult.municipio);
+                                        const municipioBounds = municipioGeoJson.getBounds();
+                                        map.fitBounds(municipioBounds, {
+                                            padding: [30, 30],
+                                            maxZoom: 12
+                                        });
                                     }
 
                                     // Mostrar os representantes do município
@@ -4417,7 +4440,8 @@
 
                 async function filterByMunicipio(municipioName, skipRefresh = false) {
                     // 🔄 REFRESH COMPLETO: Limpar estado anterior antes de filtrar município (apenas se não for skipado)
-                    if (!skipRefresh) {
+                    // CORREÇÃO: Não fazer refresh quando estamos apenas navegando entre municípios do mesmo estado
+                    if (!skipRefresh && !currentState) {
                         await refreshForNewSuggestion();
                     }
                     
