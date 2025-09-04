@@ -2328,7 +2328,10 @@
                     hideSuggestions();
 
                     // 🔄 REFRESH COMPLETO: Limpar estado anterior antes de processar nova sugestão
-                    await refreshForNewSuggestion();
+                    // CORREÇÃO: Não fazer refresh para estados quando já há um estado selecionado
+                    if (suggestion.type !== 'estado' || !currentState) {
+                        await refreshForNewSuggestion();
+                    }
 
                     // TRATAMENTO ESPECÍFICO POR TIPO DE SUGESTÃO
                     if (suggestion.type === 'bairro') {
@@ -2450,9 +2453,13 @@
                                 fillOpacity: 0.3
                             });
                             
+                            // Configurar estado atual e modo antes de carregar municípios
+                            const stateName = getStateNameByCode(estadoCode);
+                            currentState = { code: estadoCode, name: stateName, layer: layer };
+                            viewMode = 'municipios';
+                            
                             // Carregar municípios do estado
                             setTimeout(() => {
-                                const stateName = getStateNameByCode(estadoCode);
                                 console.log('Carregando municípios para:', estadoCode, stateName);
                                 showMunicipios(estadoCode, stateName, layer);
                             }, 300);
