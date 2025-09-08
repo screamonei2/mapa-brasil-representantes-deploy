@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Busca Refatorado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .test-result { margin: 10px 0; padding: 10px; background: #f9fafb; border-radius: 4px; }
+        .success { background: #ecfdf5; border-left: 4px solid #10b981; }
+        .error { background: #fef2f2; border-left: 4px solid #ef4444; }
+        .info { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">🧪 Teste do Sistema de Busca Refatorado</h1>
+        
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">1. Teste de Normalização de Texto</h2>
+            <div id="normalization-test" class="test-result info">Executando...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">2. Teste de Cálculo de Similaridade</h2>
+            <div id="similarity-test" class="test-result info">Executando...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">3. Teste de Índice de Busca</h2>
+            <div id="index-test" class="test-result info">Executando...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">4. Teste de Busca</h2>
+            <div id="search-test" class="test-result info">Executando...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">5. Teste de Sugestões</h2>
+            <div id="suggestions-test" class="test-result info">Executando...</div>
+        </div>
+    </div>
+
+    <script>
+        // Classe de teste para o sistema de busca
+        class SearchEngineTester {
+            constructor() {
+                this.testData = {
+                    representantes: {
+                        "schioppa": {
+                            "codigo": "01",
+                            "nome": "SCHIOPPA REPRESENTACOES",
+                            "contato": {
+                                "nome_contato": "João Silva",
+                                "email": "joao@schioppa.com",
+                                "celular": "11-99999-9999"
+                            },
+                            "estados": {
+                                "SP": {
+                                    "cidades": ["SAO PAULO", "SANTOS", "CAMPINAS"],
+                                    "bairros": ["MOOCA", "TATUAPE", "VILA PRUDENTE"]
+                                },
+                                "RJ": {
+                                    "cidades": ["RIO DE JANEIRO", "NITEROI", "PETROPOLIS"]
+                                }
+                            }
+                        },
+                        "3l": {
+                            "codigo": "02",
+                            "nome": "3L REPRESENTACOES",
+                            "contato": {
+                                "nome_contato": "Maria Santos",
+                                "email": "maria@3l.com",
+                                "celular": "21-88888-8888"
+                            },
+                            "estados": {
+                                "MG": {
+                                    "cidades": ["BELO HORIZONTE", "UBERLANDIA", "JUIZ DE FORA"]
+                                }
+                            }
+                        }
+                    }
+                };
+                
+                this.searchIndex = new Map();
+                this.runTests();
+            }
+
+            // Funções auxiliares do sistema de busca
+            normalizeText(text) {
+                return (text || '')
+                    .toString()
+                    .normalize('NFD')
+                    .replace(/[̀-ͯ]/g, '')
+                    .replace(/[^\w\s]/gi, '')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .toLowerCase();
+            }
+
+            calculateSimilarity(str1, str2) {
+                const longer = str1.length > str2.length ? str1 : str2;
+                const shorter = str1.length > str2.length ? str2 : str1;
+                
+                if (longer.length === 0) return 1.0;
+                
+                const distance = this.levenshteinDistance(longer, shorter);
+                return (longer.length - distance) / longer.length;
+            }
+
+            levenshteinDistance(str1, str2) {
+                const matrix = [];
+                
+                for (let i = 0; i <= str2.length; i++) {
+                    matrix[i] = [i];
+                }
+                
+                for (let j = 0; j <= str1.length; j++) {
+                    matrix[0][j] = j;
+                }
+                
+                for (let i = 1; i <= str2.length; i++) {
+                    for (let j = 1; j <= str1.length; j++) {
+                        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
+                }
+                
+                return matrix[str2.length][str1.length];
+            }
+
+            buildSearchIndex() {
+                this.searchIndex.clear();
+                
+                Object.entries(this.testData.representantes).forEach(([key, rep]) => {
+                    const repId = key;
+                    const repData = rep;
+                    
+                    // Indexar por nome
+                    const normalizedName = this.normalizeText(repData.nome);
+                    this.addToIndex(normalizedName, 'representante', repId, repData);
+                    
+                    // Indexar por contato
+                    const normalizedContact = this.normalizeText(repData.contato?.nome_contato || '');
+                    if (normalizedContact) {
+                        this.addToIndex(normalizedContact, 'contato', repId, repData);
+                    }
+                    
+                    // Indexar por estados e cidades
+                    if (repData.estados) {
+                        Object.entries(repData.estados).forEach(([estado, estadoData]) => {
+                            this.addToIndex(estado, 'estado', repId, repData);
+                            
+                            if (estadoData.cidades) {
+                                estadoData.cidades.forEach(cidade => {
+                                    const normalizedCidade = this.normalizeText(cidade);
+                                    this.addToIndex(normalizedCidade, 'cidade', repId, repData, { estado, cidade });
+                                });
+                            }
+                            
+                            if (estadoData.bairros) {
+                                estadoData.bairros.forEach(bairro => {
+                                    const normalizedBairro = this.normalizeText(bairro);
+                                    this.addToIndex(normalizedBairro, 'bairro', repId, repData, { estado, bairro });
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            addToIndex(term, type, repId, repData, metadata = {}) {
+                if (!term || term.length < 2) return;
+                
+                const indexEntry = {
+                    type,
+                    repId,
+                    repData,
+                    metadata,
+                    term: term.toLowerCase()
+                };
+                
+                if (!this.searchIndex.has(term)) {
+                    this.searchIndex.set(term, []);
+                }
+                this.searchIndex.get(term).push(indexEntry);
+                
+                // Adicionar variações parciais
+                for (let i = 3; i <= term.length; i++) {
+                    const partial = term.substring(0, i);
+                    if (!this.searchIndex.has(partial)) {
+                        this.searchIndex.set(partial, []);
+                    }
+                    this.searchIndex.get(partial).push(indexEntry);
+                }
+            }
+
+            search(query, filter = 'all') {
+                if (!query || query.trim().length < 2) return [];
+                
+                const normalizedQuery = this.normalizeText(query.trim());
+                const results = new Map();
+                
+                // Busca exata
+                if (this.searchIndex.has(normalizedQuery)) {
+                    this.searchIndex.get(normalizedQuery).forEach(entry => {
+                        if (filter === 'all' || entry.type === filter) {
+                            this.addSearchResult(results, entry, 100);
+                        }
+                    });
+                }
+                
+                // Busca parcial
+                for (const [term, entries] of this.searchIndex.entries()) {
+                    if (term.startsWith(normalizedQuery) && term !== normalizedQuery) {
+                        entries.forEach(entry => {
+                            if (filter === 'all' || entry.type === filter) {
+                                const score = this.calculatePartialScore(term, normalizedQuery);
+                                this.addSearchResult(results, entry, score);
+                            }
+                        });
+                    }
+                }
+                
+                return Array.from(results.values())
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 10);
+            }
+
+            addSearchResult(results, entry, score) {
+                if (!results.has(entry.repId)) {
+                    results.set(entry.repId, {
+                        score,
+                        data: entry.repData,
+                        matches: []
+                    });
+                }
+                
+                const result = results.get(entry.repId);
+                result.score = Math.max(result.score, score);
+                result.matches.push(entry);
+            }
+
+            calculatePartialScore(term, query) {
+                const lengthDiff = term.length - query.length;
+                return Math.max(50, 100 - lengthDiff * 10);
+            }
+
+            generateSuggestions(query, filter = 'all') {
+                if (!query || query.trim().length < 2) return [];
+                
+                const normalizedQuery = this.normalizeText(query.trim());
+                const suggestions = new Map();
+                const maxSuggestions = 8;
+                
+                for (const [term, entries] of this.searchIndex.entries()) {
+                    if (term.startsWith(normalizedQuery) && suggestions.size < maxSuggestions) {
+                        entries.forEach(entry => {
+                            if (filter === 'all' || entry.type === filter) {
+                                const key = this.getSuggestionKey(entry);
+                                if (!suggestions.has(key)) {
+                                    suggestions.set(key, {
+                                        text: this.getSuggestionText(entry),
+                                        type: entry.type,
+                                        data: entry
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                return Array.from(suggestions.values()).slice(0, maxSuggestions);
+            }
+
+            getSuggestionKey(entry) {
+                switch (entry.type) {
+                    case 'estado': return `estado_${entry.metadata.estado}`;
+                    case 'cidade': return `cidade_${entry.metadata.cidade}_${entry.metadata.estado}`;
+                    case 'bairro': return `bairro_${entry.metadata.bairro}`;
+                    case 'representante': return `rep_${entry.repId}`;
+                    default: return `${entry.type}_${entry.term}`;
+                }
+            }
+
+            getSuggestionText(entry) {
+                switch (entry.type) {
+                    case 'estado': return entry.metadata.estado;
+                    case 'cidade': return `${entry.metadata.cidade} (${entry.metadata.estado})`;
+                    case 'bairro': return `${entry.metadata.bairro} (SP)`;
+                    case 'representante': return entry.repData.nome || entry.repId;
+                    default: return entry.term;
+                }
+            }
+
+            // Executar todos os testes
+            runTests() {
+                console.log('🧪 Iniciando testes do sistema de busca...');
+                
+                this.testNormalization();
+                this.testSimilarity();
+                this.testIndex();
+                this.testSearch();
+                this.testSuggestions();
+            }
+
+            testNormalization() {
+                const container = document.getElementById('normalization-test');
+                try {
+                    const tests = [
+                        { input: 'São Paulo', expected: 'sao paulo' },
+                        { input: 'Rio de Janeiro', expected: 'rio de janeiro' },
+                        { input: 'BELO HORIZONTE', expected: 'belo horizonte' },
+                        { input: 'João Silva', expected: 'joao silva' },
+                        { input: '  Espaços  ', expected: 'espacos' }
+                    ];
+                    
+                    let allPassed = true;
+                    const results = [];
+                    
+                    tests.forEach(test => {
+                        const result = this.normalizeText(test.input);
+                        const passed = result === test.expected;
+                        allPassed = allPassed && passed;
+                        results.push(`${test.input} → "${result}" ${passed ? '✅' : '❌'}`);
+                    });
+                    
+                    container.innerHTML = `
+                        <div class="${allPassed ? 'success' : 'error'}">
+                            <strong>Teste de Normalização:</strong> ${allPassed ? 'PASSOU' : 'FALHOU'}<br>
+                            <small>${results.join('<br>')}</small>
+                        </div>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `<div class="error"><strong>Erro:</strong> ${error.message}</div>`;
+                }
+            }
+
+            testSimilarity() {
+                const container = document.getElementById('similarity-test');
+                try {
+                    const tests = [
+                        { str1: 'sao paulo', str2: 'sao paulo', expected: 1.0 },
+                        { str1: 'sao paulo', str2: 'sao paul', expected: 0.9 },
+                        { str1: 'rio de janeiro', str2: 'rio janeiro', expected: 0.85 },
+                        { str1: 'belo horizonte', str2: 'belo', expected: 0.4 }
+                    ];
+                    
+                    let allPassed = true;
+                    const results = [];
+                    
+                    tests.forEach(test => {
+                        const result = this.calculateSimilarity(test.str1, test.str2);
+                        const passed = Math.abs(result - test.expected) < 0.1;
+                        allPassed = allPassed && passed;
+                        results.push(`"${test.str1}" vs "${test.str2}": ${result.toFixed(2)} ${passed ? '✅' : '❌'}`);
+                    });
+                    
+                    container.innerHTML = `
+                        <div class="${allPassed ? 'success' : 'error'}">
+                            <strong>Teste de Similaridade:</strong> ${allPassed ? 'PASSOU' : 'FALHOU'}<br>
+                            <small>${results.join('<br>')}</small>
+                        </div>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `<div class="error"><strong>Erro:</strong> ${error.message}</div>`;
+                }
+            }
+
+            testIndex() {
+                const container = document.getElementById('index-test');
+                try {
+                    this.buildSearchIndex();
+                    
+                    const indexSize = this.searchIndex.size;
+                    const expectedMinSize = 20; // Mínimo esperado baseado nos dados de teste
+                    
+                    const passed = indexSize >= expectedMinSize;
+                    
+                    container.innerHTML = `
+                        <div class="${passed ? 'success' : 'error'}">
+                            <strong>Teste de Índice:</strong> ${passed ? 'PASSOU' : 'FALHOU'}<br>
+                            <small>Índice construído com ${indexSize} entradas (mínimo: ${expectedMinSize})</small>
+                        </div>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `<div class="error"><strong>Erro:</strong> ${error.message}</div>`;
+                }
+            }
+
+            testSearch() {
+                const container = document.getElementById('search-test');
+                try {
+                    const tests = [
+                        { query: 'schioppa', expected: 1, type: 'representante' },
+                        { query: 'sao paulo', expected: 1, type: 'cidade' },
+                        { query: 'mooca', expected: 1, type: 'bairro' },
+                        { query: 'sp', expected: 1, type: 'estado' },
+                        { query: 'joao', expected: 1, type: 'contato' }
+                    ];
+                    
+                    let allPassed = true;
+                    const results = [];
+                    
+                    tests.forEach(test => {
+                        const result = this.search(test.query, test.type);
+                        const passed = result.length >= test.expected;
+                        allPassed = allPassed && passed;
+                        results.push(`"${test.query}" (${test.type}): ${result.length} resultados ${passed ? '✅' : '❌'}`);
+                    });
+                    
+                    container.innerHTML = `
+                        <div class="${allPassed ? 'success' : 'error'}">
+                            <strong>Teste de Busca:</strong> ${allPassed ? 'PASSOU' : 'FALHOU'}<br>
+                            <small>${results.join('<br>')}</small>
+                        </div>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `<div class="error"><strong>Erro:</strong> ${error.message}</div>`;
+                }
+            }
+
+            testSuggestions() {
+                const container = document.getElementById('suggestions-test');
+                try {
+                    const tests = [
+                        { query: 'sch', expected: 1, filter: 'representante' },
+                        { query: 'sao', expected: 1, filter: 'cidade' },
+                        { query: 'mo', expected: 1, filter: 'bairro' }
+                    ];
+                    
+                    let allPassed = true;
+                    const results = [];
+                    
+                    tests.forEach(test => {
+                        const result = this.generateSuggestions(test.query, test.filter);
+                        const passed = result.length >= test.expected;
+                        allPassed = allPassed && passed;
+                        results.push(`"${test.query}" (${test.filter}): ${result.length} sugestões ${passed ? '✅' : '❌'}`);
+                    });
+                    
+                    container.innerHTML = `
+                        <div class="${allPassed ? 'success' : 'error'}">
+                            <strong>Teste de Sugestões:</strong> ${allPassed ? 'PASSOU' : 'FALHOU'}<br>
+                            <small>${results.join('<br>')}</small>
+                        </div>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `<div class="error"><strong>Erro:</strong> ${error.message}</div>`;
+                }
+            }
+        }
+
+        // Inicializar testes quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new SearchEngineTester();
+        });
+    </script>
+</body>
+</html>

@@ -1800,6 +1800,16 @@
                     const normalizedQuery = normalize(query);
                     const maxSuggestions = 8;
 
+                    // Detectar padrão "cidade UF" (ex: "cascavel pr") para filtrar cidades pelo estado informado
+                    // Aplica apenas para UF de 2 letras no fim da query
+                    let cidadeParte = null;
+                    let ufParte = null;
+                    const matchCidadeUf = normalizedQuery.match(/^(.+?)\s+([a-z]{2})$/i);
+                    if (matchCidadeUf) {
+                        cidadeParte = matchCidadeUf[1].trim();
+                        ufParte = matchCidadeUf[2].trim().toUpperCase();
+                    }
+
                     // 1. Estados
                     if (currentSearchFilter === 'all' || currentSearchFilter === 'estados') {
                         const estados = ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Paraná', 'Rio Grande do Sul',
@@ -1831,12 +1841,25 @@
                             if (rep.EstadosDetalhados) {
                                 Object.entries(rep.EstadosDetalhados).forEach(([estado, estadoData]) => {
                                     if (estadoData.cidades) {
+                                        // Normalizar chave do estado para UF (sigla)
+                                        let estadoCode = estado;
+                                        if (typeof estado === 'string') {
+                                            if (estado.length === 2) {
+                                                estadoCode = estado.toUpperCase();
+                                            } else {
+                                                const mapped = getStateCodeByName(estado);
+                                                estadoCode = mapped || (estado || '').toString().substring(0, 2).toUpperCase();
+                                            }
+                                        }
+                                        estadoCode = (estadoCode || '').toUpperCase();
+
                                         estadoData.cidades.forEach(cidade => {
                                             if (!cidadesPorEstado.has(cidade)) {
                                                 cidadesPorEstado.set(cidade, []);
                                             }
-                                            if (!cidadesPorEstado.get(cidade).includes(estado)) {
-                                                cidadesPorEstado.get(cidade).push(estado);
+                                            const estadosList = cidadesPorEstado.get(cidade);
+                                            if (!estadosList.includes(estadoCode)) {
+                                                estadosList.push(estadoCode);
                                             }
                                         });
                                     }
@@ -1848,21 +1871,29 @@
                         const cidadesOrdenadas = [];
                         
                         cidadesPorEstado.forEach((estados, cidade) => {
+                            // Se o padrão "cidade UF" foi detectado, restringir por UF e usar apenas a parte da cidade na comparação
+                            const termoCidadeParaMatch = cidadeParte ? cidadeParte : query;
                             // Usar a função global de busca rigorosa para o autocomplete
-                            const matchResult = strictSearch(query, cidade, {
+                            const matchResult = strictSearch(termoCidadeParaMatch, cidade, {
                                 minLength: 4,
                                 useStartsWith: true,
                                 maxSimilarity: 0.9,
                                 maxLengthDiff: 2
                             });
                             
-                            if (matchResult.match) {
+                            // Se UF foi informada, somente considerar cidades presentes nessa UF
+                            const passaFiltroUf = ufParte ? estados.includes(ufParte) : true;
+                            if (matchResult.match && passaFiltroUf) {
                                 // CORREÇÃO: Priorizar cidades do estado atual se disponível
                                 let priority = matchResult.score;
                                 
                                 // BONUS de prioridade para cidades do estado atual
                                 if (currentState && currentState.code && estados.includes(currentState.code)) {
                                     priority += 50; // Prioridade máxima para estado atual
+                                }
+                                // BONUS alto se a query incluiu explicitamente a UF e a cidade pertence a essa UF
+                                if (ufParte && estados.includes(ufParte)) {
+                                    priority += 60;
                                 }
                                 
                                 // BONUS para correspondência exata
@@ -1894,30 +1925,33 @@
                         
                         // Adicionar sugestões respeitando o limite máximo
                         cidadesOrdenadas.forEach(({ cidade, estados, similarity, priority }) => {
-                            if (suggestions.length < maxSuggestions) {
-                                // CORREÇÃO: Adicionar sigla do estado para cidades
-                                let cidadeText = cidade;
-                                if (estados.length === 1) {
-                                    // Cidade em apenas um estado
-                                    cidadeText = `${cidade} (${estados[0]})`;
-                                } else if (estados.length > 1) {
-                                    // Cidade em múltiplos estados - priorizar o estado atual se disponível
-                                    if (currentState && currentState.code && estados.includes(currentState.code)) {
-                                        cidadeText = `${cidade} (${currentState.code})`;
-                                    } else {
-                                        cidadeText = `${cidade} (${estados[0]})`;
-                                    }
+                            if (suggestions.length >= maxSuggestions) return;
+
+                            // Quando a cidade existe em múltiplos estados, gerar uma sugestão por UF
+                            const estadosFiltrados = ufParte ? estados.filter(e => e === ufParte) : estados.slice();
+
+                            // Ordenar para priorizar o estado atual e depois manter ordem estável
+                            estadosFiltrados.sort((a, b) => {
+                                const aIsCurrent = currentState && currentState.code === a ? 1 : 0;
+                                const bIsCurrent = currentState && currentState.code === b ? 1 : 0;
+                                const aIsUfQuery = ufParte && ufParte === a ? 1 : 0;
+                                const bIsUfQuery = ufParte && ufParte === b ? 1 : 0;
+                                return (bIsCurrent + bIsUfQuery) - (aIsCurrent + aIsUfQuery);
+                            });
+
+                            estadosFiltrados.forEach(est => {
+                                if (suggestions.length < maxSuggestions) {
+                                    const extra = (currentState && currentState.code === est ? 10 : 0) + (ufParte && ufParte === est ? 10 : 0);
+                                    suggestions.push({
+                                        type: 'cidade',
+                                        text: `${cidade} (${est})`,
+                                        originalText: cidade,
+                                        estados: [est],
+                                        similarity,
+                                        priority: priority + extra
+                                    });
                                 }
-                                
-                                suggestions.push({
-                                    type: 'cidade',
-                                    text: cidadeText,
-                                    originalText: cidade,
-                                    estados: estados,
-                                    similarity,
-                                    priority: priority
-                                });
-                            }
+                            });
                         });
                         
                         // CORREÇÃO: Adicionar sugestões combinadas para cidades populares

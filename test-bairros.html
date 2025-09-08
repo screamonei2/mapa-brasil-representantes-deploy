@@ -33,7 +33,7 @@
                 const response = await fetch('./data/representantes_por_estado.json');
                 const data = await response.json();
                 
-                console.log('🔍 Testando busca por bairro:', query);
+        
                 
                 // Função normalize (copiada do arquivo original)
                 function normalize(str) {
@@ -48,7 +48,7 @@
                 }
                 
                 const normalizedQuery = normalize(query);
-                console.log('Query normalizada:', normalizedQuery);
+        
                 
                 // Buscar bairros nos dados
                 const results = [];
@@ -63,7 +63,7 @@
                                     bairro: bairro,
                                     empresa: nomeEmpresa
                                 });
-                                console.log(`✅ Match encontrado: "${bairro}" para representante "${dadosEmpresa.nome}"`);
+                
                             }
                         });
                     }
