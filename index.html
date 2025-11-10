@@ -1801,6 +1801,26 @@
                         const endsWithSpace = /\s$/.test(query);
                         const equalsLoose = (a, b) => normalize(a) === normalize(b);
 
+                        // Lista global de estados e capitais para aplicar regras de "modo exato"
+                        const estadosLista = ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Paraná', 'Rio Grande do Sul',
+                            'Pernambuco', 'Ceará', 'Pará', 'Santa Catarina', 'Goiás', 'Maranhão', 'Paraíba',
+                            'Amazonas', 'Espírito Santo', 'Mato Grosso', 'Alagoas', 'Piauí', 'Distrito Federal',
+                            'Mato Grosso do Sul', 'Sergipe', 'Rio Grande do Norte', 'Rondônia', 'Acre', 'Amapá',
+                            'Roraima', 'Tocantins'];
+
+                        const capitais = {
+                            'AC': 'Rio Branco', 'AL': 'Maceió', 'AM': 'Manaus', 'AP': 'Macapá', 'BA': 'Salvador',
+                            'CE': 'Fortaleza', 'DF': 'Brasília', 'ES': 'Vitória', 'GO': 'Goiânia', 'MA': 'São Luís',
+                            'MG': 'Belo Horizonte', 'MS': 'Campo Grande', 'MT': 'Cuiabá', 'PA': 'Belém', 'PB': 'João Pessoa',
+                            'PE': 'Recife', 'PI': 'Teresina', 'PR': 'Curitiba', 'RJ': 'Rio de Janeiro', 'RN': 'Natal',
+                            'RO': 'Porto Velho', 'RR': 'Boa Vista', 'RS': 'Porto Alegre', 'SC': 'Florianópolis',
+                            'SE': 'Aracaju', 'SP': 'São Paulo', 'TO': 'Palmas'
+                        };
+                        const capitalNamesNormalized = new Set(Object.values(capitais).map(name => normalize(name)));
+                        const isExactCapitalQuery = capitalNamesNormalized.has(normalizedQuery);
+                        const isExactStateQuery = estadosLista.some(estado => equalsLoose(query, estado));
+                        const exactMode = isExactCapitalQuery || isExactStateQuery;
+
                         // Detectar padrão "cidade UF" (ex: "cascavel pr") para filtrar cidades pelo estado informado
                         // Aplica apenas para UF de 2 letras no fim da query
                         let cidadeParte = null;
@@ -1813,35 +1833,29 @@
 
                         // 1. Estados
                         if (currentSearchFilter === 'all' || currentSearchFilter === 'estados') {
-                            const estados = ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Paraná', 'Rio Grande do Sul',
-                                'Pernambuco', 'Ceará', 'Pará', 'Santa Catarina', 'Goiás', 'Maranhão', 'Paraíba',
-                                'Amazonas', 'Espírito Santo', 'Mato Grosso', 'Alagoas', 'Piauí', 'Distrito Federal',
-                                'Mato Grosso do Sul', 'Sergipe', 'Rio Grande do Norte', 'Rondônia', 'Acre', 'Amapá',
-                                'Roraima', 'Tocantins'];
+                            const estados = estadosLista;
 
+                            const q = normalize(query.trim());
                             estados.forEach(estado => {
-                                if (!endsWithSpace) {
-                                    // Igualdade exata (ignorando acentos/pontuação)
-                                    if (equalsLoose(query, estado) && suggestions.length < maxSuggestions) {
-                                        suggestions.push({
-                                            type: 'estado',
-                                            text: estado,
-                                            similarity: 1,
-                                            priority: 100
-                                        });
-                                    }
-                                } else {
-                                    // Prefixo quando há espaço ao fim
-                                    const q = normalize(query.trim());
-                                    const e = normalize(estado);
-                                    if (e.startsWith(q) && suggestions.length < maxSuggestions) {
-                                        suggestions.push({
-                                            type: 'estado',
-                                            text: estado,
-                                            similarity: q.length / e.length,
-                                            priority: 60
-                                        });
-                                    }
+                                const e = normalize(estado);
+                                // Igualdade solta priorizada
+                                if (equalsLoose(query, estado) && suggestions.length < maxSuggestions) {
+                                    suggestions.push({
+                                        type: 'estado',
+                                        text: estado,
+                                        similarity: 1,
+                                        priority: 100
+                                    });
+                                    return;
+                                }
+                                // Prefixo global a partir de 3 caracteres
+                                if (!exactMode && e.startsWith(q) && suggestions.length < maxSuggestions) {
+                                    suggestions.push({
+                                        type: 'estado',
+                                        text: estado,
+                                        similarity: q.length / e.length,
+                                        priority: 70
+                                    });
                                 }
                             });
                         }
@@ -1891,16 +1905,24 @@
                                 // Usar a função global de busca rigorosa para o autocomplete
                                 const matchResult = strictSearch(termoCidadeParaMatch, cidade, {
                                     minLength: 3,
-                                    useStartsWith: endsWithSpace,
+                                    useStartsWith: true,
                                     maxSimilarity: 0.9,
                                     maxLengthDiff: 2
                                 });
 
                                 // Se UF foi informada, somente considerar cidades presentes nessa UF
                                 const passaFiltroUf = ufParte ? estados.includes(ufParte) : true;
-                                if (matchResult.match && passaFiltroUf && (endsWithSpace || matchResult.type === 'exact')) {
+                                if (matchResult.match && passaFiltroUf) {
                                     // CORREÇÃO: Priorizar cidades do estado atual se disponível
                                     let priority = matchResult.score;
+
+                                    // Boost para capitais
+                                    estados.forEach(uf => {
+                                        const cap = capitais[uf];
+                                        if (cap && normalize(cap) === normalize(cidade)) {
+                                            priority += exactMode ? 150 : 80; // capitais no topo; mais forte em modo exato
+                                        }
+                                    });
 
                                     // BONUS de prioridade para cidades do estado atual
                                     if (currentState && currentState.code && estados.includes(currentState.code)) {
@@ -1957,6 +1979,10 @@
                                 estadosFiltrados.forEach(est => {
                                     if (suggestions.length < maxSuggestions) {
                                         const extra = (currentState && currentState.code === est ? 10 : 0) + (ufParte && ufParte === est ? 10 : 0);
+                                        // Em modo exato, não adicionar cidades que não sejam exatamente a query
+                                        if (exactMode && normalize(cidade) !== normalizedQuery) {
+                                            return;
+                                        }
                                         suggestions.push({
                                             type: 'cidade',
                                             text: `${cidade} (${est})`,
@@ -2005,12 +2031,12 @@
                                         // Usar a função global de busca rigorosa para bairros
                                         const matchResult = strictSearch(query, bairro, {
                                             minLength: 3,
-                                            useStartsWith: endsWithSpace,
+                                            useStartsWith: true,
                                             maxSimilarity: 0.9,
                                             maxLengthDiff: 2
                                         });
 
-                                        if (matchResult.match && (endsWithSpace || matchResult.type === 'exact') && !bairrosSet.has(bairro) && suggestions.length < maxSuggestions) {
+                                        if (matchResult.match && !bairrosSet.has(bairro) && suggestions.length < maxSuggestions) {
                                             bairrosSet.add(bairro);
 
                                             // Calcular prioridade baseada no tipo de match
@@ -2042,12 +2068,12 @@
                                 // Usar a função global de busca rigorosa para representantes
                                 const matchResult = strictSearch(query, rep.NomeRepresentante, {
                                     minLength: 3,
-                                    useStartsWith: endsWithSpace,
+                                    useStartsWith: true,
                                     maxSimilarity: 0.9,
                                     maxLengthDiff: 2
                                 });
 
-                                if (matchResult.match && (endsWithSpace || matchResult.type === 'exact') && suggestions.length < maxSuggestions) {
+                                if (matchResult.match && suggestions.length < maxSuggestions) {
                                     // Calcular prioridade baseada no tipo de match
                                     let priority = 5;
                                     if (matchResult.type === 'exact') {
