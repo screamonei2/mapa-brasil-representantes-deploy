@@ -1896,6 +1896,16 @@
                                 }
                             });
 
+                            // GARANTIR que capitais estejam presentes mesmo que não constem nos dados dos representantes
+                            Object.entries(capitais).forEach(([uf, capital]) => {
+                                if (!cidadesPorEstado.has(capital)) {
+                                    cidadesPorEstado.set(capital, [uf]);
+                                } else {
+                                    const estadosList = cidadesPorEstado.get(capital);
+                                    if (!estadosList.includes(uf)) estadosList.push(uf);
+                                }
+                            });
+
                             // Agora gerar sugestões com sigla do estado
                             const cidadesOrdenadas = [];
 
