@@ -1816,6 +1816,14 @@
                             'RO': 'Porto Velho', 'RR': 'Boa Vista', 'RS': 'Porto Alegre', 'SC': 'Florianópolis',
                             'SE': 'Aracaju', 'SP': 'São Paulo', 'TO': 'Palmas'
                         };
+                        // Helpers para tratar capitalização e evitar duplicatas em caixa alta
+                        const isAllUpper = (s) => {
+                            const letters = (s || '').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, '');
+                            return letters && letters === letters.toUpperCase();
+                        };
+                        const toTitleCase = (s) => {
+                            return (s || '').toLowerCase().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                        };
                         const capitalNamesNormalized = new Set(Object.values(capitais).map(name => normalize(name)));
                         const isExactCapitalQuery = capitalNamesNormalized.has(normalizedQuery);
                         const isExactStateQuery = estadosLista.some(estado => equalsLoose(query, estado));
@@ -1863,7 +1871,8 @@
                         // 2. Cidades (baseado nos dados dos representantes)
                         if (currentSearchFilter === 'all' || currentSearchFilter === 'cidades') {
                             const cidadesSet = new Set();
-                            const cidadesPorEstado = new Map(); // cidade -> [estados] para evitar duplicatas
+                            const cidadesPorEstado = new Map(); // cidade (string original) -> [estados]
+                            const canonicalCityName = new Map(); // normalized(cidade) -> display em case normal
 
                             // Primeiro, coletar todas as cidades com seus estados
                             representativesData.forEach(rep => {
@@ -1883,12 +1892,22 @@
                                             estadoCode = (estadoCode || '').toUpperCase();
 
                                             estadoData.cidades.forEach(cidade => {
+                                                // Mapear UF por cidade (mantendo chave original)
                                                 if (!cidadesPorEstado.has(cidade)) {
                                                     cidadesPorEstado.set(cidade, []);
                                                 }
                                                 const estadosList = cidadesPorEstado.get(cidade);
                                                 if (!estadosList.includes(estadoCode)) {
                                                     estadosList.push(estadoCode);
+                                                }
+                                                // Definir nome canônico por cidade normalizada (preferir não-UpperCase)
+                                                const norm = normalize(cidade);
+                                                const candidate = isAllUpper(cidade) ? toTitleCase(cidade) : cidade;
+                                                const prev = canonicalCityName.get(norm);
+                                                if (!prev) {
+                                                    canonicalCityName.set(norm, candidate);
+                                                } else if (isAllUpper(prev) && !isAllUpper(candidate)) {
+                                                    canonicalCityName.set(norm, candidate);
                                                 }
                                             });
                                         }
@@ -1898,6 +1917,13 @@
 
                             // GARANTIR que capitais estejam presentes mesmo que não constem nos dados dos representantes
                             Object.entries(capitais).forEach(([uf, capital]) => {
+                                // Atualizar nome canônico pela versão correta das capitais
+                                const norm = normalize(capital);
+                                const prev = canonicalCityName.get(norm);
+                                if (!prev || isAllUpper(prev)) {
+                                    canonicalCityName.set(norm, capital);
+                                }
+                                // Mapear UF por cidade (mantendo chave original)
                                 if (!cidadesPorEstado.has(capital)) {
                                     cidadesPorEstado.set(capital, [uf]);
                                 } else {
@@ -1912,8 +1938,10 @@
                             cidadesPorEstado.forEach((estados, cidade) => {
                                 // Se o padrão "cidade UF" foi detectado, restringir por UF e usar apenas a parte da cidade na comparação
                                 const termoCidadeParaMatch = cidadeParte ? cidadeParte : query;
+                                const cidadeNorm = normalize(cidade);
+                                const displayCidade = canonicalCityName.get(cidadeNorm) || (isAllUpper(cidade) ? toTitleCase(cidade) : cidade);
                                 // Usar a função global de busca rigorosa para o autocomplete
-                                const matchResult = strictSearch(termoCidadeParaMatch, cidade, {
+                                const matchResult = strictSearch(termoCidadeParaMatch, displayCidade, {
                                     minLength: 3,
                                     useStartsWith: true,
                                     maxSimilarity: 0.9,
@@ -1959,7 +1987,8 @@
                                     }
 
                                     cidadesOrdenadas.push({
-                                        cidade,
+                                        cidadeNorm,
+                                        displayCidade,
                                         estados,
                                         similarity: matchResult.score / 100,
                                         priority
@@ -1971,7 +2000,7 @@
                             cidadesOrdenadas.sort((a, b) => b.priority - a.priority);
 
                             // Adicionar sugestões respeitando o limite máximo
-                            cidadesOrdenadas.forEach(({ cidade, estados, similarity, priority }) => {
+                            cidadesOrdenadas.forEach(({ cidadeNorm, displayCidade, estados, similarity, priority }) => {
                                 if (suggestions.length >= maxSuggestions) return;
 
                                 // Quando a cidade existe em múltiplos estados, gerar uma sugestão por UF
@@ -1990,13 +2019,17 @@
                                     if (suggestions.length < maxSuggestions) {
                                         const extra = (currentState && currentState.code === est ? 10 : 0) + (ufParte && ufParte === est ? 10 : 0);
                                         // Em modo exato, não adicionar cidades que não sejam exatamente a query
-                                        if (exactMode && normalize(cidade) !== normalizedQuery) {
+                                        if (exactMode && cidadeNorm !== normalizedQuery) {
                                             return;
                                         }
+                                        // Evitar duplicatas por diferença apenas de caixa: chave por cidade normalizada + UF
+                                        const dupKey = `${cidadeNorm}-${est}`;
+                                        const already = suggestions.some(s => s.type === 'cidade' && normalize(s.originalText) === cidadeNorm && s.estados && s.estados[0] === est);
+                                        if (already) return;
                                         suggestions.push({
                                             type: 'cidade',
-                                            text: `${cidade} (${est})`,
-                                            originalText: cidade,
+                                            text: `${displayCidade} (${est})`,
+                                            originalText: displayCidade,
                                             estados: [est],
                                             similarity,
                                             priority: priority + extra
