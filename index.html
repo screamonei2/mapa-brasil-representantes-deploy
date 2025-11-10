@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
     <html lang="pt-BR">
 
     <head>
@@ -1791,11 +1791,15 @@
 
                     // Gerar sugestões inteligentes
                     function generateSuggestions(query) {
-                        if (!query || query.length < 2) return [];
+                        if (!query) return [];
+                        const trimmedLen = (query || '').trim().length;
+                        if (trimmedLen < 3) return [];
 
                         const suggestions = [];
                         const normalizedQuery = normalize(query);
                         const maxSuggestions = 8;
+                        const endsWithSpace = /\s$/.test(query);
+                        const equalsLoose = (a, b) => normalize(a) === normalize(b);
 
                         // Detectar padrão "cidade UF" (ex: "cascavel pr") para filtrar cidades pelo estado informado
                         // Aplica apenas para UF de 2 letras no fim da query
@@ -1816,14 +1820,28 @@
                                 'Roraima', 'Tocantins'];
 
                             estados.forEach(estado => {
-                                const matchResult = isExactMatch(query, estado);
-                                if (matchResult.match && suggestions.length < maxSuggestions) {
-                                    suggestions.push({
-                                        type: 'estado',
-                                        text: estado,
-                                        similarity: matchResult.score / 100,
-                                        priority: matchResult.type === 'exact' ? 5 : matchResult.type === 'partial' ? 3 : 1
-                                    });
+                                if (!endsWithSpace) {
+                                    // Igualdade exata (ignorando acentos/pontuação)
+                                    if (equalsLoose(query, estado) && suggestions.length < maxSuggestions) {
+                                        suggestions.push({
+                                            type: 'estado',
+                                            text: estado,
+                                            similarity: 1,
+                                            priority: 100
+                                        });
+                                    }
+                                } else {
+                                    // Prefixo quando há espaço ao fim
+                                    const q = normalize(query.trim());
+                                    const e = normalize(estado);
+                                    if (e.startsWith(q) && suggestions.length < maxSuggestions) {
+                                        suggestions.push({
+                                            type: 'estado',
+                                            text: estado,
+                                            similarity: q.length / e.length,
+                                            priority: 60
+                                        });
+                                    }
                                 }
                             });
                         }
@@ -1872,15 +1890,15 @@
                                 const termoCidadeParaMatch = cidadeParte ? cidadeParte : query;
                                 // Usar a função global de busca rigorosa para o autocomplete
                                 const matchResult = strictSearch(termoCidadeParaMatch, cidade, {
-                                    minLength: 4,
-                                    useStartsWith: true,
+                                    minLength: 3,
+                                    useStartsWith: endsWithSpace,
                                     maxSimilarity: 0.9,
                                     maxLengthDiff: 2
                                 });
 
                                 // Se UF foi informada, somente considerar cidades presentes nessa UF
                                 const passaFiltroUf = ufParte ? estados.includes(ufParte) : true;
-                                if (matchResult.match && passaFiltroUf) {
+                                if (matchResult.match && passaFiltroUf && (endsWithSpace || matchResult.type === 'exact')) {
                                     // CORREÇÃO: Priorizar cidades do estado atual se disponível
                                     let priority = matchResult.score;
 
@@ -1986,13 +2004,13 @@
                                     rep.EstadosDetalhados.SP.bairros.forEach(bairro => {
                                         // Usar a função global de busca rigorosa para bairros
                                         const matchResult = strictSearch(query, bairro, {
-                                            minLength: 4,
-                                            useStartsWith: true,
+                                            minLength: 3,
+                                            useStartsWith: endsWithSpace,
                                             maxSimilarity: 0.9,
                                             maxLengthDiff: 2
                                         });
 
-                                        if (matchResult.match && !bairrosSet.has(bairro) && suggestions.length < maxSuggestions) {
+                                        if (matchResult.match && (endsWithSpace || matchResult.type === 'exact') && !bairrosSet.has(bairro) && suggestions.length < maxSuggestions) {
                                             bairrosSet.add(bairro);
 
                                             // Calcular prioridade baseada no tipo de match
@@ -2023,13 +2041,13 @@
                             representativesData.forEach(rep => {
                                 // Usar a função global de busca rigorosa para representantes
                                 const matchResult = strictSearch(query, rep.NomeRepresentante, {
-                                    minLength: 4,
-                                    useStartsWith: true,
+                                    minLength: 3,
+                                    useStartsWith: endsWithSpace,
                                     maxSimilarity: 0.9,
                                     maxLengthDiff: 2
                                 });
 
-                                if (matchResult.match && suggestions.length < maxSuggestions) {
+                                if (matchResult.match && (endsWithSpace || matchResult.type === 'exact') && suggestions.length < maxSuggestions) {
                                     // Calcular prioridade baseada no tipo de match
                                     let priority = 5;
                                     if (matchResult.type === 'exact') {
@@ -4634,11 +4652,15 @@
 
                     async function filterByMunicipio(municipioName, skipRefresh = false) {
 
-                        // BLOQUEAR EXECUÇÃO SE NÃO PODE MOSTRAR CARDS
-                        if (!canShowCards) {
+                        // Permitir execução quando originada por sugestão (skipRefresh = true)
+                        if (!canShowCards && !skipRefresh) {
                             console.log('❌ filterByMunicipio BLOQUEADA - canShowCards é false');
                             resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">Clique em um município ou bairro para ver os representantes.</div>';
                             return; // PARAR AQUI
+                        }
+
+                        if (!canShowCards && skipRefresh) {
+                            console.log('⚠️ filterByMunicipio via sugestão - ignorando canShowCards');
                         }
 
                         console.log('✓ filterByMunicipio PERMITIDA para:', municipioName);
@@ -4750,7 +4772,7 @@
 
 
 
-                        renderResults(filteredRepresentatives, municipioName);
+                        renderResults(filteredRepresentatives, municipioName, true);
                         mainTitle.textContent = `Representantes em ${municipioName}`;
 
                         // Mostrar legenda com os representantes encontrados
@@ -4776,7 +4798,7 @@
                         // Converter IDs para objetos de representantes (já sem duplicatas)
                         const representatives = representativesData.filter(rep => bairroResults.has(rep.id));
 
-                        renderResults(representatives, `Bairro ${bairroName} (${estadoAtual})`);
+                        renderResults(representatives, `Bairro ${bairroName} (${estadoAtual})`, true);
                         mainTitle.textContent = `Representantes no Bairro ${bairroName} - ${estadoAtual}`;
 
                         // Mostrar legenda com os representantes encontrados
@@ -4963,10 +4985,10 @@
                         updateLegend([]);
                     }
 
-                    function renderResults(results, location = null) {
+                    function renderResults(results, location = null, allowWhenLocked = false) {
 
-                        // ADICIONAR ESTA VERIFICAÇÃO NO INÍCIO DA FUNÇÃO
-                        if (!canShowCards) {
+                        // Permitir renderização quando vier de sugestão/autocomplete
+                        if (!canShowCards && !allowWhenLocked) {
                             console.log('Cards bloqueados - aguardando clique em município');
                             resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">Clique em um município ou bairro para ver os representantes.</div>';
                             return;
