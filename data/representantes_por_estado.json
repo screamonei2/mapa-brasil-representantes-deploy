@@ -2003,7 +2003,7 @@
         "celular": "19-99745-8059 / 19-3845-5011"
       },
       "observacoes": "Será enviado para pesquisa no mapa",
-      "total_cidades": 15,
+      "total_cidades": 25,
       "estados_atendidos": [
         "SP   "
       ],
@@ -2012,24 +2012,34 @@
       "estados": {
         "SP": {
           "cidades": [
+            "AGUAS DE LINDOIA",
+            "AMPARO",
             "CAMPINAS",
             "CAPIVARI",
             "ELIAS FAUSTO",
+            "HOLAMBRA",
             "HORTOLANDIA",
             "INDAIATUBA",
             "ITATIBA",
+            "JAGUARIUNA",
             "JARINU",
+            "LINDOIA",
             "LOUVEIRA",
             "MOMBUCA",
+            "MONTE ALEGRE DO SUL",
             "MONTE MOR",
             "PAULINIA",
+            "PEDREIRA",
             "RAFARD",
             "RIO DAS PEDRAS",
+            "SANTO ANTONIO DE POSSE",
+            "SERRA NEGRA",
+            "SOCORRO",
             "SUMARE",
             "VALINHOS",
             "VINHEDO"
           ],
-          "total_cidades": 15,
+          "total_cidades": 25,
           "mesorregioes": [
             "JEQUITINHONHA"
           ],
@@ -10669,7 +10679,7 @@
         "celular": "19-99823-1904"
       },
       "observacoes": "Será enviado para pesquisa no mapa",
-      "total_cidades": 22,
+      "total_cidades": 12,
       "estados_atendidos": [
         "SP   "
       ],
@@ -10680,8 +10690,6 @@
           "cidades": [
             "AGUAI",
             "AGUAS DA PRATA",
-            "AGUAS DE LINDOIA",
-            "AMPARO",
             "ARARAS",
             "ARTUR NOGUEIRA",
             "CACONDE",
@@ -10690,34 +10698,26 @@
             "DIVINOLANDIA",
             "ENGENHEIRO COELHO",
             "ESPIRITO SANTO DO PINHAL",
-            "HOLAMBRA",
             "ITAPIRA",
             "ITOBI",
-            "JAGUARIUNA",
             "LEME",
-            "LINDOIA",
             "MOCOCA",
             "MOGI GUACU",
             "MOJI MIRIM",
-            "MONTE ALEGRE DO SUL",
-            "PEDREIRA",
             "PIRASSUNUNGA",
             "SANTA BARBARA D OESTE",
             "SANTA CRUZ DA CONCEICAO",
             "SANTA CRUZ DAS PALMEIRAS",
-            "SANTO ANTONIO DE POSSE",
             "SANTO ANTONIO DO JARDIM",
             "SAO JOAO DA BOA VISTA",
             "SAO JOSE DO RIO PARDO",
             "SAO SEBASTIAO DA GRAMA",
-            "SERRA NEGRA",
-            "SOCORRO",
             "TAMBAU",
             "TAPIRATIBA",
             "VARGEM GRANDE DO SUL",
             "ESTIVA GERBI"
           ],
-          "total_cidades": 22,
+          "total_cidades": 28,
           "mesorregioes": [],
           "total_mesorregioes": 0
         }
